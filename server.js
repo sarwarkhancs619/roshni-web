@@ -80,7 +80,10 @@ app.put('/api/settings', (req, res) => {
   res.json({ ok: true, data: updated });
 });
 
-// 3. User Photo & Monogram Upload
+// 3. User Photo, Monogram & Newsletter PDF Upload
+const DOCS_DIR = path.join(__dirname, 'assets', 'documents');
+if (!fs.existsSync(DOCS_DIR)) fs.mkdirSync(DOCS_DIR, { recursive: true });
+
 app.post('/api/upload', (req, res) => {
   const { slot, base64Data, filename } = req.body;
   if (!base64Data) {
@@ -99,18 +102,21 @@ app.post('/api/upload', (req, res) => {
     crafts: 'crafts_workshop.jpg'
   };
 
-  const cleanName = filename ? path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_') : `upload_${Date.now()}.jpg`;
+  const isPdf = (filename && filename.toLowerCase().endsWith('.pdf')) || (matches && matches[1] === 'application/pdf');
+  const cleanName = filename ? path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_') : (isPdf ? `newsletter_${Date.now()}.pdf` : `upload_${Date.now()}.jpg`);
   const targetFilename = (slot && slotMap[slot]) ? slotMap[slot] : cleanName;
-  const targetPath = path.join(IMAGES_DIR, targetFilename);
+  
+  const destDir = isPdf ? DOCS_DIR : IMAGES_DIR;
+  const targetPath = path.join(destDir, targetFilename);
+  const publicUrl = isPdf ? `assets/documents/${targetFilename}` : `assets/images/${targetFilename}`;
 
   try {
     fs.writeFileSync(targetPath, buffer);
-    const publicUrl = `assets/images/${targetFilename}`;
-    console.log(`[UPLOAD] Uploaded: ${targetFilename} (${buffer.length} bytes)`);
+    console.log(`[UPLOAD] Uploaded: ${targetFilename} (${buffer.length} bytes) to ${publicUrl}`);
     res.json({ ok: true, slot, url: publicUrl, filename: targetFilename });
   } catch (err) {
     console.error(`[UPLOAD] Error writing file:`, err.message);
-    res.status(500).json({ ok: false, error: 'Failed to save image file on server.' });
+    res.status(500).json({ ok: false, error: 'Failed to save file on server.' });
   }
 });
 
@@ -1143,8 +1149,15 @@ app.get('/admin', (req, res) => {
                 <input type="text" name="issueTitle" required placeholder="e.g. Issue #50 - Autumn 2026" class="form-control">
               </div>
               <div class="form-group" style="margin:0;">
-                <label>Newsletter PDF Document / Download URL</label>
-                <input type="text" name="pdfUrl" placeholder="e.g. /assets/documents/roshni_newsletter_autumn_2026.pdf" class="form-control">
+                <label>Newsletter PDF Document</label>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                  <input type="text" name="pdfUrl" id="newsletterPdfInput" placeholder="/assets/documents/roshni_newsletter.pdf" class="form-control" style="flex:1;">
+                  <input type="file" id="newsletterPdfFile" accept=".pdf,application/pdf" style="display:none;" onchange="handleNewsletterPdfUpload(this)">
+                  <button type="button" onclick="document.getElementById('newsletterPdfFile').click()" style="background:#EF4444;color:#fff;border:none;padding:0.75rem 1rem;border-radius:0.75rem;font-weight:700;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
+                    <i class="fas fa-file-pdf"></i> Upload PDF File
+                  </button>
+                </div>
+                <div id="newsletterPdfStatus" style="font-size:0.72rem;color:#16A34A;margin-top:4px;font-weight:600;"></div>
               </div>
             </div>
             <div class="form-group">
@@ -1247,7 +1260,7 @@ app.get('/admin', (req, res) => {
         currentTab = tab;
         document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        const views = ['milestones', 'upload', 'figures', 'news', 'products', 'events', 'newsletter', 'orders', 'volunteers', 'donations', 'contacts'];
+        const views = ['milestones', 'team', 'upload', 'figures', 'news', 'products', 'events', 'newsletter', 'orders', 'volunteers', 'donations', 'contacts'];
         views.forEach(v => {
           const el = document.getElementById('view-' + v);
           if (el) el.style.display = (v === tab) ? 'block' : 'none';
@@ -1396,6 +1409,22 @@ app.get('/admin', (req, res) => {
         if (uploadedUrls.length) {
           inputEl.value = uploadedUrls.join(', ');
           statusEl.textContent = '✅ ' + uploadedUrls.length + ' photo(s) uploaded and attached!';
+        }
+      }
+
+      // Newsletter PDF Uploader
+      async function handleNewsletterPdfUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const statusEl = document.getElementById('newsletterPdfStatus');
+        const inputEl = document.getElementById('newsletterPdfInput');
+        statusEl.textContent = '⏳ Uploading PDF (' + file.name + ')...';
+        try {
+          const url = await uploadFilePromise(file);
+          inputEl.value = '/' + url;
+          statusEl.textContent = '✅ PDF uploaded successfully! (' + file.name + ')';
+        } catch(err) {
+          statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
       }
 
