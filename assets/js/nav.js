@@ -1,7 +1,8 @@
 /**
- * nav.js  –  injects the shared top-bar + header + mobile-nav with Roshni Monogram into every page.
+ * nav.js – injects the shared top-bar + header + mobile-nav into every page.
+ * Resilient version: works on Vercel, local, and any hosting environment.
  */
-(function() {
+(function () {
   const pages = [
     { key: 'home',      label: 'Home',        href: 'index.html' },
     { key: 'about',     label: 'About Us',     href: 'about.html' },
@@ -24,6 +25,9 @@
     return `<a href="${p.href}"${cls}>${p.label}</a>`;
   }).join('\n            ');
 
+  // Use root-relative paths so it works on all hosts (Vercel, local, etc.)
+  const logoSrc = '/assets/images/roshni_logo.jpg';
+
   const html = `
   <!-- Top Bar -->
   <div class="top-bar">
@@ -43,8 +47,10 @@
   <!-- Site Header with Monogram -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="index.html" class="logo-link">
-        <img src="assets/images/roshni_logo.jpg" alt="Roshni Association Monogram" style="width:2.85rem;height:2.85rem;border-radius:50%;object-fit:cover;box-shadow:0 3px 10px rgba(30,64,175,0.25);border:2px solid #fff;background:#fff;">
+      <a href="/index.html" class="logo-link">
+        <img src="${logoSrc}" alt="Roshni Association Monogram"
+          style="width:2.85rem;height:2.85rem;border-radius:50%;object-fit:cover;box-shadow:0 3px 10px rgba(30,64,175,0.25);border:2px solid #fff;background:#fff;"
+          onerror="this.style.display='none'">
         <div>
           <div class="logo-text-main">Roshni Association</div>
           <div class="logo-text-sub">Welfare of Special Persons</div>
@@ -54,7 +60,7 @@
         ${navLinks}
       </nav>
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <a href="contact.html#donate" class="nav-cta">💛 Support Us</a>
+        <a href="/contact.html#donate" class="nav-cta">💛 Support Us</a>
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
@@ -67,10 +73,29 @@
   </header>
   `;
 
-  const placeholder = document.getElementById('site-header-placeholder');
-  if (placeholder) {
-    placeholder.outerHTML = html;
+  function inject() {
+    const placeholder = document.getElementById('site-header-placeholder');
+    if (placeholder) {
+      placeholder.outerHTML = html;
+    } else {
+      document.body.insertAdjacentHTML('afterbegin', html);
+    }
+
+    // Mobile menu toggle
+    const btn = document.getElementById('mobileMenuBtn');
+    const nav = document.getElementById('mobileNav');
+    if (btn && nav) {
+      btn.addEventListener('click', function () {
+        const open = nav.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open);
+      });
+    }
+  }
+
+  // Run as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inject);
   } else {
-    document.body.insertAdjacentHTML('afterbegin', html);
+    inject();
   }
 })();

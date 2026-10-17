@@ -1,5 +1,6 @@
 /**
- * footer.js  –  injects the shared site footer with Roshni Monogram & Social Media icons into every page.
+ * footer.js – injects the shared site footer with Roshni Monogram & Social Media icons.
+ * Uses root-relative paths so it works on Vercel, local, and any hosting environment.
  */
 (function () {
   const html = `
@@ -8,14 +9,16 @@
       <!-- Brand with Monogram -->
       <div class="footer-brand">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-          <img src="assets/images/roshni_logo.jpg" alt="Roshni Association Emblem" style="width:3rem;height:3rem;border-radius:50%;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.2);border:2px solid rgba(255,255,255,0.4);background:#fff;">
+          <img src="/assets/images/roshni_logo.jpg" alt="Roshni Association Emblem"
+            style="width:3rem;height:3rem;border-radius:50%;object-fit:cover;box-shadow:0 3px 12px rgba(0,0,0,0.2);border:2px solid rgba(255,255,255,0.4);background:#fff;"
+            onerror="this.style.display='none'">
           <div>
             <div style="font-weight:700;font-size:1.1rem;color:#fff;">Roshni Association</div>
             <div style="font-size:0.68rem;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.1em;">Welfare of Special Persons</div>
           </div>
         </div>
         <p>Society for the Welfare of Special Persons. Dedicated to community living, organic biodynamic farming, Waldorf education &amp; therapeutic craft workshops in Lahore since 1991.</p>
-        
+
         <!-- Social Icons -->
         <div class="social-links">
           <a href="https://www.facebook.com/roshnipak" target="_blank" rel="noopener" class="social-link facebook" title="Facebook" aria-label="Facebook">
@@ -43,13 +46,13 @@
       <div class="footer-col">
         <h4>Explore Pages</h4>
         <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About Us &amp; History</a></li>
-          <li><a href="projects.html">Our Initiatives &amp; CBR</a></li>
-          <li><a href="volunteer.html">Volunteer With Us</a></li>
-          <li><a href="shop.html">Artisanal Shop</a></li>
-          <li><a href="news.html">News &amp; Media</a></li>
-          <li><a href="contact.html">Contact &amp; Location</a></li>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/about.html">About Us &amp; History</a></li>
+          <li><a href="/projects.html">Our Initiatives &amp; CBR</a></li>
+          <li><a href="/volunteer.html">Volunteer With Us</a></li>
+          <li><a href="/shop.html">Artisanal Shop</a></li>
+          <li><a href="/news.html">News &amp; Media</a></li>
+          <li><a href="/contact.html">Contact &amp; Location</a></li>
         </ul>
       </div>
 
@@ -57,13 +60,13 @@
       <div class="footer-col">
         <h4>Our Core Programs</h4>
         <ul>
-          <li><a href="projects.html#village">Roshni Village Community</a></li>
-          <li><a href="projects.html#school">Green Earth Waldorf School</a></li>
-          <li><a href="projects.html#cbr">Community Based Rehab (CBR)</a></li>
-          <li><a href="projects.html#bakery">Organic Stone-Oven Bakery</a></li>
-          <li><a href="projects.html#farm">Biodynamic Organic Farm</a></li>
-          <li><a href="projects.html#crafts">Handloom &amp; Woodwork</a></li>
-          <li><a href="contact.html#donate">Sponsor a Child or Resident</a></li>
+          <li><a href="/projects.html#village">Roshni Village Community</a></li>
+          <li><a href="/projects.html#school">Green Earth Waldorf School</a></li>
+          <li><a href="/projects.html#cbr">Community Based Rehab (CBR)</a></li>
+          <li><a href="/projects.html#bakery">Organic Stone-Oven Bakery</a></li>
+          <li><a href="/projects.html#farm">Biodynamic Organic Farm</a></li>
+          <li><a href="/projects.html#crafts">Handleoom &amp; Woodwork</a></li>
+          <li><a href="/contact.html#donate">Sponsor a Child or Resident</a></li>
         </ul>
       </div>
 
@@ -83,16 +86,24 @@
     <div class="footer-bottom">
       <span>&copy; 2026 Roshni Association. Society for the Welfare of Special Persons. All rights reserved.</span>
       <span>
-        <a href="contact.html">Contact Us</a>
+        <a href="/contact.html">Contact Us</a>
       </span>
     </div>
   </footer>
   `;
 
-  const placeholder = document.getElementById('site-footer-placeholder');
-  if (placeholder) {
-    placeholder.outerHTML = html;
+  function inject() {
+    const placeholder = document.getElementById('site-footer-placeholder');
+    if (placeholder) {
+      placeholder.outerHTML = html;
+    } else {
+      document.body.insertAdjacentHTML('beforeend', html);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inject);
   } else {
-    document.body.insertAdjacentHTML('beforeend', html);
+    inject();
   }
 })();

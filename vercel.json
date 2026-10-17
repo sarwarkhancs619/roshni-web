@@ -3,30 +3,17 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "assets/**",
+          "data/**",
+          "*.html"
+        ]
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.html)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/admin",
-      "dest": "server.js"
-    },
-    {
-      "src": "/",
-      "dest": "server.js"
-    },
     {
       "src": "/(.*)",
       "dest": "server.js"
