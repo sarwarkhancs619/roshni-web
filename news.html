@@ -303,6 +303,48 @@
   </div>
 </section>
 
+<!-- ── Newsletter Chronicles Archive (Live from Admin) ───────────── -->
+<section class="section" style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3rem;" data-reveal>
+      <div class="tag-gradient" style="margin-bottom:0.75rem;">Official Publications</div>
+      <h2 class="section-title">Roshni Newsletter Chronicles</h2>
+      <p class="section-subtitle">Read, download, and explore all published editions of our community chronicle sent to subscribers.</p>
+    </div>
+
+    <div id="dynamicNewsletterGrid" class="grid-3">
+      <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading published newsletters...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Newsletter Reading Modal ──────────────────────────────────── -->
+<div class="article-modal-overlay" id="newsletterModal" onclick="closeNewsletterModal()">
+  <div class="article-modal-card" onclick="event.stopPropagation()" style="max-width:44rem;padding:2.5rem;">
+    <button class="modal-close-btn" onclick="closeNewsletterModal()" title="Close">
+      <i class="fas fa-times"></i>
+    </button>
+    <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:0.75rem;">
+      <span class="news-badge" id="nlModalIssue">Issue</span>
+      <span style="font-size:0.85rem;color:#64748B;" id="nlModalDate"><i class="far fa-calendar-alt"></i> Date</span>
+    </div>
+    <h2 class="serif-heading" style="font-size:1.85rem;color:#1E3A8A;margin-bottom:1rem;line-height:1.3;" id="nlModalSubject">
+      Newsletter Subject
+    </h2>
+    <div style="background:#EFF6FF;border-left:4px solid #1E40AF;padding:1rem 1.25rem;border-radius:0.5rem;margin-bottom:1.5rem;font-style:italic;color:#1E3A8A;" id="nlModalPreview">
+      Summary preview...
+    </div>
+    <div style="color:#475569;font-size:0.95rem;line-height:1.8;white-space:pre-line;margin-bottom:2rem;" id="nlModalContent">
+      Full chronicle body...
+    </div>
+    <div id="nlModalPdfArea" style="display:none;padding-top:1rem;border-top:1px solid #E2E8F0;">
+      <a id="nlModalPdfLink" href="#" target="_blank" class="btn-gradient" style="display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;padding:0.75rem 1.75rem;border-radius:9999px;">
+        <i class="fas fa-file-pdf"></i> Download Official PDF Issue
+      </a>
+    </div>
+  </div>
+</div>
+
 <!-- ── Newsletter Subscription with same gradient ────────────────── -->
 <section style="background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #F97316 100%);color:#fff;padding:4.5rem 1.5rem;text-align:center;">
   <div class="container" style="max-width:38rem;">
@@ -565,14 +607,88 @@
     document.body.style.overflow = '';
   }
 
-  function handleModalOverlayClick(e) {
-    if (e.target.id === 'articleModal') {
-      closeArticleModal();
+  let ALL_NEWSLETTERS_DATA = [];
+
+  async function loadNewsletters() {
+    const grid = document.getElementById('dynamicNewsletterGrid');
+    if (!grid) return;
+    try {
+      const res = await fetch('/api/newsletters');
+      const data = await res.json();
+      ALL_NEWSLETTERS_DATA = data;
+      if (Array.isArray(data) && data.length > 0) {
+        grid.innerHTML = data.map(nl => {
+          const pdfButton = nl.pdfUrl ? `
+            <a href="${nl.pdfUrl}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;color:#EF4444;font-size:0.8rem;font-weight:700;text-decoration:none;">
+              <i class="fas fa-file-pdf"></i> Download PDF
+            </a>
+          ` : '';
+          return `
+            <div class="card" style="padding:2rem;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;" onclick="openNewsletterModal(${nl.id})" data-reveal>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                  <span class="news-badge" style="background:#EFF6FF;color:#1E40AF;">${escapeHtml(nl.issueTitle || 'Issue')}</span>
+                  <span style="font-size:0.78rem;color:#64748B;"><i class="far fa-calendar-alt"></i> ${nl.sentDate || ''}</span>
+                </div>
+                <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;line-height:1.4;">
+                  ${escapeHtml(nl.subject)}
+                </h3>
+                <p style="color:#64748B;font-size:0.88rem;line-height:1.6;margin-bottom:1rem;">
+                  ${escapeHtml(nl.previewText || '')}
+                </p>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #F1F5F9;padding-top:0.75rem;margin-top:0.5rem;">
+                <span class="read-more-btn" style="margin:0;">
+                  Read Edition <i class="fas fa-arrow-right"></i>
+                </span>
+                ${pdfButton}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        grid.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No published newsletters yet. Subscribe below to receive the next edition!</div>';
+      }
+    } catch(err) {
+      console.warn('Newsletters fallback:', err);
     }
+  }
+
+  function openNewsletterModal(id) {
+    const nl = ALL_NEWSLETTERS_DATA.find(n => n.id === id);
+    if (!nl) return;
+    document.getElementById('nlModalSubject').textContent = nl.subject;
+    document.getElementById('nlModalIssue').textContent = nl.issueTitle || 'Newsletter';
+    document.getElementById('nlModalDate').innerHTML = `<i class="far fa-calendar-alt"></i> ${nl.sentDate || ''}`;
+    document.getElementById('nlModalPreview').textContent = nl.previewText || '';
+    document.getElementById('nlModalContent').textContent = nl.content || nl.previewText || 'Full issue chronicle published by Roshni Association.';
+    
+    const pdfArea = document.getElementById('nlModalPdfArea');
+    const pdfLink = document.getElementById('nlModalPdfLink');
+    if (nl.pdfUrl) {
+      pdfArea.style.display = 'block';
+      pdfLink.href = nl.pdfUrl;
+    } else {
+      pdfArea.style.display = 'none';
+    }
+
+    document.getElementById('newsletterModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeNewsletterModal() {
+    document.getElementById('newsletterModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     loadDynamicContent();
+    loadNewsletters();
     initContactForm('newsletterForm', '/newsletter', '🎉 Thank you for subscribing to Roshni newsletter!');
   });
 </script>

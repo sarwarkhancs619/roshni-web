@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Shahida Perveen",
+    "role": "General Secretary & Founder Member",
+    "category": "board",
+    "image": "/assets/images/roshni_logo.jpg",
+    "bio": "Guiding the vision of Roshni Association since 1999, pioneering curative education and community life-sharing in Pakistan.",
+    "createdAt": "2026-10-14T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "name": "Muhammad Aslam",
+    "role": "House Father & Co-worker",
+    "category": "living",
+    "image": "/assets/images/village_community.jpg",
+    "bio": "Living side-by-side with special friends in Roshni Village family houses, creating a loving, dignified community environment.",
+    "createdAt": "2026-10-14T10:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "name": "Rashid Mehmood",
+    "role": "Master Baker & Workshop Instructor",
+    "category": "staff",
+    "image": "/assets/images/organic_bakery.jpg",
+    "bio": "Training special persons in stone-oven whole wheat baking and artisanal crafts for daily livelihood and self-reliance.",
+    "createdAt": "2026-10-14T10:00:00.000Z"
+  }
+]

@@ -139,6 +139,42 @@ app.post('/api/milestones', (req, res) => {
   res.status(201).json({ ok: true, data: newM });
 });
 
+// 4b. Team & Profiles CRUD (Board, Staff, Community Living)
+app.get('/api/team', (req, res) => {
+  res.json(readData('team.json'));
+});
+
+app.post('/api/team', (req, res) => {
+  const { name, role, category, bio, image } = req.body;
+  if (!name || !role) {
+    return res.status(400).json({ ok: false, error: 'Name and role are required.' });
+  }
+
+  const team = readData('team.json');
+  const newMember = {
+    id: Date.now(),
+    name: String(name).trim(),
+    role: String(role).trim(),
+    category: category || 'staff',
+    bio: bio ? String(bio).trim() : '',
+    image: image ? String(image).trim() : '/assets/images/roshni_logo.jpg',
+    createdAt: new Date().toISOString()
+  };
+
+  team.push(newMember);
+  writeData('team.json', team);
+  console.log(`[TEAM] Added member: ${newMember.name} (${newMember.category})`);
+  res.status(201).json({ ok: true, data: newMember });
+});
+
+app.delete('/api/team/:id', (req, res) => {
+  const id = Number(req.params.id);
+  let team = readData('team.json');
+  team = team.filter(t => t.id !== id);
+  writeData('team.json', team);
+  res.json({ ok: true, message: 'Team member deleted.' });
+});
+
 app.delete('/api/milestones/:id', (req, res) => {
   const id = Number(req.params.id);
   let milestones = readData('milestones.json');
@@ -331,7 +367,7 @@ app.delete('/api/products/:id', (req, res) => {
 app.get('/api/newsletters', (req, res) => res.json(readData('newsletters.json')));
 
 app.post('/api/newsletters', (req, res) => {
-  const { subject, issueTitle, previewText } = req.body;
+  const { subject, issueTitle, previewText, content, pdfUrl } = req.body;
   if (!subject) return res.status(400).json({ ok: false, error: 'Subject is required.' });
 
   const subscribers = readData('subscribers.json');
@@ -342,6 +378,8 @@ app.post('/api/newsletters', (req, res) => {
     issueTitle: issueTitle || `Roshni Chronicle #${newsletters.length + 1}`,
     sentDate: new Date().toISOString().split('T')[0],
     previewText: previewText ? String(previewText).trim() : '',
+    content: content ? String(content).trim() : '',
+    pdfUrl: pdfUrl ? String(pdfUrl).trim() : '',
     sentToCount: subscribers.length,
     createdAt: new Date().toISOString()
   };
@@ -621,6 +659,7 @@ app.get('/admin', (req, res) => {
       <!-- Navigation Tabs -->
       <div class="admin-nav">
         <button class="admin-tab active" onclick="switchTab('milestones', this)"><i class="fas fa-flag-checkered"></i> 🏆 Milestones &amp; History</button>
+        <button class="admin-tab" onclick="switchTab('team', this)"><i class="fas fa-users-cog"></i> 👥 Board, Staff &amp; Living</button>
         <button class="admin-tab" onclick="switchTab('upload', this)"><i class="fas fa-camera"></i> 📸 Upload Monogram &amp; Pictures</button>
         <button class="admin-tab" onclick="switchTab('figures', this)"><i class="fas fa-chart-line"></i> 📊 Real-Time Figures</button>
         <button class="admin-tab" onclick="switchTab('news', this)"><i class="fas fa-newspaper"></i> News (Multi-Photo)</button>
@@ -670,6 +709,60 @@ app.get('/admin', (req, res) => {
               <tr><th>Year</th><th>Title</th><th>Description</th><th>Action</th></tr>
             </thead>
             <tbody id="milestonesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 1b: BOARD, STAFF & COMMUNITY LIVING PROFILES -->
+      <div id="view-team" class="admin-card" style="display:none;">
+        <div style="margin-bottom:1.5rem;">
+          <span class="tag-gradient" style="margin-bottom:0.5rem;">Leadership &amp; Community Care</span>
+          <h2 class="serif-heading" style="font-size:1.5rem;color:#1E3A8A;margin:0.25rem 0;">Board, Staff &amp; Community Living Profiles</h2>
+          <p style="color:#64748B;font-size:0.88rem;margin:0;">Add authentic profiles of Board members, workshop master staff, and residential house parents living with special friends. Displays dynamically on the About Us page.</p>
+        </div>
+
+        <!-- Add Profile Form -->
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1.5rem;margin-bottom:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:1rem;"><i class="fas fa-user-plus" style="color:#F97316;"></i> Add Person Profile</h3>
+          <form id="formAddTeam" onsubmit="handleAddTeam(event)">
+            <div class="form-grid">
+              <div class="form-group" style="margin:0;">
+                <label>Full Name *</label>
+                <input type="text" name="name" required placeholder="e.g. Dr. Shahida Perveen" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Designation / Role *</label>
+                <input type="text" name="role" required placeholder="e.g. General Secretary / House Mother" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Category *</label>
+                <select name="category" class="form-control">
+                  <option value="board">🏛️ Board of Trustees / Governance</option>
+                  <option value="living">🏡 Community Living / House Parents</option>
+                  <option value="staff">🛠️ Master Craftspeople &amp; Teachers / Staff</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Photo URL or File</label>
+                <input type="text" name="image" placeholder="/assets/images/roshni_logo.jpg" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Biography / Contribution Details *</label>
+              <textarea name="bio" rows="2" required placeholder="Brief description of experience, dedication, and care role in Roshni Association..." class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn-submit" style="width:auto;padding:0.75rem 2rem;">
+              <i class="fas fa-save" style="margin-right:6px;"></i> Save Profile
+            </button>
+          </form>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Photo</th><th>Name</th><th>Role</th><th>Category</th><th>Bio / Role Summary</th><th>Action</th></tr>
+            </thead>
+            <tbody id="teamTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -1038,7 +1131,7 @@ app.get('/admin', (req, res) => {
 
         <!-- Broadcast Form -->
         <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1.5rem;margin-bottom:2rem;">
-          <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:1rem;"><i class="fas fa-paper-plane" style="color:#F97316;"></i> Create &amp; Send Newsletter</h3>
+          <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:1rem;"><i class="fas fa-paper-plane" style="color:#F97316;"></i> Create &amp; Broadcast Newsletter</h3>
           <form id="formAddNewsletter" onsubmit="handleAddNewsletter(event)">
             <div class="form-grid">
               <div class="form-group" style="margin:0;">
@@ -1047,15 +1140,23 @@ app.get('/admin', (req, res) => {
               </div>
               <div class="form-group" style="margin:0;">
                 <label>Issue Title *</label>
-                <input type="text" name="issueTitle" required placeholder="e.g. Issue #50" class="form-control">
+                <input type="text" name="issueTitle" required placeholder="e.g. Issue #50 - Autumn 2026" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Newsletter PDF Document / Download URL</label>
+                <input type="text" name="pdfUrl" placeholder="e.g. /assets/documents/roshni_newsletter_autumn_2026.pdf" class="form-control">
               </div>
             </div>
             <div class="form-group">
-              <label>Content / Preview Text *</label>
-              <textarea name="previewText" rows="3" required placeholder="Newsletter message to supporters..." class="form-control"></textarea>
+              <label>Newsletter Preview / Summary *</label>
+              <textarea name="previewText" rows="2" required placeholder="Summary sent to email subscribers and shown in newsletter cards..." class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Full Newsletter Article Content (Optional - for web reading)</label>
+              <textarea name="content" rows="4" placeholder="Full chronicle text for online reading on the website archive..." class="form-control"></textarea>
             </div>
             <button type="submit" class="btn-submit" style="width:auto;padding:0.75rem 2rem;">
-              <i class="fas fa-paper-plane" style="margin-right:6px;"></i> Broadcast to Subscribers
+              <i class="fas fa-paper-plane" style="margin-right:6px;"></i> Broadcast to Subscribers &amp; Publish to Web
             </button>
           </form>
         </div>
@@ -1299,10 +1400,11 @@ app.get('/admin', (req, res) => {
       }
 
       async function loadAllData() {
-        const [stats, settings, milestones, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers] = await Promise.all([
+        const [stats, settings, milestones, team, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers] = await Promise.all([
           fetchJSON('/api/stats'),
           fetchJSON('/api/settings'),
           fetchJSON('/api/milestones'),
+          fetchJSON('/api/team'),
           fetchJSON('/api/news'),
           fetchJSON('/api/events'),
           fetchJSON('/api/products'),
@@ -1346,6 +1448,33 @@ app.get('/admin', (req, res) => {
             <td><button onclick="deleteItem('/api/milestones/\${m.id}')" class="btn-del"><i class="fas fa-trash"></i> Delete</button></td>
           </tr>
         \`).join('') || '<tr><td colspan="4" style="text-align:center;color:#94A3B8;">No milestones recorded yet. Add your first above!</td></tr>';
+
+        // Render Team & Profiles
+        const categoryLabels = {
+          board: '🏛️ Board of Trustees',
+          living: '🏡 Community Living',
+          staff: '🛠️ Master Staff / Teachers'
+        };
+        const categoryBadges = {
+          board: 'badge-blue',
+          living: 'badge-orange',
+          staff: 'badge-green'
+        };
+        const teamBody = document.getElementById('teamTableBody');
+        if (teamBody) {
+          teamBody.innerHTML = team.map(t => \`
+            <tr>
+              <td>
+                <img src="\${t.image || '/assets/images/roshni_logo.jpg'}" style="width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid #BFDBFE;">
+              </td>
+              <td><strong>\${escapeHtml(t.name)}</strong></td>
+              <td>\${escapeHtml(t.role)}</td>
+              <td><span class="badge \${categoryBadges[t.category] || 'badge-blue'}">\${categoryLabels[t.category] || t.category}</span></td>
+              <td>\${escapeHtml(t.bio || '')}</td>
+              <td><button onclick="deleteItem('/api/team/\${t.id}')" class="btn-del"><i class="fas fa-trash"></i> Delete</button></td>
+            </tr>
+          \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No team profiles recorded. Add your first above!</td></tr>';
+        }
 
         // Render News with Multiple Images
         document.getElementById('newsTableBody').innerHTML = news.map(n => {
@@ -1397,16 +1526,19 @@ app.get('/admin', (req, res) => {
         \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No scheduled events.</td></tr>';
 
         // Render Newsletters
-        document.getElementById('newsletterTableBody').innerHTML = newsletters.map(nl => \`
-          <tr>
-            <td>\${nl.sentDate}</td>
-            <td><strong>\${escapeHtml(nl.issueTitle)}</strong></td>
-            <td>\${escapeHtml(nl.subject)}</td>
-            <td>\${escapeHtml(nl.previewText)}</td>
-            <td><span class="badge badge-green">\${nl.sentToCount || 0} Sent</span></td>
-            <td><button onclick="deleteItem('/api/newsletters/\${nl.id}')" class="btn-del"><i class="fas fa-trash"></i> Delete</button></td>
-          </tr>
-        \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No campaigns issued.</td></tr>';
+        document.getElementById('newsletterTableBody').innerHTML = newsletters.map(nl => {
+          const pdfBtn = nl.pdfUrl ? '<br><a href="' + nl.pdfUrl + '" target="_blank" style="color:#1E40AF;font-size:0.75rem;font-weight:700;"><i class="fas fa-file-pdf" style="color:#EF4444;"></i> Open PDF Document</a>' : '';
+          return \`
+            <tr>
+              <td>\${nl.sentDate}</td>
+              <td><strong>\${escapeHtml(nl.issueTitle)}</strong></td>
+              <td><strong>\${escapeHtml(nl.subject)}</strong>\${pdfBtn}</td>
+              <td>\${escapeHtml(nl.previewText)}</td>
+              <td><span class="badge badge-green">\${nl.sentToCount || 0} Sent</span></td>
+              <td><button onclick="deleteItem('/api/newsletters/\${nl.id}')" class="btn-del"><i class="fas fa-trash"></i> Delete</button></td>
+            </tr>
+          \`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No campaigns issued.</td></tr>';
 
         // Render Subscribers
         document.getElementById('subscribersTableBody').innerHTML = subscribers.map(s => \`
@@ -1479,6 +1611,23 @@ app.get('/admin', (req, res) => {
             <td><button onclick="deleteItem('/api/contacts/\${c.id}')" class="btn-del"><i class="fas fa-trash"></i></button></td>
           </tr>
         \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No inquiries received yet.</td></tr>';
+      }
+
+      async function handleAddTeam(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        const res = await fetch('/api/team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          alert('✅ Profile added successfully! It will now appear on the About Us page.');
+          e.target.reset();
+          loadAllData();
+        } else {
+          alert('Failed to add profile.');
+        }
       }
 
       async function handleAddMilestone(e) {

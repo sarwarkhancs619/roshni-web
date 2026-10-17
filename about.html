@@ -146,41 +146,102 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
 <section class="section">
   <div class="container">
     <div style="text-align:center;margin-bottom:3rem;" data-reveal>
-      <div class="tag-gradient" style="margin-bottom:0.75rem;">Leadership</div>
-      <h2 class="section-title">Dedicated Care &amp; Management</h2>
-      <p class="section-subtitle">Our interdisciplinary team of educators, house parents, medical advisors, and craft masters.</p>
+      <div class="tag-gradient" style="margin-bottom:0.75rem;">Leadership &amp; Community Care</div>
+      <h2 class="section-title">Board of Trustees, Staff &amp; House Parents</h2>
+      <p class="section-subtitle">Dedicated philanthropists, Waldorf mentors, craft masters, and co-workers living side-by-side with our special friends.</p>
     </div>
 
-    <div class="grid-3">
-      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
-        <div style="display:flex;justify-content:center;">
-          <img src="/assets/images/roshni_logo.jpg" alt="Board of Trustees" style="width:70px;height:70px;border-radius:50%;margin-bottom:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-        </div>
-        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">Board of Trustees</h3>
-        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Governance &amp; Strategy</p>
-        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Eminent philanthropists, educationists, and advocates ensuring transparent non-profit governance.</p>
-      </div>
+    <!-- Category Filter Tabs -->
+    <div style="display:flex;justify-content:center;gap:0.75rem;margin-bottom:2.5rem;flex-wrap:wrap;">
+      <button onclick="filterTeam('all', this)" class="team-tab-btn active-tab" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #1E40AF;background:#1E40AF;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">
+        All Profiles
+      </button>
+      <button onclick="filterTeam('board', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
+        🏛️ Board of Trustees
+      </button>
+      <button onclick="filterTeam('living', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
+        🏡 Community Living (House Parents)
+      </button>
+      <button onclick="filterTeam('staff', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
+        🛠️ Staff &amp; Workshop Masters
+      </button>
+    </div>
 
-      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
-        <div style="display:flex;justify-content:center;">
-          <div class="team-avatar">HP</div>
-        </div>
-        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">House Parents &amp; Co-workers</h3>
-        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Community Life Sharing</p>
-        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Living side-by-side with residents 24/7, creating a warm, familial, and emotionally secure home.</p>
-      </div>
-
-      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
-        <div style="display:flex;justify-content:center;">
-          <div class="team-avatar">CM</div>
-        </div>
-        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">Master Craftspeople &amp; Teachers</h3>
-        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Vocational &amp; Waldorf Mentors</p>
-        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Expert bakers, carpenters, weavers, and Waldorf educators guiding skills and joyful discovery.</p>
-      </div>
+    <div class="grid-3" id="teamProfilesContainer">
+      <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading team profiles...</div>
     </div>
   </div>
 </section>
+
+<script>
+let allTeamMembers = [];
+
+async function loadTeamProfiles() {
+  const container = document.getElementById('teamProfilesContainer');
+  if (!container) return;
+  try {
+    const res = await fetch('/api/team');
+    allTeamMembers = await res.json();
+    renderTeamCards('all');
+  } catch(e) {
+    console.error('Failed to load team:', e);
+  }
+}
+
+function renderTeamCards(category) {
+  const container = document.getElementById('teamProfilesContainer');
+  if (!container) return;
+  const filtered = category === 'all' ? allTeamMembers : allTeamMembers.filter(m => m.category === category);
+  
+  if (!filtered || filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No profiles in this category yet.</div>';
+    return;
+  }
+
+  const badgeConfig = {
+    board: { label: 'Board of Trustees', color: '#1E40AF', bg: '#DBEAFE' },
+    living: { label: 'Community Living', color: '#EA580C', bg: '#FFEDD5' },
+    staff: { label: 'Master Staff / Teachers', color: '#16A34A', bg: '#DCFCE7' }
+  };
+
+  container.innerHTML = filtered.map(m => {
+    const b = badgeConfig[m.category] || { label: m.category, color: '#1E40AF', bg: '#DBEAFE' };
+    return `
+      <div class="card" style="padding:2rem;text-align:center;display:flex;flex-direction:column;justify-content:space-between;" data-reveal>
+        <div>
+          <div style="display:flex;justify-content:center;margin-bottom:1.25rem;">
+            <img src="${m.image || '/assets/images/roshni_logo.jpg'}" alt="${m.name}"
+              style="width:90px;height:90px;border-radius:50%;object-fit:cover;box-shadow:0 6px 18px rgba(30,64,175,0.15);border:3px solid #fff;background:#fff;"
+              onerror="this.src='/assets/images/roshni_logo.jpg'">
+          </div>
+          <span style="display:inline-block;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:700;color:${b.color};background:${b.bg};margin-bottom:0.6rem;">
+            ${b.label}
+          </span>
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">${m.name}</h3>
+          <p style="color:#F97316;font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;">${m.role}</p>
+          <p style="color:#64748B;font-size:0.88rem;line-height:1.6;margin:0;">${m.bio || ''}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterTeam(cat, btn) {
+  document.querySelectorAll('.team-tab-btn').forEach(b => {
+    b.style.background = '#fff';
+    b.style.color = '#1E3A8A';
+    b.style.borderColor = '#CBD5E1';
+  });
+  if (btn) {
+    btn.style.background = '#1E40AF';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#1E40AF';
+  }
+  renderTeamCards(cat);
+}
+
+document.addEventListener('DOMContentLoaded', loadTeamProfiles);
+</script>
 
 <!-- ── Callout with same gradient ────────────────────────────────── -->
 <section style="background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #F97316 100%);color:#fff;padding:4.5rem 1.5rem;text-align:center;">
