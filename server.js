@@ -18,14 +18,25 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // Helper to safely read and write JSON files
 const DATA_DIR = path.join(__dirname, 'data');
 const IMAGES_DIR = path.join(__dirname, 'assets', 'images');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+const DOCS_DIR = path.join(__dirname, 'assets', 'documents');
+
+try {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+} catch(e) {}
+try {
+  if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+} catch(e) {}
+try {
+  if (!fs.existsSync(DOCS_DIR)) fs.mkdirSync(DOCS_DIR, { recursive: true });
+} catch(e) {}
 
 function readData(file, defaultVal = []) {
   const filePath = path.join(DATA_DIR, file);
   try {
     if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2), 'utf-8');
+      try {
+        fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2), 'utf-8');
+      } catch(wErr) {}
       return defaultVal;
     }
     const raw = fs.readFileSync(filePath, 'utf-8');
@@ -81,9 +92,6 @@ app.put('/api/settings', (req, res) => {
 });
 
 // 3. User Photo, Monogram & Newsletter PDF Upload
-const DOCS_DIR = path.join(__dirname, 'assets', 'documents');
-if (!fs.existsSync(DOCS_DIR)) fs.mkdirSync(DOCS_DIR, { recursive: true });
-
 app.post('/api/upload', (req, res) => {
   const { slot, base64Data, filename } = req.body;
   if (!base64Data) {
