@@ -1604,12 +1604,16 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start listening
-app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`🚀 Roshni Association Web & Backend Server active!`);
-  console.log(`🌐 Website URL:  http://localhost:${PORT}`);
-  console.log(`📊 Admin Panel:  http://localhost:${PORT}/admin`);
-  console.log(`📡 Real Stats:   http://localhost:${PORT}/api/stats`);
-  console.log(`====================================================`);
-});
+// Start server locally; export for Vercel serverless
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`🚀 Roshni Association Web & Backend Server active!`);
+    console.log(`🌐 Website URL:  http://localhost:${PORT}`);
+    console.log(`📊 Admin Panel:  http://localhost:${PORT}/admin`);
+    console.log(`📡 Real Stats:   http://localhost:${PORT}/api/stats`);
+    console.log(`====================================================`);
+  });
+}
+
+module.exports = app;
