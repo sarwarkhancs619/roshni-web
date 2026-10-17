@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | Roshni Association Lahore</title>
+  <meta name="description" content="Learn about Roshni Association's history, mission, Camphill philosophy, and dedicated team fostering dignity for special persons in Lahore, Pakistan.">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <style>
+    .timeline {
+      position: relative;
+      max-width: 50rem;
+      margin: 2rem auto 0;
+      padding-left: 2rem;
+      border-left: 3px solid #BFDBFE;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2.5rem;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -2.6rem;
+      top: 0.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      box-shadow: 0 0 0 4px #EFF6FF;
+    }
+    .timeline-year {
+      font-weight: 800;
+      color: #1E40AF;
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    .team-avatar {
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 15px rgba(30,64,175,0.2);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation Placeholder with Monogram ──────────────────────── -->
+<div id="site-header-placeholder"></div>
+
+<!-- ── Hero with same gradient as index ──────────────────────────── -->
+<section class="page-hero hero-gradient-bg" aria-label="About Us Banner">
+  <div class="tag-gradient" style="margin-bottom:1rem;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.18);">
+    ✨ Over 30 Years of Dedicated Care in Lahore
+  </div>
+  <h1>About Roshni Association</h1>
+  <p>Dedicated to creating a loving, self-reliant community where people with intellectual disabilities and special needs live with dignity, self-respect, and creative expression.</p>
+</section>
+
+<!-- ── Mission & Vision with Photos ──────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="grid-2" style="align-items:center;">
+      <div data-reveal>
+        <span class="tag-gradient" style="margin-bottom:0.75rem;">Our Purpose</span>
+        <h2 class="serif-heading" style="font-size:2.2rem;color:#1E3A8A;margin-bottom:1rem;">Nurturing the Whole Human Being</h2>
+        <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1rem;">
+          Roshni Association was founded in 1991 in Lahore, Pakistan, inspired by the worldwide Camphill Movement and anthroposophical curative education initiated by Rudolf Steiner.
+        </p>
+        <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1.5rem;">
+          In traditional society, individuals with intellectual challenges often face isolation or pity. At Roshni, we see beyond outer disabilities to celebrate the intact spiritual individuality of each human being.
+        </p>
+        
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="background:#fff;border-left:4px solid #1E40AF;padding:1.25rem;border-radius:0.75rem;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+            <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.3rem;"><i class="fas fa-bullseye" style="color:#1E40AF;margin-right:6px;"></i> Our Mission</h3>
+            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">To provide life-sharing community homes, meaningful vocational craft workshops, biodynamic farming, and free holistic Waldorf schooling for disadvantaged children.</p>
+          </div>
+          <div style="background:#fff;border-left:4px solid #F97316;padding:1.25rem;border-radius:0.75rem;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
+            <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.3rem;"><i class="fas fa-eye" style="color:#F97316;margin-right:6px;"></i> Our Vision</h3>
+            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">A harmonious, compassionate society in Pakistan where people of all physical and intellectual abilities are embraced as valuable, contributing partners in life.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real Photo of Village Community -->
+      <div style="border-radius:1.75rem;overflow:hidden;box-shadow:0 20px 50px rgba(30,64,175,0.2);border:4px solid #fff;" data-reveal>
+        <img src="assets/images/village_community.jpg" alt="Roshni Village Community Living" style="width:100%;height:420px;object-fit:cover;display:block;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Journey & Milestones Timeline ─────────────────────────────── -->
+<section class="section" style="background:#fff;border-top:1px solid #F1F5F9;border-bottom:1px solid #F1F5F9;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3rem;" data-reveal>
+      <div class="tag-gradient" style="margin-bottom:0.75rem;">Our Authentic History</div>
+      <h2 class="section-title">Milestones Over the Decades</h2>
+      <p class="section-subtitle">Real moments shaping our mission for adults with special needs in Lahore, Pakistan.</p>
+    </div>
+
+    <div class="timeline" id="milestones-timeline-container" data-reveal>
+      <div style="text-align:center;padding:2rem;color:#64748B;">Loading authentic milestones...</div>
+    </div>
+  </div>
+</section>
+
+<script>
+async function loadMilestonesTimeline() {
+  const container = document.getElementById('milestones-timeline-container');
+  if (!container) return;
+  try {
+    const res = await fetch('/api/milestones');
+    const milestones = await res.json();
+    if (!milestones || milestones.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:#64748B;">Milestones will be published shortly.</p>';
+      return;
+    }
+    container.innerHTML = milestones.map(m => `
+      <div class="timeline-item" style="position:relative;">
+        <div class="timeline-dot" style="position:absolute;left:-2.4rem;top:0.25rem;width:14px;height:14px;background:#F97316;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px #1E40AF;"></div>
+        <div class="timeline-year" style="display:inline-block;background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);color:#fff;font-weight:800;font-size:0.82rem;padding:0.2rem 0.75rem;border-radius:9999px;margin-bottom:0.5rem;letter-spacing:0.04em;">${m.year}</div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.35rem;">${m.title}</h3>
+        <p style="color:#64748B;font-size:0.89rem;line-height:1.7;margin:0;">${m.description}</p>
+      </div>
+    `).join('');
+  } catch(e) {
+    console.error('Failed to load milestones:', e);
+  }
+}
+document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
+</script>
+
+<!-- ── Team & Governance ─────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:3rem;" data-reveal>
+      <div class="tag-gradient" style="margin-bottom:0.75rem;">Leadership</div>
+      <h2 class="section-title">Dedicated Care &amp; Management</h2>
+      <p class="section-subtitle">Our interdisciplinary team of educators, house parents, medical advisors, and craft masters.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
+        <div style="display:flex;justify-content:center;">
+          <img src="assets/images/roshni_logo.jpg" alt="Board of Trustees" style="width:70px;height:70px;border-radius:50%;margin-bottom:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">Board of Trustees</h3>
+        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Governance &amp; Strategy</p>
+        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Eminent philanthropists, educationists, and advocates ensuring transparent non-profit governance.</p>
+      </div>
+
+      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
+        <div style="display:flex;justify-content:center;">
+          <div class="team-avatar">HP</div>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">House Parents &amp; Co-workers</h3>
+        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Community Life Sharing</p>
+        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Living side-by-side with residents 24/7, creating a warm, familial, and emotionally secure home.</p>
+      </div>
+
+      <div class="card" style="padding:2rem;text-align:center;" data-reveal>
+        <div style="display:flex;justify-content:center;">
+          <div class="team-avatar">CM</div>
+        </div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.25rem;">Master Craftspeople &amp; Teachers</h3>
+        <p style="color:#F97316;font-size:0.82rem;font-weight:700;margin-bottom:0.75rem;">Vocational &amp; Waldorf Mentors</p>
+        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;">Expert bakers, carpenters, weavers, and Waldorf educators guiding skills and joyful discovery.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Callout with same gradient ────────────────────────────────── -->
+<section style="background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #F97316 100%);color:#fff;padding:4.5rem 1.5rem;text-align:center;">
+  <div class="container">
+    <h2 class="serif-heading" style="font-size:2rem;color:#fff;margin-bottom:1rem;">Become Part of Our Living Story</h2>
+    <p style="color:rgba(255,255,255,0.9);max-width:34rem;margin:0 auto 2rem;font-size:1rem;">
+      Whether through volunteering, sponsoring a special resident, or visiting Roshni Village in person.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="volunteer.html" style="background:#fff;color:#1E40AF;padding:0.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:0.92rem;display:inline-block;">
+        Volunteer Opportunities
+      </a>
+      <a href="contact.html" style="border:2px solid rgba(255,255,255,0.7);color:#fff;padding:0.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:0.92rem;display:inline-block;">
+        Contact Our Office
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer Placeholder ────────────────────────────────────────── -->
+<div id="site-footer-placeholder"></div>
+
+<!-- Scripts -->
+<script>window.ACTIVE_PAGE = 'about';</script>
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/footer.js"></script>
+<script src="assets/js/shared.js"></script>
+</body>
+</html>

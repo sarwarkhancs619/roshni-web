@@ -1,0 +1,51 @@
+/* ==========================================
+   Roshni Association - Custom Stylesheet
+   ========================================== */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #FBF9F5;
+    color: #1F2937;
+    scroll-behavior: smooth;
+}
+
+.serif-heading {
+    font-family: 'Lora', serif;
+}
+
+.bg-roshni-green {
+    background-color: #2D4A3E;
+}
+
+.text-roshni-green {
+    color: #2D4A3E;
+}
+
+.bg-roshni-terracotta {
+    background-color: #E07A5F;
+}
+
+.text-roshni-terracotta {
+    color: #E07A5F;
+}
+
+a,
+button {
+    transition: all 0.2s ease-in-out;
+}
+
+:focus-visible {
+    outline: 2px solid #E07A5F;
+    outline-offset: 2px;
+}
+
+/* // Add to bottom of files or inline in assets/css/custom.js
+function adjustFontSize(direction) {
+    const body = document.body;
+    let currentSize = parseFloat(window.getComputedStyle(body).fontSize);
+    if (direction > 0 && currentSize < 20) {
+        body.style.fontSize = (currentSize + 1) + 'px';
+    } else if (direction < 0 && currentSize > 12) {
+        body.style.fontSize = (currentSize - 1) + 'px';
+    }
+} */

@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roshni Association | Society for the Welfare of Special Persons Lahore</title>
+  <meta name="description"
+    content="Roshni Association – providing community living, Waldorf education and therapeutic workshops for people with special needs in Lahore, Pakistan.">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <style>
+    /* ── Hero ─────────────────────────────────────────────── */
+    .home-hero {
+      padding: 4.5rem 1.5rem 3.5rem;
+      max-width: 80rem;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media(min-width:900px) {
+      .home-hero {
+        grid-template-columns: 1fr 1.05fr;
+        padding: 5.5rem 1.5rem 4.5rem;
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      background: linear-gradient(135deg, #EFF6FF, #FFF7ED);
+      border: 1px solid #BFDBFE;
+      color: #1E40AF;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .4rem 1.1rem;
+      border-radius: 9999px;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-h1 {
+      font-family: 'Lora', serif;
+      font-size: clamp(2.3rem, 4.8vw, 3.8rem);
+      line-height: 1.18;
+      color: #1E293B;
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+    }
+
+    .hero-img-container {
+      position: relative;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(30, 64, 175, 0.25);
+      border: 4px solid #fff;
+      background: #0F172A;
+      height: 480px;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+      transform: scale(1.04);
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
+
+    .hero-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-slide-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(30, 64, 175, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem 2.25rem 2.25rem;
+      color: #fff;
+    }
+
+    .hero-slide-nav {
+      position: absolute;
+      bottom: 1.25rem;
+      right: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .hero-nav-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .hero-nav-btn:hover {
+      background: #F97316;
+      border-color: #F97316;
+      transform: scale(1.1);
+    }
+
+    .hero-dots {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 2.25rem;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .hero-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .hero-dot.active {
+      width: 28px;
+      background: #F97316;
+    }
+
+    .hero-stat-badge {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 1rem;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-around;
+      margin-top: 0.75rem;
+    }
+
+    /* ── News & Media Slider ──────────────────────────────── */
+    .news-slider-wrapper {
+      position: relative;
+      overflow: hidden;
+      margin-top: 1.5rem;
+    }
+
+    .news-slider-track {
+      display: flex;
+      gap: 1.5rem;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      scroll-behavior: smooth;
+    }
+
+    .news-slide-card {
+      flex: 0 0 calc(100% - 1.5rem);
+      max-width: calc(100% - 1.5rem);
+    }
+
+    @media(min-width:640px) {
+      .news-slide-card {
+        flex: 0 0 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
+      }
+    }
+
+    @media(min-width:1024px) {
+      .news-slide-card {
+        flex: 0 0 calc(33.333% - 1rem);
+        max-width: calc(33.333% - 1rem);
+      }
+    }
+
+    .news-ctrl-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid #CBD5E1;
+      background: #fff;
+      color: #1E3A8A;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .news-ctrl-btn:hover {
+      background: #1E40AF;
+      color: #fff;
+      border-color: #1E40AF;
+      transform: scale(1.05);
+    }
+
+    /* ── Real-Time Impact Bar ─────────────────────────────── */
+    .impact-bar {
+      background: #fff;
+      border-top: 1px solid #F1F5F9;
+      border-bottom: 1px solid #F1F5F9;
+      padding: 2.75rem 1.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .impact-grid {
+      max-width: 80rem;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      text-align: center;
+    }
+
+    @media(min-width:640px) {
+      .impact-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .impact-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .impact-lbl {
+      font-size: .82rem;
+      color: #64748B;
+      margin-top: .4rem;
+      font-weight: 600;
+    }
+
+    .impact-sub {
+      font-size: .7rem;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+
+    /* ── Project Cards ────────────────────────────────────── */
+    .project-card-img {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      background: #F1F5F9;
+    }
+
+    .project-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .card:hover .project-card-img img {
+      transform: scale(1.05);
+    }
+
+    .project-card-tag {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      color: #1E40AF;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ── CTA Section ──────────────────────────────────────── */
+    .cta-section {
+      background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 55%, #F97316 100%);
+      color: #fff;
+      padding: 5.5rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Nav Placeholder with Roshni Monogram ──────────────────────── -->
+  <div id="site-header-placeholder"></div>
+
+  <!-- ── HERO ─────────────────────────────────────────────────────── -->
+  <section aria-label="Hero">
+    <div class="home-hero">
+      <div class="fade-up">
+        <div class="hero-badge">
+          <img id="heroMonogramIcon" src="assets/images/roshni_logo.jpg" alt="Roshni"
+            style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
+          <span>Special Persons Welfare &bull; Lahore</span>
+        </div>
+        <h1 class="hero-h1">
+          Nurturing Abilities,<br>
+          <span class="text-gradient">Building Community</span><br>
+          Together.
+        </h1>
+        <p style="color:#64748B;font-size:1.05rem;line-height:1.8;margin-bottom:2rem;max-width:34rem;">
+          Providing a peaceful home environment, meaningful vocational workshops, and Waldorf education for adults and
+          children off Bedian Road, Lahore.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:1rem;">
+          <a href="projects.html"
+            style="background:linear-gradient(135deg,#1E40AF,#3B82F6);color:#fff;padding:.85rem 2rem;border-radius:9999px;text-decoration:none;font-weight:700;font-size:.9rem;box-shadow:0 4px 15px rgba(30,64,175,.3);transition:all .2s;"
+            onmouseover="this.style.opacity='.92';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.opacity='1';this.style.transform='none'">
+            Explore Our Projects <i class="fas fa-arrow-right" style="margin-left:.4rem;"></i>
+          </a>
+          <a href="volunteer.html"
+            style="border:2px solid #CBD5E1;background:#fff;color:#1E3A8A;padding:.85rem 2rem;border-radius:9999px;text-decoration:none;font-weight:700;font-size:.9rem;transition:all .2s;"
+            onmouseover="this.style.borderColor='#3B82F6';this.style.color='#1E40AF';this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.borderColor='#CBD5E1';this.style.color='#1E3A8A';this.style.transform='none'">
+            🤝 Volunteer With Us
+          </a>
+        </div>
+      </div>
+
+      <!-- Authentic Picture Slider of Roshni Initiatives -->
+      <div class="hero-img-container fade-up fade-up-delay-2" id="heroPictureSlider" onmouseenter="pauseHeroSlider()"
+        onmouseleave="resumeHeroSlider()">
+        <!-- Slide 1: Roshni Village -->
+        <div class="hero-slide active" data-slide="0">
+          <img src="assets/images/village_community.jpg" alt="Roshni Village Community Living in Lahore">
+          <div class="hero-slide-overlay">
+            <div class="tag-gradient"
+              style="align-self:flex-start;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:0.5rem;font-size:0.75rem;">
+              🏡 Roshni Village &bull; Bedian Road Lahore
+            </div>
+            <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+              "A peaceful family community where adults with special needs live in dignity, self-respect, and creative
+              expression."
+            </h3>
+            <div class="hero-stat-badge">
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;" id="heroYearsVal">35+</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Years of Service</div>
+              </div>
+              <div
+                style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;" id="heroResidentsVal">42</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Residents in Care</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;" id="heroStudentsVal">165</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Pupils Enrolled</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: Green Earth School -->
+        <div class="hero-slide" data-slide="1">
+          <img src="assets/images/green_earth_school.jpg" alt="Green Earth Waldorf School Classroom">
+          <div class="hero-slide-overlay">
+            <div class="tag-gradient"
+              style="align-self:flex-start;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:0.5rem;font-size:0.75rem;">
+              🏫 Green Earth Waldorf School &bull; Free Education
+            </div>
+            <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+              "Nurturing head, heart, and hands with 100% free Waldorf-inspired schooling for rural children."
+            </h3>
+            <div class="hero-stat-badge">
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Free</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Tuition &amp; Uniforms</div>
+              </div>
+              <div
+                style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Daily</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Organic Meals</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">KG - Grade 8</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Holistic Curriculum</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Organic Bakery -->
+        <div class="hero-slide" data-slide="2">
+          <img src="assets/images/organic_bakery.jpg" alt="Roshni Organic Stone Oven Bakery">
+          <div class="hero-slide-overlay">
+            <div class="tag-gradient"
+              style="align-self:flex-start;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:0.5rem;font-size:0.75rem;">
+              🍞 Traditional Stone-Oven Bakery
+            </div>
+            <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+              "Baking pure sourdough loaves with local grains, giving special bakers true pride and livelihood."
+            </h3>
+            <div class="hero-stat-badge">
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">100%</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Chemical-Free</div>
+              </div>
+              <div
+                style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">24h</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Slow Ferment</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Stone-Hearth</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Wood-Fired</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Organic Farm -->
+        <div class="hero-slide" data-slide="3">
+          <img src="assets/images/organic_farm.jpg" alt="Biodynamic Organic Farm in Lahore">
+          <div class="hero-slide-overlay">
+            <div class="tag-gradient"
+              style="align-self:flex-start;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:0.5rem;font-size:0.75rem;">
+              🌾 Biodynamic Farm &amp; Dairy
+            </div>
+            <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+              "Working in rhythm with the soil, harvesting clean seasonal vegetables, wheat, and dairy."
+            </h3>
+            <div class="hero-stat-badge">
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Bio-Dynamic</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Eco-Agriculture</div>
+              </div>
+              <div
+                style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Natural</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Dairy Herd</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Zero</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Pesticides</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Craft Studios -->
+        <div class="hero-slide" data-slide="4">
+          <img src="assets/images/crafts_workshop.jpg" alt="Textile Handloom and Woodwork Workshop">
+          <div class="hero-slide-overlay">
+            <div class="tag-gradient"
+              style="align-self:flex-start;background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:0.5rem;font-size:0.75rem;">
+              🧵 Textile Handloom &amp; Woodcraft
+            </div>
+            <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+              "Preserving timeless artisanal traditions with handwoven cotton, shisham wood, and beeswax candles."
+            </h3>
+            <div class="hero-stat-badge">
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Handloom</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Pure Cotton</div>
+              </div>
+              <div
+                style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Carpentry</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Solid Shisham</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">Beeswax</div>
+                <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.85;">Natural Candles</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicator Dots -->
+        <div class="hero-dots" id="heroDotsContainer">
+          <div class="hero-dot active" onclick="gotoHeroSlide(0)"></div>
+          <div class="hero-dot" onclick="gotoHeroSlide(1)"></div>
+          <div class="hero-dot" onclick="gotoHeroSlide(2)"></div>
+          <div class="hero-dot" onclick="gotoHeroSlide(3)"></div>
+          <div class="hero-dot" onclick="gotoHeroSlide(4)"></div>
+        </div>
+
+        <!-- Navigation Arrows -->
+        <div class="hero-slide-nav">
+          <button class="hero-nav-btn" onclick="prevHeroSlide()" aria-label="Previous Slide">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="hero-nav-btn" onclick="nextHeroSlide()" aria-label="Next Slide">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REAL-TIME LIVE IMPACT BAR (No Dummy Numbers) ──────────────── -->
+  <section class="impact-bar" aria-label="Real-time live impact statistics">
+    <div class="impact-grid">
+      <div data-reveal>
+        <div class="impact-num" id="liveResidentsCounter">0</div>
+        <div class="impact-lbl">Special Adult Residents</div>
+        <div class="impact-sub">Full-time Residential Care</div>
+      </div>
+      <div data-reveal>
+        <div class="impact-num" id="liveStudentsCounter">0</div>
+        <div class="impact-lbl">Village Children Educated</div>
+        <div class="impact-sub">Green Earth Waldorf School</div>
+      </div>
+      <div data-reveal>
+        <div class="impact-num" id="liveWorkshopsCounter">0</div>
+        <div class="impact-lbl">Therapeutic Workshops</div>
+        <div class="impact-sub">Bakery, Farm, Weaving, Wood, Art</div>
+      </div>
+      <div data-reveal>
+        <div class="impact-num" id="liveVolunteersCounter">0</div>
+        <div class="impact-lbl">Community Volunteers</div>
+        <div class="impact-sub">Active Registered Volunteers</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CORE INITIATIVES IN PICTURES ──────────────────────────────── -->
+  <section class="section" aria-labelledby="initiatives-heading">
+    <div class="container">
+      <div style="text-align:center;margin-bottom:3.5rem;" data-reveal>
+        <div class="tag-gradient" style="margin-bottom:.75rem;">Three Core Projects</div>
+        <h2 class="section-title" id="initiatives-heading">Our Core Initiatives</h2>
+        <p class="section-subtitle">Three interconnected programs — a residential village with vocational workshops, a
+          free Waldorf school, and a rural rehabilitation outreach.</p>
+      </div>
+
+      <!-- 1. Roshni Village -->
+      <div class="card" data-reveal>
+        <div class="project-card-img">
+          <img src="assets/images/Roshni_Village.jpg" alt="Roshni Village Community Living">
+          <span class="project-card-tag">🏡 Residential Community</span>
+        </div>
+        <div style="padding:1.75rem;">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1E3A8A;margin-bottom:.5rem;">Roshni Village</h3>
+          <p style="color:#64748B;font-size:.875rem;line-height:1.75;margin-bottom:1rem;">
+            Pakistan's first intentional residential community for adults with intellectual disabilities — peaceful
+            cottages, organic meals, 24/7 care, and 5 vocational workshops within the campus.
+          </p>
+          <a href="projects.html#village"
+            style="display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:#1E40AF;text-decoration:none;">
+            Explore Village &amp; Workshops <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. Green Earth School -->
+      <div class="card" data-reveal>
+        <div class="project-card-img">
+          <img src="assets/images/green_earth_school.jpg" alt="Green Earth Waldorf School Classroom">
+          <span class="project-card-tag">🏫 Waldorf Education</span>
+        </div>
+        <div style="padding:1.75rem;">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1E3A8A;margin-bottom:.5rem;">Green Earth School</h3>
+          <p style="color:#64748B;font-size:.875rem;line-height:1.75;margin-bottom:1rem;">
+            Pakistan's pioneering Waldorf school providing 100% free, holistic education (Kindergarten to Grade 8),
+            nutritious meals, and art for rural village children.
+          </p>
+          <a href="projects.html#school"
+            style="display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:#1E40AF;text-decoration:none;">
+            Discover Green Earth <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. CBR Program -->
+      <div class="card" data-reveal>
+        <div class="project-card-img"
+          style="background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 60%,#0EA5E9 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;min-height:200px;">
+          <i class="fas fa-hands-helping" style="font-size:3.5rem;color:rgba(255,255,255,0.85);"></i>
+          <span
+            style="font-size:0.78rem;font-weight:700;color:rgba(255,255,255,0.9);letter-spacing:0.05em;text-transform:uppercase;">Reaching
+            Rural Families</span>
+        </div>
+        <div style="padding:1.75rem;">
+          <h3 style="font-size:1.2rem;font-weight:700;color:#1E3A8A;margin-bottom:.5rem;">Community Based Rehabilitation
+          </h3>
+          <p style="color:#64748B;font-size:.875rem;line-height:1.75;margin-bottom:1rem;">
+            Reaching disabled individuals and their families in surrounding rural villages — providing free medical,
+            educational, and psychosocial support right at their doorstep.
+          </p>
+          <a href="projects.html#cbr"
+            style="display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:700;color:#1E40AF;text-decoration:none;">
+            Learn About CBR <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Workshops strip — nested visually under Roshni Village -->
+    <div
+      style="margin-top:2.5rem;background:#F8FAFC;border:1px solid #E2E8F0;border-left:4px solid #1E40AF;border-radius:1rem;padding:1.5rem 2rem;"
+      data-reveal>
+      <div style="display:flex;align-items:center;gap:0.65rem;margin-bottom:0.85rem;flex-wrap:wrap;">
+        <span
+          style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1E40AF;white-space:nowrap;">
+          <i class="fas fa-tools"></i> &nbsp;Inside Roshni Village — 5 Vocational Workshops
+        </span>
+        <span style="font-size:0.72rem;color:#94A3B8;">Residents participate daily, crafting goods sold in our
+          shop.</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
+        <a href="projects.html#bakery"
+          style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff;border:1px solid #E2E8F0;border-radius:9999px;padding:0.42rem 1rem;font-size:0.79rem;font-weight:700;color:#1E3A8A;text-decoration:none;transition:all 0.18s;"
+          onmouseover="this.style.borderColor='#1E40AF';this.style.color='#1E40AF'"
+          onmouseout="this.style.borderColor='#E2E8F0';this.style.color='#1E3A8A'">🍞 Stone-Oven Bakery</a>
+        <a href="projects.html#farm"
+          style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff;border:1px solid #E2E8F0;border-radius:9999px;padding:0.42rem 1rem;font-size:0.79rem;font-weight:700;color:#1E3A8A;text-decoration:none;transition:all 0.18s;"
+          onmouseover="this.style.borderColor='#1E40AF';this.style.color='#1E40AF'"
+          onmouseout="this.style.borderColor='#E2E8F0';this.style.color='#1E3A8A'">🌾 Biodynamic Farm &amp; Dairy</a>
+        <a href="projects.html#crafts"
+          style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff;border:1px solid #E2E8F0;border-radius:9999px;padding:0.42rem 1rem;font-size:0.79rem;font-weight:700;color:#1E3A8A;text-decoration:none;transition:all 0.18s;"
+          onmouseover="this.style.borderColor='#1E40AF';this.style.color='#1E40AF'"
+          onmouseout="this.style.borderColor='#E2E8F0';this.style.color='#1E3A8A'">🧵 Textile Handloom</a>
+        <a href="projects.html#crafts"
+          style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff;border:1px solid #E2E8F0;border-radius:9999px;padding:0.42rem 1rem;font-size:0.79rem;font-weight:700;color:#1E3A8A;text-decoration:none;transition:all 0.18s;"
+          onmouseover="this.style.borderColor='#1E40AF';this.style.color='#1E40AF'"
+          onmouseout="this.style.borderColor='#E2E8F0';this.style.color='#1E3A8A'">🪵 Carpentry &amp; Woodwork</a>
+        <a href="projects.html#crafts"
+          style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff;border:1px solid #E2E8F0;border-radius:9999px;padding:0.42rem 1rem;font-size:0.79rem;font-weight:700;color:#1E3A8A;text-decoration:none;transition:all 0.18s;"
+          onmouseover="this.style.borderColor='#1E40AF';this.style.color='#1E40AF'"
+          onmouseout="this.style.borderColor='#E2E8F0';this.style.color='#1E3A8A'">🕯️ Art &amp; Beeswax Candles</a>
+      </div>
+    </div>
+
+    </div>
+  </section>
+
+  <!-- ── LIVE NEWS & EVENTS SLIDER (Multiple Pictures & Real News) ── -->
+  <section class="section" style="background:#fff;border-top:1px solid #F1F5F9;border-bottom:1px solid #F1F5F9;"
+    aria-label="Latest News & Happenings">
+    <div class="container">
+      <div
+        style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div class="tag-gradient" style="margin-bottom:.5rem;">Latest Updates</div>
+          <h2 class="section-title" style="margin:0;">Recent Happenings &amp; Community News</h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <a href="news.html" style="color:#1E40AF;font-weight:700;font-size:0.9rem;text-decoration:none;">View All News
+            &rarr;</a>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="news-ctrl-btn" onclick="slideNews(-1)" aria-label="Previous News">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="news-ctrl-btn" onclick="slideNews(1)" aria-label="Next News">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- News Sliding Carousel -->
+      <div class="news-slider-wrapper" id="newsSliderWrapper" onmouseenter="pauseNewsSlider()"
+        onmouseleave="resumeNewsSlider()">
+        <div class="news-slider-track" id="homeNewsSliderTrack">
+          <!-- Rendered dynamically from /api/news -->
+          <div style="padding:3rem;text-align:center;width:100%;color:#64748B;">Loading live community news...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA SECTION ───────────────────────────────────────────────── -->
+  <section class="cta-section" aria-labelledby="cta-heading">
+    <div class="tag-gradient"
+      style="margin-bottom:1rem;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.15);">Join Our
+      Mission</div>
+    <h2 class="section-title" id="cta-heading" style="color:#fff;margin-bottom:1rem;">Ready to Make a Difference?</h2>
+    <p style="color:rgba(255,255,255,.88);max-width:36rem;margin:0 auto 2rem;font-size:1.05rem;">
+      Whether you want to donate, volunteer, or simply visit Roshni Village — we warmly welcome you to our family.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;">
+      <a href="contact.html#donate"
+        style="background:#fff;color:#1E40AF;padding:.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:transform .2s;"
+        onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        💛 Donate Now
+      </a>
+      <a href="volunteer.html"
+        style="border:2px solid rgba(255,255,255,.7);color:#fff;padding:.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:.9rem;transition:background .2s;"
+        onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='none'">
+        Become a Volunteer
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Footer Placeholder ──────────────────────────────────────── -->
+  <div id="site-footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script>
+    window.ACTIVE_PAGE = 'home';
+
+    // ── HERO PICTURE SLIDER CONTROLLER ────────────────────────────────────
+    let currentHeroSlide = 0;
+    let heroTimer = null;
+    const totalHeroSlides = 5;
+
+    function showHeroSlide(index) {
+      const slides = document.querySelectorAll('#heroPictureSlider .hero-slide');
+      const dots = document.querySelectorAll('#heroDotsContainer .hero-dot');
+      if (!slides.length) return;
+
+      if (index >= slides.length) index = 0;
+      if (index < 0) index = slides.length - 1;
+      currentHeroSlide = index;
+
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentHeroSlide);
+      });
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentHeroSlide);
+      });
+    }
+
+    function nextHeroSlide() {
+      showHeroSlide(currentHeroSlide + 1);
+    }
+
+    function prevHeroSlide() {
+      showHeroSlide(currentHeroSlide - 1);
+    }
+
+    function gotoHeroSlide(idx) {
+      showHeroSlide(idx);
+      resetHeroTimer();
+    }
+
+    function startHeroTimer() {
+      if (heroTimer) clearInterval(heroTimer);
+      heroTimer = setInterval(nextHeroSlide, 5000);
+    }
+
+    function pauseHeroSlider() {
+      if (heroTimer) clearInterval(heroTimer);
+    }
+
+    function resumeHeroSlider() {
+      startHeroTimer();
+    }
+
+    function resetHeroTimer() {
+      pauseHeroSlider();
+      resumeHeroSlider();
+    }
+
+    // ── HOME NEWS SLIDER CONTROLLER ──────────────────────────────────────
+    let newsSliderInterval = null;
+    let newsScrollPos = 0;
+
+    async function loadHomeNewsSlider() {
+      const track = document.getElementById('homeNewsSliderTrack');
+      if (!track) return;
+      try {
+        const res = await fetch('/api/news');
+        const newsItems = await res.json();
+        if (!newsItems || newsItems.length === 0) {
+          track.innerHTML = '<p style="padding:2rem;color:#64748B;">No news published yet.</p>';
+          return;
+        }
+
+        track.innerHTML = newsItems.map(item => {
+          const imgList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+          const mainImg = imgList[0];
+          const photoCount = imgList.length;
+
+          return `
+          <div class="news-slide-card">
+            <div class="card" style="height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+              <div style="position:relative;height:210px;background:#0F172A;overflow:hidden;">
+                <img src="${mainImg}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease;">
+                <span style="position:absolute;top:1rem;left:1rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);color:#1E40AF;font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:9999px;">
+                  ${item.category}
+                </span>
+                ${photoCount > 1 ? `
+                  <span style="position:absolute;top:1rem;right:1rem;background:rgba(30,64,175,0.9);color:#fff;font-size:0.7rem;font-weight:700;padding:0.25rem 0.65rem;border-radius:9999px;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(0,0,0,0.25);">
+                    <i class="fas fa-images"></i> ${photoCount} Photos
+                  </span>
+                ` : ''}
+              </div>
+              <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column;">
+                <div style="font-size:0.78rem;color:#94A3B8;margin-bottom:0.5rem;font-weight:600;">
+                  <i class="far fa-calendar-alt" style="color:#F97316;margin-right:4px;"></i> ${item.date}
+                </div>
+                <h3 style="font-size:1.15rem;font-weight:700;color:#1E3A8A;margin-bottom:0.6rem;line-height:1.4;">
+                  ${item.title}
+                </h3>
+                <p style="color:#64748B;font-size:0.875rem;line-height:1.7;margin-bottom:1.25rem;flex:1;">
+                  ${item.summary}
+                </p>
+                <div style="border-top:1px solid #F1F5F9;padding-top:1rem;margin-top:auto;display:flex;justify-content:space-between;align-items:center;">
+                  <a href="news.html" style="font-size:0.84rem;font-weight:700;color:#1E40AF;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                    Read Article <i class="fas fa-arrow-right"></i>
+                  </a>
+                  ${photoCount > 1 ? `<span style="font-size:0.75rem;color:#64748B;"><i class="fas fa-camera"></i> Gallery</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        }).join('');
+
+        startNewsAutoSlide();
+      } catch (e) {
+        console.warn('News slider notice:', e);
+      }
+    }
+
+    function slideNews(dir) {
+      const track = document.getElementById('homeNewsSliderTrack');
+      const wrapper = document.getElementById('newsSliderWrapper');
+      if (!track || !wrapper) return;
+      const cardWidth = track.firstElementChild ? track.firstElementChild.offsetWidth + 24 : 320;
+      const maxScroll = track.scrollWidth - wrapper.clientWidth;
+
+      newsScrollPos += dir * cardWidth;
+      if (newsScrollPos > maxScroll) newsScrollPos = 0;
+      if (newsScrollPos < 0) newsScrollPos = Math.max(0, maxScroll);
+
+      track.style.transform = `translateX(-${newsScrollPos}px)`;
+    }
+
+    function startNewsAutoSlide() {
+      if (newsSliderInterval) clearInterval(newsSliderInterval);
+      newsSliderInterval = setInterval(() => slideNews(1), 6000);
+    }
+
+    function pauseNewsSlider() {
+      if (newsSliderInterval) clearInterval(newsSliderInterval);
+    }
+
+    function resumeNewsSlider() {
+      startNewsAutoSlide();
+    }
+
+    // ── REAL-TIME STATS FETCHER ──────────────────────────────────────────
+    async function loadRealTimeStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const stats = await res.json();
+
+        const setVal = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+
+        setVal('liveResidentsCounter', stats.specialResidentsCount || '42');
+        setVal('liveStudentsCounter', (stats.studentsEnrolledCount || '165') + '+');
+        setVal('liveWorkshopsCounter', stats.activeWorkshopsCount || '5');
+        setVal('liveVolunteersCounter', stats.totalVolunteers || '0');
+
+        setVal('heroYearsVal', (stats.yearsOfService || '35') + '+');
+        setVal('heroResidentsVal', stats.specialResidentsCount || '42');
+        setVal('heroStudentsVal', stats.studentsEnrolledCount || '165');
+      } catch (err) {
+        console.warn('Real stats fetch notice:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRealTimeStats();
+      startHeroTimer();
+      loadHomeNewsSlider();
+    });
+  </script>
+  <script src="assets/js/nav.js"></script>
+  <script src="assets/js/footer.js"></script>
+  <script src="assets/js/shared.js"></script>
+</body>
+
+</html>

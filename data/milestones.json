@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "year": "1996",
+    "title": "Initial Inception",
+    "description": "Originally founded as the 'Society for the Welfare of Special Persons' in Lahore by Mr. Mahmood Aslam to create meaningful community care for special individuals."
+  },
+  {
+    "id": 2,
+    "year": "1999",
+    "title": "Birth of Roshni Association",
+    "description": "Shahida Perveen (trained Waldorf educator) partnered with Mrs. Nasira Mahmood and Hellmut Hannesen (German Curative Education) to revive the mission, establishing Roshni Association."
+  },
+  {
+    "id": 3,
+    "year": "2001",
+    "title": "First Day Care Center (Sep 3, 2001)",
+    "description": "Following extensive preparatory work with curative teachers Lars Jamke and Graham Simpson, Roshni opened its first center in Lahore offering daily artistic and therapeutic care."
+  },
+  {
+    "id": 4,
+    "year": "2005",
+    "title": "Move to Karbath, Bedian Road",
+    "description": "Roshni acquired expansive land at Karbath Soling to establish 'Roshni Village'—a sustainable rural community where special friends and co-workers live and work together in harmony."
+  },
+  {
+    "id": 5,
+    "year": "2006",
+    "title": "Green Earth Roshni School Founded",
+    "description": "Inaugurated the Green Earth School, bringing Waldorf-inspired holistic education to underprivileged rural village children free of cost."
+  },
+  {
+    "id": 6,
+    "year": "2012",
+    "title": "Organic Workshops & Bakery Expansion",
+    "description": "Expanded vocational workshops into 5 daily units: traditional wood-fired organic bakery, textile weaving/embroidery, woodworking, art studio, and bio-dynamic organic farm."
+  },
+  {
+    "id": 7,
+    "year": "2018",
+    "title": "Community Based Rehabilitation (CBR)",
+    "description": "Initiated rural outreach program providing physical therapy, rehabilitation, and medical aid to disabled individuals across neighboring rural settlements."
+  },
+  {
+    "id": 8,
+    "year": "Present",
+    "title": "Thriving Inclusive Community",
+    "description": "A pioneering social community in Pakistan supporting resident special friends, educating hundreds of village children, and welcoming local and global volunteers."
+  }
+]

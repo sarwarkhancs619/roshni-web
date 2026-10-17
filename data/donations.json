@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1791973785855,
+    "name": "Ghulam Sarwar",
+    "email": "sarwarkhancs619@gmail.com",
+    "phone": "+923088717837",
+    "purpose": "General Donation",
+    "amount": 30000,
+    "paymentMethod": "Cash / Cheque Collection in Lahore",
+    "createdAt": "2026-10-14T10:29:45.855Z"
+  },
+  {
+    "id": 1,
+    "name": "Kamran Sheikh",
+    "email": "kamran.s@example.com",
+    "phone": "+92 322 1122334",
+    "purpose": "Sponsor a Child Education (PKR 6,000/mo)",
+    "amount": "6000",
+    "paymentMethod": "Direct Bank Transfer",
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  }
+]

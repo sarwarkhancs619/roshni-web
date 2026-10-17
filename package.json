@@ -1,0 +1,24 @@
+{
+  "name": "roshni-association-website",
+  "version": "1.0.0",
+  "description": "Official redesign and backend for Roshni Association - Welfare of Special Persons Lahore",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  },
+  "keywords": [
+    "roshni-association",
+    "special-needs",
+    "welfare",
+    "lahore",
+    "pakistan"
+  ],
+  "author": "Roshni Association",
+  "license": "ISC"
+}

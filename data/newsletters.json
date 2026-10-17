@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "subject": "Roshni Autumn Chronicle: Fresh Sourdough & Michaelmas Festival",
+    "issueTitle": "Autumn Edition - Issue 48",
+    "sentDate": "2026-10-12",
+    "previewText": "Warm greetings from Bedian Road! Discover our newly installed stone flour mill, children's garden progress, and upcoming Winter Bazaar dates.",
+    "sentToCount": 142,
+    "createdAt": "2026-10-12T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "subject": "Green Earth School Back-to-School & Volunteer Opportunities",
+    "issueTitle": "Late Summer Edition - Issue 47",
+    "sentDate": "2026-08-30",
+    "previewText": "Welcoming 150+ village pupils back for the new academic term. Sponsoring a child's education and stories from our residential houses.",
+    "sentToCount": 138,
+    "createdAt": "2026-08-30T10:00:00.000Z"
+  }
+]

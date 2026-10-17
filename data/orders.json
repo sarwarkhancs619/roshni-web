@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "customerName": "Ayesha Bilal",
+    "customerPhone": "0333 4455667",
+    "deliveryAddress": "House 14, Street 8, Phase 5 DHA, Lahore",
+    "items": [
+      {
+        "id": 1,
+        "title": "Traditional Sourdough Whole-Wheat Loaf",
+        "qty": 2,
+        "price": 450
+      },
+      {
+        "id": 7,
+        "title": "Pure Beeswax Pillar Candle (Set of 2)",
+        "qty": 1,
+        "price": 950
+      }
+    ],
+    "total": 1850,
+    "orderDate": "2026-10-14T09:40:00.000Z",
+    "status": "Pending Dispatch"
+  }
+]

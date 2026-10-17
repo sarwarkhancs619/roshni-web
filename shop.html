@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop Handcrafted &amp; Organic | Roshni Association Lahore</title>
+  <meta name="description" content="Purchase artisanal organic sourdough breads, handloom textiles, woodwork, and pure beeswax candles lovingly crafted by special artisans at Roshni Village Lahore.">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <style>
+    .cat-btn {
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border: 1px solid #E2E8F0;
+      background: #fff;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn.active, .cat-btn:hover {
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(30,64,175,0.2);
+    }
+    .product-img-box {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      background: #F8FAFC;
+    }
+    .product-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease, opacity 0.25s ease;
+    }
+    .card:hover .product-img-box img {
+      transform: scale(1.04);
+    }
+    .product-icon-overlay {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 2;
+    }
+    /* Multi-Picture Strip */
+    .prod-thumbs-strip {
+      display: flex;
+      gap: 6px;
+      padding: 0.6rem 0.75rem;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+      overflow-x: auto;
+    }
+    .prod-thumb-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      background: none;
+      transition: all 0.2s;
+    }
+    .prod-thumb-btn.active {
+      border-color: #1E40AF;
+      box-shadow: 0 0 0 2px rgba(30,64,175,0.25);
+    }
+    .prod-thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-count-pill {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(30,64,175,0.9);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 2;
+    }
+    .cart-float-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 90;
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      color: #fff;
+      border: none;
+      padding: 0.9rem 1.4rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 25px rgba(30,64,175,0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cart-float-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(30,64,175,0.5);
+    }
+    .cart-count {
+      background: #fff;
+      color: #1E40AF;
+      border-radius: 50%;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    /* Cart Modal */
+    .cart-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      justify-content: flex-end;
+      backdrop-filter: blur(4px);
+    }
+    .cart-modal-overlay.open { display: flex; }
+    .cart-sidebar {
+      background: #fff;
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 25px rgba(0,0,0,0.2);
+      animation: slideInRight 0.3s ease;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation Placeholder ────────────────────────────────────── -->
+<div id="site-header-placeholder"></div>
+
+<!-- ── Hero with same gradient as index ──────────────────────────── -->
+<section class="page-hero hero-gradient-bg" aria-label="Shop Banner">
+  <div class="tag-gradient" style="margin-bottom:1rem;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.18);">
+    🍞 100% Proceeds Support Special Artisans &bull; Cash on Delivery Lahore
+  </div>
+  <h1>Roshni Artisanal &amp; Organic Shop</h1>
+  <p>Fresh wholesome sourdough bread, organic farm honey, handloom textiles, and fine woodwork created by special adults at Roshni Village Lahore.</p>
+</section>
+
+<!-- ── Filter Bar ────────────────────────────────────────────────── -->
+<section style="background:#fff;border-bottom:1px solid #E2E8F0;padding:1.25rem 1.5rem;">
+  <div class="container" style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+    <button class="cat-btn active" onclick="filterCategory('all', this)">All Items</button>
+    <button class="cat-btn" onclick="filterCategory('bakery', this)">🍞 Organic Bakery</button>
+    <button class="cat-btn" onclick="filterCategory('textile', this)">🧵 Handloom &amp; Textiles</button>
+    <button class="cat-btn" onclick="filterCategory('wood', this)">🪵 Woodwork Crafts</button>
+    <button class="cat-btn" onclick="filterCategory('candles', this)">🕯️ Beeswax Candles &amp; Art</button>
+    <button class="cat-btn" onclick="filterCategory('farm', this)">🌾 Farm &amp; Honey</button>
+  </div>
+</section>
+
+<!-- ── Products Grid (Loaded Dynamically via /api/products) ──────── -->
+<section class="section">
+  <div class="container">
+    <div id="productGrid" class="grid-3">
+      <!-- Products loaded via JS below -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Sticky Cart Button ────────────────────────────────────────── -->
+<button class="cart-float-btn" id="openCartBtn" onclick="toggleCart(true)">
+  <i class="fas fa-shopping-basket"></i>
+  <span>Cart</span>
+  <span class="cart-count" id="cartCountBadge">0</span>
+</button>
+
+<!-- ── Cart Drawer Modal ─────────────────────────────────────────── -->
+<div class="cart-modal-overlay" id="cartModal" onclick="handleCartOverlayClick(event)">
+  <div class="cart-sidebar" onclick="event.stopPropagation()">
+    <!-- Header -->
+    <div style="padding:1.5rem;border-bottom:1px solid #E2E8F0;display:flex;justify-content:space-between;align-items:center;">
+      <h3 class="serif-heading" style="font-size:1.3rem;color:#1E3A8A;margin:0;">
+        <i class="fas fa-shopping-basket" style="color:#F97316;margin-right:8px;"></i> Your Order Cart
+      </h3>
+      <button onclick="toggleCart(false)" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#64748B;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Items List -->
+    <div id="cartItemsList" style="flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+      <!-- Dynamic cart items will render here -->
+    </div>
+
+    <!-- Footer Checkout Form -->
+    <div style="padding:1.5rem;border-top:1px solid #E2E8F0;background:#F8FAFC;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-weight:700;font-size:1.1rem;color:#1E3A8A;">
+        <span>Total:</span>
+        <span id="cartTotalText">PKR 0</span>
+      </div>
+
+      <form id="checkoutForm">
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <input type="text" name="customerName" required placeholder="Your Name *" class="form-control" style="padding:0.6rem 0.8rem;font-size:0.85rem;">
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <input type="tel" name="customerPhone" required placeholder="Phone / WhatsApp Number *" class="form-control" style="padding:0.6rem 0.8rem;font-size:0.85rem;">
+        </div>
+        <div class="form-group" style="margin-bottom:0.75rem;">
+          <textarea name="deliveryAddress" rows="2" required placeholder="Delivery Address in Lahore (Cash on Delivery) *" class="form-control" style="padding:0.6rem 0.8rem;font-size:0.85rem;"></textarea>
+        </div>
+        <button type="submit" class="btn-submit" style="padding:0.75rem;font-size:0.92rem;">
+          <i class="fas fa-check" style="margin-right:6px;"></i> Confirm Order (Cash on Delivery)
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer Placeholder ────────────────────────────────────────── -->
+<div id="site-footer-placeholder"></div>
+
+<!-- Scripts -->
+<script>
+  window.ACTIVE_PAGE = 'shop';
+
+  let ALL_PRODUCTS = [];
+  let cart = [];
+
+  async function loadProducts() {
+    try {
+      const res = await fetch('/api/products');
+      ALL_PRODUCTS = await res.json();
+    } catch(e) {
+      console.warn('Using offline fallback for products');
+    }
+    
+    // Check url params for category filter
+    const urlParams = new URLSearchParams(window.location.search);
+    const catParam = urlParams.get('category');
+    if (catParam) {
+      const matchBtn = Array.from(document.querySelectorAll('.cat-btn')).find(b => b.textContent.toLowerCase().includes(catParam));
+      filterCategory(catParam, matchBtn);
+    } else {
+      renderProducts(ALL_PRODUCTS);
+    }
+  }
+
+  function renderProducts(items) {
+    const grid = document.getElementById('productGrid');
+    if (!grid) return;
+    grid.innerHTML = items.map(p => {
+      const imgList = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : [p.image || 'assets/images/crafts_workshop.jpg'];
+      const mainImg = imgList[0];
+      const hasMultiple = imgList.length > 1;
+
+      const thumbsHtml = hasMultiple ? `
+        <div class="prod-thumbs-strip">
+          ${imgList.map((img, idx) => `
+            <button type="button" class="prod-thumb-btn ${idx === 0 ? 'active' : ''}" 
+                    onclick="switchProductImage(${p.id}, '${img}', this)"
+                    title="View photo ${idx + 1}">
+              <img src="${img}" alt="${p.title} thumbnail ${idx + 1}">
+            </button>
+          `).join('')}
+        </div>
+      ` : '';
+
+      return `
+        <div class="card" style="display:flex;flex-direction:column;overflow:hidden;" data-reveal>
+          <div class="product-img-box">
+            <img id="main-prod-img-${p.id}" src="${mainImg}" alt="${p.title}">
+            <span style="position:absolute;top:1rem;left:1rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);padding:0.25rem 0.65rem;border-radius:9999px;font-size:0.7rem;font-weight:700;color:#1E40AF;box-shadow:0 2px 6px rgba(0,0,0,0.1);z-index:2;">
+              ${p.workshop || 'Roshni Workshop'}
+            </span>
+            ${hasMultiple ? `
+              <div class="photo-count-pill">
+                <i class="fas fa-images"></i> ${imgList.length} Photos
+              </div>
+            ` : ''}
+            <div class="product-icon-overlay">${p.icon || '🎁'}</div>
+          </div>
+          ${thumbsHtml}
+          <div style="padding:1.5rem;flex:1;display:flex;flex-direction:column;">
+            <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;">${p.title}</h3>
+            <p style="color:#64748B;font-size:0.85rem;line-height:1.6;margin-bottom:1rem;flex:1;">${p.desc}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #F1F5F9;padding-top:1rem;margin-top:auto;">
+              <div style="font-size:1.25rem;font-weight:800;color:#F97316;">PKR ${Number(p.price).toLocaleString()}</div>
+              <button onclick="addToCart(${p.id})" class="btn-gradient" style="padding:0.55rem 1.1rem;border-radius:9999px;font-size:0.82rem;font-weight:700;">
+                <i class="fas fa-cart-plus" style="margin-right:4px;"></i> Add
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function switchProductImage(productId, newSrc, btn) {
+    const mainImg = document.getElementById(`main-prod-img-${productId}`);
+    if (mainImg) {
+      mainImg.style.opacity = '0.3';
+      setTimeout(() => {
+        mainImg.src = newSrc;
+        mainImg.style.opacity = '1';
+      }, 150);
+    }
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll('.prod-thumb-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+
+  function filterCategory(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    if (cat === 'all') {
+      renderProducts(ALL_PRODUCTS);
+    } else {
+      const filtered = ALL_PRODUCTS.filter(p => p.category === cat);
+      renderProducts(filtered);
+    }
+  }
+
+  function addToCart(id) {
+    const product = ALL_PRODUCTS.find(p => p.id === id);
+    if (!product) return;
+    const existing = cart.find(c => c.id === id);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ ...product, qty: 1 });
+    }
+    updateCartUI();
+    showToast(`Added "${product.title}" to cart! 🛍️`);
+  }
+
+  function updateQty(id, delta) {
+    const item = cart.find(c => c.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) {
+      cart = cart.filter(c => c.id !== id);
+    }
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+    const totalPrice = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
+
+    document.getElementById('cartCountBadge').textContent = totalCount;
+    document.getElementById('cartTotalText').textContent = `PKR ${totalPrice.toLocaleString()}`;
+
+    const list = document.getElementById('cartItemsList');
+    if (cart.length === 0) {
+      list.innerHTML = `
+        <div style="text-align:center;padding:3rem 1rem;color:#94A3B8;">
+          <div style="font-size:3rem;margin-bottom:0.75rem;">🛒</div>
+          <p>Your cart is currently empty.</p>
+          <button onclick="toggleCart(false)" class="btn-gradient" style="margin-top:1rem;padding:0.5rem 1.2rem;border-radius:9999px;font-size:0.82rem;">Start Shopping</button>
+        </div>
+      `;
+    } else {
+      list.innerHTML = cart.map(item => `
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:#F8FAFC;border-radius:0.75rem;border:1px solid #E2E8F0;">
+          <div style="font-size:1.8rem;">${item.icon || '🎁'}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:0.88rem;color:#1E3A8A;">${item.title}</div>
+            <div style="font-size:0.8rem;color:#F97316;font-weight:600;">PKR ${item.price.toLocaleString()}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.4rem;">
+            <button onclick="updateQty(${item.id}, -1)" style="width:1.75rem;height:1.75rem;border:1px solid #CBD5E1;border-radius:4px;background:#fff;cursor:pointer;font-weight:700;">-</button>
+            <span style="font-size:0.88rem;font-weight:700;min-width:1rem;text-align:center;">${item.qty}</span>
+            <button onclick="updateQty(${item.id}, 1)" style="width:1.75rem;height:1.75rem;border:1px solid #CBD5E1;border-radius:4px;background:#fff;cursor:pointer;font-weight:700;">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function toggleCart(open) {
+    const modal = document.getElementById('cartModal');
+    if (open) {
+      modal.classList.add('open');
+    } else {
+      modal.classList.remove('open');
+    }
+  }
+
+  function handleCartOverlayClick(e) {
+    if (e.target.id === 'cartModal') {
+      toggleCart(false);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadProducts();
+
+    // Checkout handler
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+      checkoutForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (cart.length === 0) {
+          showToast('Your cart is empty! Please add products first.', 'error');
+          return;
+        }
+        const formData = Object.fromEntries(new FormData(checkoutForm).entries());
+        const orderData = {
+          ...formData,
+          items: cart,
+          total: cart.reduce((sum, item) => sum + (item.qty * item.price), 0),
+          orderDate: new Date().toISOString()
+        };
+
+        const res = await apiPost('/shop/order', orderData);
+        if (res.ok) {
+          showToast('🎉 Order placed successfully! We will call you for delivery confirmation.');
+          cart = [];
+          updateCartUI();
+          checkoutForm.reset();
+          toggleCart(false);
+        } else {
+          showToast('Order submission failed. Please try again or WhatsApp us.', 'error');
+        }
+      });
+    }
+  });
+</script>
+<script src="assets/js/nav.js"></script>
+<script src="assets/js/footer.js"></script>
+<script src="assets/js/shared.js"></script>
+</body>
+</html>

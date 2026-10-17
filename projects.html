@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Projects | Roshni Association Lahore</title>
+  <meta name="description"
+    content="Discover Roshni Association's three core projects: Roshni Village (residential community + 5 vocational workshops), Green Earth Waldorf School, and Community Based Rehabilitation (CBR) serving rural Lahore.">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="assets/css/shared.css">
+  <style>
+    .workshop-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 1px solid #BFDBFE;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: #475569;
+    }
+
+    .feature-list li i {
+      color: #F97316;
+      font-size: 0.9rem;
+    }
+
+    .project-hero-photo {
+      border-radius: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(30, 64, 175, 0.15);
+      border: 3px solid #fff;
+    }
+
+    .project-hero-photo img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .project-hero-photo:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Workshop mini-cards inside Roshni Village */
+    .workshop-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (min-width: 640px) {
+      .workshop-mini-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .workshop-mini-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    .workshop-mini-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 1rem;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .workshop-mini-card:hover {
+      border-color: #1E40AF;
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.12);
+      transform: translateY(-3px);
+    }
+
+    .workshop-mini-card .icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .workshop-mini-card .name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1E3A8A;
+      line-height: 1.3;
+    }
+
+    /* Workshop detail sections (sub-sections inside Village) */
+    .workshop-detail-section {
+      border-top: 2px solid #F1F5F9;
+      padding-top: 3rem;
+      margin-top: 3rem;
+    }
+
+    .workshop-detail-section:first-of-type {
+      margin-top: 2rem;
+    }
+
+    /* CBR accent */
+    .cbr-stat-box {
+      background: linear-gradient(135deg, #EFF6FF, #FFF7ED);
+      border: 1px solid #BFDBFE;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .cbr-stat-box .num {
+      font-size: 1.9rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1E40AF, #F97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cbr-stat-box .lbl {
+      font-size: 0.78rem;
+      color: #64748B;
+      margin-top: 0.2rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── Navigation Placeholder ────────────────────────────────────── -->
+  <div id="site-header-placeholder"></div>
+
+  <!-- ── Hero with same gradient ───────────────────────────────────── -->
+  <section class="page-hero hero-gradient-bg" aria-label="Projects Banner">
+    <div class="tag-gradient"
+      style="margin-bottom:1rem;color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.18);">
+      🌱 Sustainable Community &bull; Inclusive Education &bull; Rural Outreach
+    </div>
+    <h1>Our Three Core Projects</h1>
+    <p>Roshni Association runs three interconnected programs: a residential therapeutic village with vocational
+      workshops, a free Waldorf school, and a rural Community Based Rehabilitation program reaching families in need.
+    </p>
+  </section>
+
+  <!-- ── Quick Jump Bar ────────────────────────────────────────────── -->
+  <div
+    style="background:#fff;border-bottom:1px solid #E2E8F0;position:sticky;top:5rem;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+    <div class="container" style="display:flex;gap:1.5rem;overflow-x:auto;padding:0.75rem 1.5rem;white-space:nowrap;">
+      <a href="#village" style="font-size:0.85rem;font-weight:700;color:#1E40AF;text-decoration:none;"><i
+          class="fas fa-home" style="margin-right:4px;"></i> Roshni Village</a>
+      <a href="#school" style="font-size:0.85rem;font-weight:700;color:#475569;text-decoration:none;"><i
+          class="fas fa-graduation-cap" style="margin-right:4px;"></i> Green Earth School</a>
+      <a href="#cbr" style="font-size:0.85rem;font-weight:700;color:#475569;text-decoration:none;"><i
+          class="fas fa-hands-helping" style="margin-right:4px;"></i> CBR Program</a>
+      <span style="color:#CBD5E1;">|</span>
+      <a href="#bakery" style="font-size:0.82rem;color:#64748B;text-decoration:none;"><i class="fas fa-bread-slice"
+          style="margin-right:4px;"></i> Bakery</a>
+      <a href="#farm" style="font-size:0.82rem;color:#64748B;text-decoration:none;"><i class="fas fa-seedling"
+          style="margin-right:4px;"></i> Farm</a>
+      <a href="#crafts" style="font-size:0.82rem;color:#64748B;text-decoration:none;"><i class="fas fa-tools"
+          style="margin-right:4px;"></i> Crafts</a>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     PROJECT 1 — ROSHNI VILLAGE (with 5 workshops as sub-sections)
+════════════════════════════════════════════════════════════════════ -->
+  <section id="village" class="section">
+    <div class="container">
+
+      <!-- Village Introduction -->
+      <div class="grid-2" style="align-items:center;">
+        <div data-reveal>
+          <span class="workshop-pill"><i class="fas fa-heart"></i> Core Residential Community</span>
+          <h2 class="serif-heading" style="font-size:2.2rem;color:#1E3A8A;margin-bottom:1rem;">Roshni Village</h2>
+          <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1rem;">
+            Roshni Village is Pakistan's first intentional residential community for adults with intellectual
+            disabilities. Situated along Bedian Road in Lahore, it provides a tranquil, family-like setting where
+            special persons live, work, and socialise in an atmosphere of mutual respect.
+          </p>
+          <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1.5rem;">
+            Residents live in community family houses alongside dedicated house parents and co-workers, sharing healthy
+            organic meals and vibrant cultural celebrations. Within the village campus, residents participate every day
+            in <strong>five meaningful vocational workshops</strong> which bring structure, accomplishment, and joy.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> 24/7 loving residential care and medical oversight</li>
+            <li><i class="fas fa-check-circle"></i> Daily structured therapeutic rhythm and seasonal festivals</li>
+            <li><i class="fas fa-check-circle"></i> Nutritious organic meals harvested from our biodynamic farm</li>
+            <li><i class="fas fa-check-circle"></i> Art, music, eurythmy movement, and social companionship</li>
+            <li><i class="fas fa-check-circle"></i> 5 daily vocational workshops run by residents themselves</li>
+          </ul>
+          <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+            <a href="contact.html" class="nav-cta">Plan a Visit to Village</a>
+            <a href="volunteer.html"
+              style="font-size:0.85rem;font-weight:700;color:#1E40AF;display:inline-flex;align-items:center;padding:0.6rem 1rem;">Live
+              as a Volunteer <i class="fas fa-arrow-right" style="margin-left:6px;"></i></a>
+          </div>
+        </div>
+
+        <!-- Village Photo -->
+        <div class="project-hero-photo" data-reveal>
+          <img src="assets/images/Roshni_Village.jpg" alt="Roshni Village Brick Cottages and Gardens">
+        </div>
+      </div>
+
+      <!-- ─── WORKSHOPS inside Roshni Village ─────────────────────── -->
+      <div style="margin-top:3.5rem;" data-reveal>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#1E40AF,#F97316);border-radius:9999px;"></div>
+          <span
+            style="font-size:0.82rem;font-weight:700;color:#1E40AF;white-space:nowrap;letter-spacing:0.06em;text-transform:uppercase;">
+            <i class="fas fa-tools"></i> Vocational Workshops Inside the Village
+          </span>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#F97316,#1E40AF);border-radius:9999px;"></div>
+        </div>
+        <p style="text-align:center;color:#64748B;font-size:0.88rem;margin-bottom:1.5rem;">
+          All five workshops are held within Roshni Village campus. Residents participate daily, guided by master
+          craftspeople.
+        </p>
+
+        <!-- Workshop mini-nav tiles -->
+        <div class="workshop-mini-grid">
+          <a href="#bakery" class="workshop-mini-card">
+            <div class="icon">🍞</div>
+            <div class="name">Stone-Oven<br>Bakery</div>
+          </a>
+          <a href="#farm" class="workshop-mini-card">
+            <div class="icon">🌾</div>
+            <div class="name">Biodynamic<br>Farm &amp; Dairy</div>
+          </a>
+          <a href="#crafts" class="workshop-mini-card">
+            <div class="icon">🧵</div>
+            <div class="name">Textile<br>Handloom</div>
+          </a>
+          <a href="#crafts" class="workshop-mini-card">
+            <div class="icon">🪵</div>
+            <div class="name">Carpentry &amp;<br>Woodwork</div>
+          </a>
+          <a href="#crafts" class="workshop-mini-card">
+            <div class="icon">🕯️</div>
+            <div class="name">Art &amp; Beeswax<br>Candles</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ─── WORKSHOP DETAIL: Bakery ─────────────────────────────── -->
+      <div id="bakery" class="workshop-detail-section" data-reveal>
+        <div class="grid-2" style="align-items:center;gap:3rem;">
+          <div>
+            <span class="workshop-pill" style="background:#FFF7ED;color:#EA580C;border-color:#FED7AA;"><i
+                class="fas fa-bread-slice"></i> Workshop 1 of 5 — Inside Roshni Village</span>
+            <h3 class="serif-heading" style="font-size:1.9rem;color:#1E3A8A;margin-bottom:1rem;">Organic Stone-Oven
+              Bakery</h3>
+            <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+              Our bakery is one of Roshni's most beloved therapeutic enterprises. Fresh whole-wheat sourdough loaves,
+              rye breads, and cookies are baked daily in a traditional wood-fired stone oven by special residents
+              alongside master bakers.
+            </p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check-circle"></i> 100% organic, chemical-free whole grains</li>
+              <li><i class="fas fa-check-circle"></i> 24-hour slow natural sourdough fermentation</li>
+              <li><i class="fas fa-check-circle"></i> Stone-ground flour milled on the village premises</li>
+              <li><i class="fas fa-check-circle"></i> Available for order — delivered in Lahore</li>
+            </ul>
+            <div style="margin-top:1.25rem;">
+              <a href="shop.html?category=bakery" class="btn-gradient"
+                style="display:inline-block;padding:0.75rem 1.8rem;border-radius:9999px;font-size:0.85rem;font-weight:700;text-decoration:none;">
+                Order Fresh Sourdough &rarr;
+              </a>
+            </div>
+          </div>
+          <div class="project-hero-photo" style="max-height:300px;">
+            <img src="assets/images/organic_bakery.jpg" alt="Artisan Organic Bakery at Roshni Village"
+              style="height:300px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKSHOP DETAIL: Organic Farm ───────────────────────── -->
+      <div id="farm" class="workshop-detail-section" data-reveal>
+        <div class="grid-2" style="align-items:center;gap:3rem;">
+          <div class="project-hero-photo" style="max-height:300px;order:1;" data-reveal>
+            <img src="assets/images/organic_farm.jpg" alt="Biodynamic Organic Farm at Roshni Village"
+              style="height:300px;">
+          </div>
+          <div style="order:2;">
+            <span class="workshop-pill" style="background:#F0FDF4;color:#16A34A;border-color:#BBF7D0;"><i
+                class="fas fa-seedling"></i> Workshop 2 of 5 — Inside Roshni Village</span>
+            <h3 class="serif-heading" style="font-size:1.9rem;color:#1E3A8A;margin-bottom:1rem;">Biodynamic Farm &amp;
+              Dairy</h3>
+            <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+              Spanning verdant acres along Bedian Road, our biodynamic farm is cultivated completely free from synthetic
+              pesticides. Residents participate in sowing, tending, and harvesting — building connection with the living
+              earth.
+            </p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check-circle"></i> Seasonal vegetables, wheat, and organic honey</li>
+              <li><i class="fas fa-check-circle"></i> Farm-to-table meals for residents and school children</li>
+              <li><i class="fas fa-check-circle"></i> Composting, crop rotation &amp; natural soil regeneration</li>
+              <li><i class="fas fa-check-circle"></i> Gentle dairy herd providing fresh milk daily</li>
+            </ul>
+            <a href="shop.html?category=farm"
+              style="color:#F97316;font-weight:700;font-size:0.9rem;text-decoration:none;margin-top:1.25rem;display:inline-flex;align-items:center;gap:6px;">
+              View Wildflower Honey in Shop <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WORKSHOP DETAIL: Crafts ─────────────────────────────── -->
+      <div id="crafts" class="workshop-detail-section" data-reveal>
+        <div class="grid-2" style="align-items:center;gap:3rem;">
+          <div>
+            <span class="workshop-pill" style="background:#FDF4FF;color:#9333EA;border-color:#E9D5FF;"><i
+                class="fas fa-tools"></i> Workshops 3, 4 &amp; 5 of 5 — Inside Roshni Village</span>
+            <h3 class="serif-heading" style="font-size:1.9rem;color:#1E3A8A;margin-bottom:1rem;">Textile, Carpentry
+              &amp; Art Studios</h3>
+            <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+              Three thriving craft studios — a textile handloom studio, a carpentry workshop, and an art &amp; candle
+              studio — where resident artisans create beautiful handmade goods that are sold to support the community.
+            </p>
+            <ul class="feature-list">
+              <li><i class="fas fa-check-circle"></i> <strong>Handloom:</strong> Organic cotton tote bags, shawls &amp;
+                napkins</li>
+              <li><i class="fas fa-check-circle"></i> <strong>Carpentry:</strong> Solid shisham wood boards, platters
+                &amp; toy blocks</li>
+              <li><i class="fas fa-check-circle"></i> <strong>Art &amp; Candles:</strong> Pure beeswax candles &amp;
+                hand-painted crafts</li>
+            </ul>
+            <div style="margin-top:1.25rem;display:flex;gap:1rem;flex-wrap:wrap;">
+              <a href="shop.html" class="nav-cta">Browse All Handcrafted Products</a>
+              <a href="contact.html"
+                style="font-size:0.85rem;font-weight:700;color:#1E40AF;display:inline-flex;align-items:center;padding:0.6rem 1rem;">Custom
+                Bulk Orders <i class="fas fa-arrow-right" style="margin-left:6px;"></i></a>
+            </div>
+          </div>
+          <div class="project-hero-photo" style="max-height:300px;">
+            <img src="assets/images/crafts_workshop.jpg" alt="Artisans at Roshni Crafts and Handloom Workshop"
+              style="height:300px;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     PROJECT 2 — GREEN EARTH WALDORF SCHOOL
+════════════════════════════════════════════════════════════════════ -->
+  <section id="school" class="section" style="background:#fff;border-top:4px solid #F1F5F9;">
+    <div class="container">
+      <div class="grid-2" style="align-items:center;">
+        <!-- School Photo -->
+        <div class="project-hero-photo" style="order:1;" data-reveal>
+          <img src="assets/images/green_earth_school.jpg" alt="Waldorf Classroom at Green Earth School">
+        </div>
+
+        <div style="order:2;" data-reveal>
+          <span class="workshop-pill"><i class="fas fa-graduation-cap"></i> Free Rural Waldorf Education</span>
+          <h2 class="serif-heading" style="font-size:2.2rem;color:#1E3A8A;margin-bottom:1rem;">Green Earth Roshni School
+          </h2>
+          <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1rem;">
+            Founded to bring Rudolf Steiner's Waldorf philosophy to underprivileged children of rural Lahore. We provide
+            100% free schooling, uniforms, books, and daily nutritious meals from Kindergarten to Grade 8.
+          </p>
+          <p style="color:#64748B;font-size:1rem;line-height:1.8;margin-bottom:1.5rem;">
+            Located directly within the Roshni Village campus, Green Earth School bridges mainstream village children
+            and special adults — fostering empathy, tolerance, and inclusion from early childhood.
+          </p>
+
+          <div class="grid-2" style="gap:1rem;margin-bottom:1.5rem;">
+            <div class="cbr-stat-box">
+              <div class="num">165+</div>
+              <div class="lbl">Students Enrolled (K–8)</div>
+            </div>
+            <div class="cbr-stat-box">
+              <div class="num">100%</div>
+              <div class="lbl">Tuition-Free with Meals</div>
+            </div>
+          </div>
+
+          <a href="contact.html#donate" class="btn-gradient"
+            style="display:inline-block;padding:0.75rem 1.8rem;border-radius:9999px;font-size:0.85rem;font-weight:700;text-decoration:none;">
+            Sponsor a Child's Education (PKR 6,000/mo)
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     PROJECT 3 — COMMUNITY BASED REHABILITATION (CBR)
+════════════════════════════════════════════════════════════════════ -->
+  <section id="cbr" class="section" style="border-top:4px solid #F1F5F9;">
+    <div class="container">
+      <!-- Section header -->
+      <div style="text-align:center;margin-bottom:3rem;" data-reveal>
+        <span class="workshop-pill" style="font-size:0.82rem;"><i class="fas fa-hands-helping"></i> Rural Outreach
+          &bull; Reaching Families in Need</span>
+        <h2 class="serif-heading" style="font-size:2.2rem;color:#1E3A8A;margin-bottom:1rem;">Community Based
+          Rehabilitation (CBR)</h2>
+        <p style="color:#64748B;font-size:1rem;line-height:1.8;max-width:42rem;margin:0 auto;">
+          The CBR program extends Roshni's care far beyond the village walls — bringing medical, educational, and social
+          support directly to disabled individuals and their families in surrounding rural communities and urban slums
+          around Bedian Road, Lahore.
+        </p>
+      </div>
+
+      <div class="grid-2" style="align-items:center;gap:3rem;">
+        <div data-reveal>
+          <h3 class="serif-heading" style="font-size:1.7rem;color:#1E3A8A;margin-bottom:1rem;">Bringing Rehabilitation
+            to the Doorstep</h3>
+          <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+            Many families with disabled members cannot access conventional rehabilitation services due to poverty,
+            distance, or stigma. The CBR team visits them in their homes and communities, providing:
+          </p>
+          <ul class="feature-list">
+            <li><i class="fas fa-check-circle"></i> Physical therapy and mobility aid assessments</li>
+            <li><i class="fas fa-check-circle"></i> Psychological counselling and family guidance sessions</li>
+            <li><i class="fas fa-check-circle"></i> Medical referrals and health screenings for disabled persons</li>
+            <li><i class="fas fa-check-circle"></i> Educational support &amp; school enrollment facilitation</li>
+            <li><i class="fas fa-check-circle"></i> Livelihood training for parents of disabled children</li>
+            <li><i class="fas fa-check-circle"></i> Awareness workshops to reduce disability stigma in villages</li>
+          </ul>
+
+          <div style="margin-top:1.75rem;display:flex;gap:1rem;flex-wrap:wrap;">
+            <a href="contact.html#donate" class="nav-cta">Support CBR Program</a>
+            <a href="volunteer.html"
+              style="font-size:0.85rem;font-weight:700;color:#1E40AF;display:inline-flex;align-items:center;padding:0.6rem 1rem;">
+              Volunteer with CBR Team <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- CBR Impact Stats -->
+        <div data-reveal>
+          <div
+            style="background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#F97316 100%);border-radius:1.5rem;padding:2.5rem;color:#fff;">
+            <div style="text-align:center;margin-bottom:1.5rem;">
+              <i class="fas fa-hands-helping"
+                style="font-size:2.5rem;opacity:0.9;margin-bottom:0.75rem;display:block;"></i>
+              <div style="font-size:1.1rem;font-weight:700;opacity:0.9;">CBR Outreach Impact</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;text-align:center;">
+              <div
+                style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:1rem;padding:1.25rem;">
+                <div style="font-size:2rem;font-weight:800;">Rural</div>
+                <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;margin-top:4px;">Villages Reached
+                </div>
+              </div>
+              <div
+                style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:1rem;padding:1.25rem;">
+                <div style="font-size:2rem;font-weight:800;">Home</div>
+                <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;margin-top:4px;">Visit Program</div>
+              </div>
+              <div
+                style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:1rem;padding:1.25rem;">
+                <div style="font-size:2rem;font-weight:800;">Free</div>
+                <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;margin-top:4px;">All Services</div>
+              </div>
+              <div
+                style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:1rem;padding:1.25rem;">
+                <div style="font-size:2rem;font-weight:800;">Multi</div>
+                <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;margin-top:4px;">Disability Types
+                </div>
+              </div>
+            </div>
+            <p
+              style="font-size:0.82rem;color:rgba(255,255,255,0.85);text-align:center;margin-top:1.5rem;line-height:1.6;">
+              CBR workers visit families at home, bringing dignity and support where it's needed most — free of charge,
+              regardless of distance.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CBR Pillars -->
+      <div style="margin-top:4rem;" data-reveal>
+        <h3 style="text-align:center;font-size:1.35rem;font-weight:700;color:#1E3A8A;margin-bottom:2rem;">Five Pillars
+          of our CBR Approach</h3>
+        <div class="grid-3" style="gap:1.25rem;">
+          <div class="card" style="padding:1.75rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">🏥</div>
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;font-size:1rem;">Health</h4>
+            <p style="color:#64748B;font-size:0.83rem;line-height:1.6;">Medical screenings, therapy referrals, and
+              assistive devices for mobility and hearing.</p>
+          </div>
+          <div class="card" style="padding:1.75rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">📚</div>
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;font-size:1rem;">Education</h4>
+            <p style="color:#64748B;font-size:0.83rem;line-height:1.6;">Enrollment support, special learning materials,
+              and home tutoring for disabled children.</p>
+          </div>
+          <div class="card" style="padding:1.75rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">💼</div>
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;font-size:1rem;">Livelihood</h4>
+            <p style="color:#64748B;font-size:0.83rem;line-height:1.6;">Vocational training and micro-enterprise support
+              for families of persons with disabilities.</p>
+          </div>
+          <div class="card" style="padding:1.75rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">🤝</div>
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;font-size:1rem;">Social Inclusion</h4>
+            <p style="color:#64748B;font-size:0.83rem;line-height:1.6;">Community awareness campaigns and anti-stigma
+              workshops in local schools and mosques.</p>
+          </div>
+          <div class="card" style="padding:1.75rem;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">🏛️</div>
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;font-size:1rem;">Empowerment</h4>
+            <p style="color:#64748B;font-size:0.83rem;line-height:1.6;">Rights education, legal aid awareness, and
+              connecting families to government support schemes.</p>
+          </div>
+          <div class="card"
+            style="padding:1.75rem;text-align:center;background:linear-gradient(135deg,#1E40AF,#3B82F6,#F97316);color:#fff;">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">🌟</div>
+            <h4 style="font-weight:700;color:#fff;margin-bottom:0.4rem;font-size:1rem;">Our Vision</h4>
+            <p style="color:rgba(255,255,255,0.9);font-size:0.83rem;line-height:1.6;">A society where every person with
+              a disability is seen, valued, and given opportunity — regardless of geography or income.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Gradient CTA ───────────────────────────────────────────────── -->
+  <section
+    style="background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#F97316 100%);color:#fff;padding:4.5rem 1.5rem;text-align:center;">
+    <div class="container" style="max-width:40rem;">
+      <h2 class="serif-heading" style="font-size:2rem;color:#fff;margin-bottom:1rem;">Support Our Three Core Projects
+      </h2>
+      <p style="color:rgba(255,255,255,0.9);font-size:1rem;line-height:1.7;margin-bottom:2rem;">
+        Every donation, volunteer visit, or workshop order directly sustains Roshni Village, the Green Earth School, or
+        the CBR outreach program.
+      </p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="contact.html#donate"
+          style="background:#fff;color:#1E40AF;padding:0.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:0.92rem;">💛
+          Donate Now</a>
+        <a href="volunteer.html"
+          style="border:2px solid rgba(255,255,255,0.7);color:#fff;padding:0.9rem 2.2rem;border-radius:9999px;font-weight:700;text-decoration:none;font-size:0.92rem;">Volunteer
+          With Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer Placeholder ────────────────────────────────────────── -->
+  <div id="site-footer-placeholder"></div>
+
+  <!-- Scripts -->
+  <script>window.ACTIVE_PAGE = 'projects';</script>
+  <script src="assets/js/nav.js"></script>
+  <script src="assets/js/footer.js"></script>
+  <script src="assets/js/shared.js"></script>
+</body>
+
+</html>

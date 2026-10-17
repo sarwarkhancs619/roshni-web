@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "Fatima Zahra",
+    "email": "fatima.z@example.com",
+    "phone": "+92 321 4567890",
+    "subject": "Plan a Visit to Roshni Village",
+    "message": "Assalam-o-Alaikum, I am a university lecturer in Lahore and would love to bring a small group of psychology students to visit Roshni Village on a Tuesday morning.",
+    "createdAt": "2026-10-12T14:30:00.000Z"
+  }
+]

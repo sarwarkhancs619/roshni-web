@@ -1,0 +1,59 @@
+[
+  {
+    "id": 1,
+    "title": "Annual Harvest & Michaelmas Festival Celebrated at Roshni Village",
+    "category": "Village Life",
+    "date": "2026-10-10",
+    "image": "assets/images/village_community.jpg",
+    "images": [
+      "assets/images/village_community.jpg",
+      "assets/images/organic_bakery.jpg",
+      "assets/images/organic_farm.jpg"
+    ],
+    "summary": "Residents of Roshni Village, children of Green Earth School, and visiting parents gathered to celebrate our annual Autumn Harvest with freshly baked stone-oven sourdough bread.",
+    "content": "Over 250 friends, villagers, and well-wishers joined us under Lahore's autumn skies. The festival included traditional music, lantern walks, and a theatrical presentation celebrating courage and solidarity.",
+    "createdAt": "2026-10-10T10:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "title": "New Stone Flour Mill Installed in Organic Bakery",
+    "category": "Workshop Update",
+    "date": "2026-09-28",
+    "image": "assets/images/organic_bakery.jpg",
+    "images": [
+      "assets/images/organic_bakery.jpg",
+      "assets/images/crafts_workshop.jpg"
+    ],
+    "summary": "Our organic bakery workshop has installed a traditional stone flour mill, enabling resident bakers to mill fresh desi wheat directly harvested from our biodynamic fields.",
+    "content": "The mill produces 100% whole-grain, stone-ground flour retaining all essential wheatgerm oils. Our sourdough loaves are now more flavorful and nourishing than ever before.",
+    "createdAt": "2026-09-28T14:30:00.000Z"
+  },
+  {
+    "id": 3,
+    "title": "Kindergarten Spring Botanical Garden Project at Green Earth School",
+    "category": "Waldorf Education",
+    "date": "2026-09-15",
+    "image": "assets/images/green_earth_school.jpg",
+    "images": [
+      "assets/images/green_earth_school.jpg",
+      "assets/images/organic_farm.jpg"
+    ],
+    "summary": "Village pupils planted their own circular herb and flower beds, learning natural botanical cycles through direct hands-on engagement with mother earth.",
+    "content": "Guided by our master gardener and class teachers, children sowed seeds of marigold, coriander, and sunflowers. Every morning starts with watering their living classroom gardens.",
+    "createdAt": "2026-09-15T09:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "title": "Autumn Volunteer Cohort Welcomed to Roshni Village",
+    "category": "Volunteers",
+    "date": "2026-08-22",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/village_community.jpg"
+    ],
+    "summary": "Volunteers from Germany, Switzerland, and local Lahore universities joined us for a 6-month residency assisting in our craft studios and school.",
+    "content": "Our new volunteers will live on-site, sharing meals and daily chores while helping in the handloom weaving studio, carpentry workshop, and remedial physiotherapy sessions.",
+    "createdAt": "2026-08-22T11:00:00.000Z"
+  }
+]

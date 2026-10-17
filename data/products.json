@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "category": "bakery",
+    "title": "Traditional Sourdough Whole-Wheat Loaf",
+    "workshop": "Roshni Stone-Oven Bakery",
+    "price": 450,
+    "icon": "🍞",
+    "image": "assets/images/organic_bakery.jpg",
+    "images": [
+      "assets/images/organic_bakery.jpg",
+      "assets/images/organic_farm.jpg"
+    ],
+    "desc": "Naturally fermented for 24 hours using local organic whole-wheat flour with zero artificial additives.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "category": "bakery",
+    "title": "Multigrain Seeded Rye Sourdough",
+    "workshop": "Roshni Stone-Oven Bakery",
+    "price": 550,
+    "icon": "🥖",
+    "image": "assets/images/organic_bakery.jpg",
+    "images": [
+      "assets/images/organic_bakery.jpg",
+      "assets/images/village_community.jpg"
+    ],
+    "desc": "Packed with organic flaxseed, sunflower seeds, and whole rye for sustained nourishment.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "category": "textile",
+    "title": "Handwoven Organic Cotton Tote Bag",
+    "workshop": "Handloom Textile Studio",
+    "price": 1200,
+    "icon": "👜",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/green_earth_school.jpg"
+    ],
+    "desc": "Woven on wooden handlooms by special artisans using unbleached raw organic Pakistani cotton.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "category": "textile",
+    "title": "Embroidered Kitchen Apron & Napkins Set",
+    "workshop": "Handloom Textile Studio",
+    "price": 1500,
+    "icon": "🧵",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/organic_bakery.jpg"
+    ],
+    "desc": "Set of 1 durable kitchen apron and 2 tea napkins with hand-embroidered floral motifs.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "category": "wood",
+    "title": "Shisham Wood Serving Platter / Board",
+    "workshop": "Carpentry Workshop",
+    "price": 2200,
+    "icon": "🪵",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/organic_farm.jpg"
+    ],
+    "desc": "Hand-shaped from seasoned shisham wood, finished with food-safe organic cold-pressed oil.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "category": "wood",
+    "title": "Handmade Wooden Children Toy Blocks",
+    "workshop": "Carpentry Workshop",
+    "price": 1800,
+    "icon": "🧸",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/green_earth_school.jpg"
+    ],
+    "desc": "Set of smooth Waldorf geometric wooden building blocks for creative, non-toxic child play.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "category": "candles",
+    "title": "Pure Beeswax Pillar Candle (Set of 2)",
+    "workshop": "Art & Candle Studio",
+    "price": 950,
+    "icon": "🕯️",
+    "image": "assets/images/crafts_workshop.jpg",
+    "images": [
+      "assets/images/crafts_workshop.jpg",
+      "assets/images/village_community.jpg"
+    ],
+    "desc": "100% natural Pakistani beeswax, releases a sweet honey scent that naturally purifies room air.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 8,
+    "category": "farm",
+    "title": "Raw Wildflower Honey (500g Jar)",
+    "workshop": "Biodynamic Farm",
+    "price": 1400,
+    "icon": "🍯",
+    "image": "assets/images/organic_farm.jpg",
+    "images": [
+      "assets/images/organic_farm.jpg",
+      "assets/images/crafts_workshop.jpg"
+    ],
+    "desc": "Pure, unprocessed raw honey harvested ethically from our village flora and eucalyptus trees.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  },
+  {
+    "id": 9,
+    "category": "candles",
+    "title": "Watercolor Greeting Cards (Pack of 5)",
+    "workshop": "Green Earth School & Art Studio",
+    "price": 600,
+    "icon": "🎨",
+    "image": "assets/images/green_earth_school.jpg",
+    "images": [
+      "assets/images/green_earth_school.jpg",
+      "assets/images/crafts_workshop.jpg"
+    ],
+    "desc": "Hand-painted seasonal watercolor cards on textured handmade paper by our special artists.",
+    "inStock": true,
+    "createdAt": "2026-10-14T08:00:00.000Z"
+  }
+]
