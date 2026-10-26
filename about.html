@@ -84,11 +84,11 @@
         <div style="display:flex;flex-direction:column;gap:1rem;">
           <div style="background:#fff;border-left:4px solid #1E40AF;padding:1.25rem;border-radius:0.75rem;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
             <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.3rem;"><i class="fas fa-bullseye" style="color:#1E40AF;margin-right:6px;"></i> Our Mission</h3>
-            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">To provide life-sharing community homes, meaningful vocational craft workshops, biodynamic farming, and free holistic Waldorf schooling for disadvantaged children.</p>
+            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">To create a community of people, some with special needs, who live and work together, care for each other and for the environment.</p>
           </div>
           <div style="background:#fff;border-left:4px solid #F97316;padding:1.25rem;border-radius:0.75rem;box-shadow:0 2px 10px rgba(0,0,0,0.03);">
             <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.3rem;"><i class="fas fa-eye" style="color:#F97316;margin-right:6px;"></i> Our Vision</h3>
-            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">A harmonious, compassionate society in Pakistan where people of all physical and intellectual abilities are embraced as valuable, contributing partners in life.</p>
+            <p style="color:#64748B;font-size:0.875rem;line-height:1.6;">A society where people with special needs can live in dignity and with self-respect.</p>
           </div>
         </div>
       </div>
@@ -151,8 +151,8 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
       <p class="section-subtitle">Dedicated philanthropists, Waldorf mentors, craft masters, and co-workers living side-by-side with our special friends.</p>
     </div>
 
-    <!-- Category Filter Tabs -->
-    <div style="display:flex;justify-content:center;gap:0.75rem;margin-bottom:2.5rem;flex-wrap:wrap;">
+    <!-- Category Filter Tabs + Quick Add/Manage Profile Button -->
+    <div style="display:flex;justify-content:center;align-items:center;gap:0.75rem;margin-bottom:2.5rem;flex-wrap:wrap;">
       <button onclick="filterTeam('all', this)" class="team-tab-btn active-tab" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #1E40AF;background:#1E40AF;color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;">
         All Profiles
       </button>
@@ -165,6 +165,12 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
       <button onclick="filterTeam('staff', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
         🛠️ Staff &amp; Workshop Masters
       </button>
+      <button onclick="openProfileModal()" style="padding:0.5rem 1.25rem;border-radius:9999px;border:none;background:linear-gradient(135deg,#1E40AF,#F97316);color:#fff;font-weight:700;font-size:0.85rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        <i class="fas fa-plus-circle" style="margin-right:4px;"></i> Add / Upload Profile
+      </button>
+      <button id="toggleEditModeBtn" onclick="toggleProfileEditMode()" style="padding:0.5rem 1.1rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#DC2626;font-weight:700;font-size:0.82rem;cursor:pointer;">
+        <i class="fas fa-trash-alt" style="margin-right:4px;"></i> Remove Profiles
+      </button>
     </div>
 
     <div class="grid-3" id="teamProfilesContainer">
@@ -173,8 +179,63 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
   </div>
 </section>
 
+<!-- ── Add Person Profile Modal ────────────────────────────────────── -->
+<div id="profileAddModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(4px);">
+  <div style="background:#fff;border-radius:1.5rem;max-width:540px;width:100%;padding:2rem;box-shadow:0 25px 60px rgba(0,0,0,0.3);position:relative;">
+    <button onclick="closeProfileModal()" style="position:absolute;top:1.25rem;right:1.25rem;border:none;background:none;font-size:1.25rem;cursor:pointer;color:#64748B;">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3 style="font-size:1.35rem;font-weight:800;color:#1E3A8A;margin-bottom:0.25rem;"><i class="fas fa-user-plus" style="color:#F97316;margin-right:6px;"></i> Add Person Profile</h3>
+    <p style="color:#64748B;font-size:0.85rem;margin-bottom:1.5rem;">New team members appear immediately on this page and are saved to the persistent database.</p>
+
+    <form id="teamUploadForm" onsubmit="submitNewProfile(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
+        <div>
+          <label style="font-size:0.75rem;font-weight:700;color:#475569;display:block;margin-bottom:0.25rem;">Full Name *</label>
+          <input type="text" name="name" required class="form-control" placeholder="e.g. Dr. Shahida Perveen" style="padding:0.6rem 0.8rem;font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:700;color:#475569;display:block;margin-bottom:0.25rem;">Role / Designation *</label>
+          <input type="text" name="role" required class="form-control" placeholder="e.g. General Secretary" style="padding:0.6rem 0.8rem;font-size:0.85rem;">
+        </div>
+      </div>
+
+      <div style="margin-bottom:0.75rem;">
+        <label style="font-size:0.75rem;font-weight:700;color:#475569;display:block;margin-bottom:0.25rem;">Category *</label>
+        <select name="category" class="form-control" style="padding:0.6rem 0.8rem;font-size:0.85rem;">
+          <option value="board">🏛️ Board of Trustees</option>
+          <option value="living">🏡 Community Living (House Parents)</option>
+          <option value="staff">🛠️ Staff &amp; Workshop Masters</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:0.75rem;">
+        <label style="font-size:0.75rem;font-weight:700;color:#475569;display:block;margin-bottom:0.25rem;">Upload Photo</label>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfilePhoto(this)">
+          <button type="button" onclick="document.getElementById('profileFileInput').click()" style="padding:0.5rem 1rem;border-radius:0.5rem;border:1px solid #CBD5E1;background:#F8FAFC;font-size:0.8rem;font-weight:700;color:#1E40AF;cursor:pointer;">
+            <i class="fas fa-upload"></i> Choose Photo File
+          </button>
+          <span id="profilePhotoName" style="font-size:0.78rem;color:#64748B;">Optional</span>
+        </div>
+        <input type="hidden" name="image" id="profileImageUrl" value="/assets/images/roshni_logo.jpg">
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-size:0.75rem;font-weight:700;color:#475569;display:block;margin-bottom:0.25rem;">Bio / Care Contribution *</label>
+        <textarea name="bio" rows="2" required class="form-control" placeholder="Brief description of dedication and role at Roshni..." style="padding:0.6rem 0.8rem;font-size:0.85rem;"></textarea>
+      </div>
+
+      <button type="submit" id="saveProfileBtn" style="width:100%;padding:0.85rem;border:none;border-radius:9999px;background:linear-gradient(135deg,#1E40AF,#F97316);color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;">
+        Save &amp; Publish Profile
+      </button>
+    </form>
+  </div>
+</div>
+
 <script>
 let allTeamMembers = [];
+let profileEditMode = false;
 
 async function loadTeamProfiles() {
   const container = document.getElementById('teamProfilesContainer');
@@ -194,7 +255,7 @@ function renderTeamCards(category) {
   const filtered = category === 'all' ? allTeamMembers : allTeamMembers.filter(m => m.category === category);
   
   if (!filtered || filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No profiles in this category yet.</div>';
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No profiles in this category yet. Click "Add / Upload Profile" above to create one.</div>';
     return;
   }
 
@@ -206,8 +267,16 @@ function renderTeamCards(category) {
 
   container.innerHTML = filtered.map(m => {
     const b = badgeConfig[m.category] || { label: m.category, color: '#1E40AF', bg: '#DBEAFE' };
+    const deleteBtn = profileEditMode ? `
+      <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid #FEE2E2;">
+        <button onclick="deleteProfileDirect(${m.id}, '${escapeHtml(m.name)}')" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;padding:0.35rem 0.85rem;border-radius:9999px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+          <i class="fas fa-trash-alt"></i> Delete Profile
+        </button>
+      </div>
+    ` : '';
+
     return `
-      <div class="card" style="padding:2rem;text-align:center;display:flex;flex-direction:column;justify-content:space-between;" data-reveal>
+      <div class="card" style="padding:2rem;text-align:center;display:flex;flex-direction:column;justify-content:space-between;position:relative;" data-reveal>
         <div>
           <div style="display:flex;justify-content:center;margin-bottom:1.25rem;">
             <img src="${m.image || '/assets/images/roshni_logo.jpg'}" alt="${m.name}"
@@ -221,6 +290,7 @@ function renderTeamCards(category) {
           <p style="color:#F97316;font-size:0.85rem;font-weight:700;margin-bottom:0.75rem;">${m.role}</p>
           <p style="color:#64748B;font-size:0.88rem;line-height:1.6;margin:0;">${m.bio || ''}</p>
         </div>
+        ${deleteBtn}
       </div>
     `;
   }).join('');
@@ -238,6 +308,107 @@ function filterTeam(cat, btn) {
     btn.style.borderColor = '#1E40AF';
   }
   renderTeamCards(cat);
+}
+
+function toggleProfileEditMode() {
+  profileEditMode = !profileEditMode;
+  const btn = document.getElementById('toggleEditModeBtn');
+  if (btn) {
+    btn.style.background = profileEditMode ? '#DC2626' : '#fff';
+    btn.style.color = profileEditMode ? '#fff' : '#DC2626';
+    btn.innerHTML = profileEditMode ? '<i class="fas fa-check"></i> Done Removing' : '<i class="fas fa-trash-alt"></i> Remove Profiles';
+  }
+  renderTeamCards('all');
+}
+
+async function deleteProfileDirect(id, name) {
+  if (!confirm(`Are you sure you want to remove ${name} from team profiles?`)) return;
+  try {
+    const res = await fetch('/api/team/' + id, { method: 'DELETE' });
+    if (res.ok) {
+      await loadTeamProfiles();
+    } else {
+      alert('Delete failed. Please try again.');
+    }
+  } catch(e) {
+    alert('Delete error: ' + e.message);
+  }
+}
+
+function openProfileModal() {
+  const m = document.getElementById('profileAddModal');
+  if (m) m.style.display = 'flex';
+}
+
+function closeProfileModal() {
+  const m = document.getElementById('profileAddModal');
+  if (m) m.style.display = 'none';
+}
+
+async function handleProfilePhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  document.getElementById('profilePhotoName').textContent = 'Uploading: ' + file.name + '...';
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64Data: e.target.result, filename: file.name })
+      });
+      const data = await res.json();
+      if (data.ok && data.url) {
+        document.getElementById('profileImageUrl').value = '/' + data.url;
+        document.getElementById('profilePhotoName').textContent = '✅ ' + file.name;
+      } else {
+        document.getElementById('profileImageUrl').value = e.target.result;
+        document.getElementById('profilePhotoName').textContent = '✅ ' + file.name;
+      }
+    } catch(err) {
+      document.getElementById('profileImageUrl').value = e.target.result;
+      document.getElementById('profilePhotoName').textContent = '✅ ' + file.name;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitNewProfile(e) {
+  e.preventDefault();
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving Profile...';
+
+  const formData = new FormData(e.target);
+  const payload = Object.fromEntries(formData.entries());
+
+  try {
+    const res = await fetch('/api/team', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      closeProfileModal();
+      e.target.reset();
+      document.getElementById('profilePhotoName').textContent = 'Optional';
+      await loadTeamProfiles();
+      alert('✅ Profile added and published successfully!');
+    } else {
+      alert('Failed to save profile. Please check that Name and Role are filled.');
+    }
+  } catch(err) {
+    alert('Error saving profile: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save & Publish Profile';
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
 }
 
 document.addEventListener('DOMContentLoaded', loadTeamProfiles);

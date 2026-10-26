@@ -63,9 +63,9 @@
           <li><a href="/projects.html#village">Roshni Village Community</a></li>
           <li><a href="/projects.html#school">Green Earth Waldorf School</a></li>
           <li><a href="/projects.html#cbr">Community Based Rehab (CBR)</a></li>
-          <li><a href="/projects.html#bakery">Organic Stone-Oven Bakery</a></li>
-          <li><a href="/projects.html#farm">Biodynamic Organic Farm</a></li>
-          <li><a href="/projects.html#crafts">Handleoom &amp; Woodwork</a></li>
+          <li><a href="/projects.html#workshops">Roshni Organic Bakery</a></li>
+          <li><a href="/projects.html#workshops">Biodynamic Farm and Dairy</a></li>
+          <li><a href="/projects.html#workshops">Textile, Carpentry &amp; Art</a></li>
           <li><a href="/contact.html#donate">Sponsor a Child or Resident</a></li>
         </ul>
       </div>
