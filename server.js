@@ -6,6 +6,16 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ── MongoDB / Mongoose ──────────────────────────────────────────────────────
+const {
+  connectDB,
+  Settings, Milestone, Team, News, Event,
+  Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order,
+} = require('./db');
+
+// Connect to MongoDB at startup (non-blocking – JSON fallback still works)
+connectDB();
+
 // Middlewares - Support large uploads for user's own photos
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -15,7 +25,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname)));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// Helper to safely read and write JSON files
+// Helper to safely read and write JSON files (fallback / seed)
 const DATA_DIR = path.join(__dirname, 'data');
 const IMAGES_DIR = path.join(__dirname, 'assets', 'images');
 const DOCS_DIR = path.join(__dirname, 'assets', 'documents');
@@ -58,6 +68,12 @@ function writeData(file, data) {
   }
 }
 
+// Helper: check if mongoose is connected
+function isMongoReady() {
+  const mongoose = require('mongoose');
+  return mongoose.connection.readyState === 1;
+}
+
 // ── API ROUTES ─────────────────────────────────────────────────────────────
 
 // 1. Health check
@@ -66,28 +82,36 @@ app.get('/api/health', (req, res) => {
 });
 
 // 2. Real-Time Settings & Verified Organizational Figures
-app.get('/api/settings', (req, res) => {
+app.get('/api/settings', async (req, res) => {
   const defaults = {
-    foundedYear: 1991,
-    specialResidentsCount: 42,
-    studentsEnrolledCount: 165,
-    activeWorkshopsCount: 5,
-    residentialHousesCount: 4,
-    organizationName: "Roshni Association",
-    tagline: "Society for the Welfare of Special Persons",
-    phone: "+92 42 37167791",
-    whatsapp: "+92 322 4767808",
-    email: "pr@roshni.org.pk",
-    address: "Karbath Soling, Bedian Road, Lahore, Pakistan"
+    foundedYear: 1991, specialResidentsCount: 42, studentsEnrolledCount: 400,
+    activeWorkshopsCount: 5, residentialHousesCount: 4,
+    organizationName: 'Roshni Association',
+    tagline: 'Society for the Welfare of Special Persons',
+    phone: '+92 42 37167791', whatsapp: '+92 322 4767808',
+    email: 'pr@roshni.org.pk', address: 'Karbath Soling, Bedian Road, Lahore, Pakistan'
   };
+  try {
+    if (isMongoReady()) {
+      let doc = await Settings.findOne();
+      if (!doc) doc = await Settings.create(defaults);
+      return res.json(doc.toObject());
+    }
+  } catch(e) { console.error('[Settings GET]', e.message); }
   res.json(readData('settings.json', defaults));
 });
 
-app.put('/api/settings', (req, res) => {
+app.put('/api/settings', async (req, res) => {
+  try {
+    if (isMongoReady()) {
+      const doc = await Settings.findOneAndUpdate({}, { $set: req.body }, { new: true, upsert: true });
+      writeData('settings.json', doc.toObject()); // keep JSON in sync
+      return res.json({ ok: true, data: doc.toObject() });
+    }
+  } catch(e) { console.error('[Settings PUT]', e.message); }
   const existing = readData('settings.json', {});
   const updated = { ...existing, ...req.body };
   writeData('settings.json', updated);
-  console.log('[SETTINGS] Updated real figures:', updated);
   res.json({ ok: true, data: updated });
 });
 
@@ -128,77 +152,86 @@ app.post('/api/upload', (req, res) => {
   }
 });
 
-// 4. Milestones CRUD (Dynamic Real History)
-app.get('/api/milestones', (req, res) => {
+// 4. Milestones CRUD
+app.get('/api/milestones', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Milestone.find().sort({ year: 1 }).lean());
+  } catch(e) { console.error('[Milestones GET]', e.message); }
   res.json(readData('milestones.json'));
 });
 
-app.post('/api/milestones', (req, res) => {
+app.post('/api/milestones', async (req, res) => {
   const { year, title, description } = req.body;
-  if (!year || !title) {
-    return res.status(400).json({ ok: false, error: 'Year and title are required.' });
-  }
-
-  const milestones = readData('milestones.json');
-  const newM = {
-    id: Date.now(),
-    year: String(year).trim(),
-    title: String(title).trim(),
-    description: description ? String(description).trim() : ''
-  };
-
-  milestones.push(newM);
-  writeData('milestones.json', milestones);
-  console.log(`[MILESTONE] Added milestone: ${newM.year} - ${newM.title}`);
-  res.status(201).json({ ok: true, data: newM });
+  if (!year || !title) return res.status(400).json({ ok: false, error: 'Year and title are required.' });
+  const doc = { id: Date.now(), year: String(year).trim(), title: String(title).trim(), description: description ? String(description).trim() : '' };
+  try {
+    if (isMongoReady()) {
+      const saved = await Milestone.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[Milestones POST]', e.message); }
+  const list = readData('milestones.json'); list.push(doc); writeData('milestones.json', list);
+  res.status(201).json({ ok: true, data: doc });
 });
 
-// 4b. Team & Profiles CRUD (Board, Staff, Community Living)
-app.get('/api/team', (req, res) => {
-  res.json(readData('team.json'));
-});
-
-app.post('/api/team', (req, res) => {
-  const { name, role, category, bio, image } = req.body;
-  if (!name || !role) {
-    return res.status(400).json({ ok: false, error: 'Name and role are required.' });
-  }
-
-  const team = readData('team.json');
-  const newMember = {
-    id: Date.now(),
-    name: String(name).trim(),
-    role: String(role).trim(),
-    category: category || 'staff',
-    bio: bio ? String(bio).trim() : '',
-    image: image ? String(image).trim() : '/assets/images/roshni_logo.jpg',
-    createdAt: new Date().toISOString()
-  };
-
-  team.push(newMember);
-  writeData('team.json', team);
-  console.log(`[TEAM] Added member: ${newMember.name} (${newMember.category})`);
-  res.status(201).json({ ok: true, data: newMember });
-});
-
-app.delete('/api/team/:id', (req, res) => {
+app.delete('/api/milestones/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let team = readData('team.json');
-  team = team.filter(t => t.id !== id);
-  writeData('team.json', team);
-  res.json({ ok: true, message: 'Team member deleted.' });
-});
-
-app.delete('/api/milestones/:id', (req, res) => {
-  const id = Number(req.params.id);
-  let milestones = readData('milestones.json');
-  milestones = milestones.filter(m => m.id !== id);
-  writeData('milestones.json', milestones);
+  try {
+    if (isMongoReady()) { await Milestone.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Milestones DELETE]', e.message); }
+  let list = readData('milestones.json'); writeData('milestones.json', list.filter(m => m.id !== id));
   res.json({ ok: true, message: 'Milestone deleted.' });
 });
 
+// 4b. Team & Profiles CRUD
+app.get('/api/team', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Team.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Team GET]', e.message); }
+  res.json(readData('team.json'));
+});
+
+app.post('/api/team', async (req, res) => {
+  const { name, role, category, bio, image } = req.body;
+  if (!name || !role) return res.status(400).json({ ok: false, error: 'Name and role are required.' });
+  const doc = { id: Date.now(), name: String(name).trim(), role: String(role).trim(), category: category || 'staff', bio: bio ? String(bio).trim() : '', image: image ? String(image).trim() : '/assets/images/roshni_logo.jpg', createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Team.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[Team POST]', e.message); }
+  const list = readData('team.json'); list.push(doc); writeData('team.json', list);
+  res.status(201).json({ ok: true, data: doc });
+});
+
+app.delete('/api/team/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    if (isMongoReady()) { await Team.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Team DELETE]', e.message); }
+  let list = readData('team.json'); writeData('team.json', list.filter(t => t.id !== id));
+  res.json({ ok: true, message: 'Team member deleted.' });
+});
+
 // 5. Live Real-Time Statistics
-app.get('/api/stats', (req, res) => {
+app.get('/api/stats', async (req, res) => {
+  try {
+    if (isMongoReady()) {
+      const [contacts, volunteers, donations, orders, subscribers, news, events, products, milestones, settings] = await Promise.all([
+        Contact.countDocuments(), Volunteer.countDocuments(), Donation.find().lean(),
+        Order.find().lean(), Subscriber.countDocuments(), News.countDocuments(),
+        Event.countDocuments(), Product.countDocuments(), Milestone.countDocuments(),
+        Settings.findOne().lean()
+      ]);
+      const s = settings || { foundedYear: 1991, specialResidentsCount: 42, studentsEnrolledCount: 400, activeWorkshopsCount: 5, residentialHousesCount: 4 };
+      const totalDonationAmount = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+      const totalSalesAmount = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      const yearsOfService = new Date().getFullYear() - (Number(s.foundedYear) || 1991);
+      return res.json({ yearsOfService, foundedYear: s.foundedYear, specialResidentsCount: Number(s.specialResidentsCount) || 42, studentsEnrolledCount: Number(s.studentsEnrolledCount) || 400, activeWorkshopsCount: Number(s.activeWorkshopsCount) || 5, residentialHousesCount: Number(s.residentialHousesCount) || 4, totalMilestones: milestones, totalVolunteers: volunteers, totalContacts: contacts, totalDonations: donations.length, totalDonationAmount, totalOrders: orders.length, totalSalesAmount, totalSubscribers: subscribers, totalNews: news, totalEvents: events, totalProducts: products });
+    }
+  } catch(e) { console.error('[Stats GET]', e.message); }
+  // JSON fallback
   const contacts = readData('contacts.json');
   const volunteers = readData('volunteers.json');
   const donations = readData('donations.json');
@@ -208,356 +241,313 @@ app.get('/api/stats', (req, res) => {
   const events = readData('events.json');
   const products = readData('products.json');
   const milestones = readData('milestones.json');
-  const settings = readData('settings.json', {
-    foundedYear: 1991,
-    specialResidentsCount: 42,
-    studentsEnrolledCount: 165,
-    activeWorkshopsCount: 5,
-    residentialHousesCount: 4
-  });
-
+  const settings = readData('settings.json', { foundedYear: 1991, specialResidentsCount: 42, studentsEnrolledCount: 400, activeWorkshopsCount: 5, residentialHousesCount: 4 });
   const totalDonationAmount = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
   const totalSalesAmount = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-  const currentYear = new Date().getFullYear();
-  const yearsOfService = currentYear - (Number(settings.foundedYear) || 1991);
-
-  res.json({
-    yearsOfService,
-    foundedYear: settings.foundedYear,
-    specialResidentsCount: Number(settings.specialResidentsCount) || 42,
-    studentsEnrolledCount: Number(settings.studentsEnrolledCount) || 165,
-    activeWorkshopsCount: Number(settings.activeWorkshopsCount) || 5,
-    residentialHousesCount: Number(settings.residentialHousesCount) || 4,
-    totalMilestones: milestones.length,
-
-    totalVolunteers: volunteers.length,
-    totalContacts: contacts.length,
-    totalDonations: donations.length,
-    totalDonationAmount,
-    totalOrders: orders.length,
-    totalSalesAmount,
-    totalSubscribers: subscribers.length,
-    totalNews: news.length,
-    totalEvents: events.length,
-    totalProducts: products.length
-  });
+  const yearsOfService = new Date().getFullYear() - (Number(settings.foundedYear) || 1991);
+  res.json({ yearsOfService, foundedYear: settings.foundedYear, specialResidentsCount: Number(settings.specialResidentsCount) || 42, studentsEnrolledCount: Number(settings.studentsEnrolledCount) || 400, activeWorkshopsCount: Number(settings.activeWorkshopsCount) || 5, residentialHousesCount: Number(settings.residentialHousesCount) || 4, totalMilestones: milestones.length, totalVolunteers: volunteers.length, totalContacts: contacts.length, totalDonations: donations.length, totalDonationAmount, totalOrders: orders.length, totalSalesAmount, totalSubscribers: subscribers.length, totalNews: news.length, totalEvents: events.length, totalProducts: products.length });
 });
 
-// 6. News & Media CRUD (Supports Multiple Pictures)
-app.get('/api/news', (req, res) => {
+// 6. News & Media CRUD
+app.get('/api/news', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await News.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[News GET]', e.message); }
   res.json(readData('news.json'));
 });
 
-app.post('/api/news', (req, res) => {
+app.post('/api/news', async (req, res) => {
   const { title, category, date, image, images, summary, content } = req.body;
-  if (!title || !summary) {
-    return res.status(400).json({ ok: false, error: 'Title and summary are required.' });
-  }
-
-  // Parse multiple images
+  if (!title || !summary) return res.status(400).json({ ok: false, error: 'Title and summary are required.' });
   let imgList = [];
-  if (Array.isArray(images)) {
-    imgList = images.map(i => String(i).trim()).filter(Boolean);
-  } else if (typeof images === 'string') {
-    imgList = images.split(',').map(i => i.trim()).filter(Boolean);
-  }
+  if (Array.isArray(images)) imgList = images.map(i => String(i).trim()).filter(Boolean);
+  else if (typeof images === 'string') imgList = images.split(',').map(i => i.trim()).filter(Boolean);
   if (!imgList.length && image) imgList = [image];
   if (!imgList.length) imgList = ['assets/images/village_community.jpg'];
-
-  const news = readData('news.json');
-  const newItem = {
-    id: Date.now(),
-    title: String(title).trim(),
-    category: category || 'Village Life',
-    date: date || new Date().toISOString().split('T')[0],
-    image: imgList[0],
-    images: imgList,
-    summary: String(summary).trim(),
-    content: content ? String(content).trim() : String(summary).trim(),
-    createdAt: new Date().toISOString()
-  };
-
-  news.unshift(newItem);
-  writeData('news.json', news);
-  console.log(`[NEWS] Added article with ${imgList.length} pictures: ${newItem.title}`);
-  res.status(201).json({ ok: true, data: newItem });
+  const doc = { id: Date.now(), title: String(title).trim(), category: category || 'Village Life', date: date || new Date().toISOString().split('T')[0], image: imgList[0], images: imgList, summary: String(summary).trim(), content: content ? String(content).trim() : String(summary).trim(), createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await News.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[News POST]', e.message); }
+  const list = readData('news.json'); list.unshift(doc); writeData('news.json', list);
+  res.status(201).json({ ok: true, data: doc });
 });
 
-app.delete('/api/news/:id', (req, res) => {
+app.delete('/api/news/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let news = readData('news.json');
-  news = news.filter(n => n.id !== id);
-  writeData('news.json', news);
+  try {
+    if (isMongoReady()) { await News.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[News DELETE]', e.message); }
+  let list = readData('news.json'); writeData('news.json', list.filter(n => n.id !== id));
   res.json({ ok: true, message: 'News item deleted.' });
 });
 
 // 7. Events CRUD
-app.get('/api/events', (req, res) => {
+app.get('/api/events', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Event.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Events GET]', e.message); }
   res.json(readData('events.json'));
 });
 
-app.post('/api/events', (req, res) => {
+app.post('/api/events', async (req, res) => {
   const { title, date, time, location, category, description } = req.body;
-  if (!title || !date) {
-    return res.status(400).json({ ok: false, error: 'Title and date are required.' });
-  }
-
-  const events = readData('events.json');
-  const newEvent = {
-    id: Date.now(),
-    title: String(title).trim(),
-    date: String(date).trim(),
-    time: time || '10:00 AM',
-    location: location || 'Roshni Village, Bedian Road, Lahore',
-    category: category || 'Community Event',
-    description: description ? String(description).trim() : '',
-    createdAt: new Date().toISOString()
-  };
-
-  events.unshift(newEvent);
-  writeData('events.json', events);
-  res.status(201).json({ ok: true, data: newEvent });
+  if (!title || !date) return res.status(400).json({ ok: false, error: 'Title and date are required.' });
+  const doc = { id: Date.now(), title: String(title).trim(), date: String(date).trim(), time: time || '10:00 AM', location: location || 'Roshni Village, Bedian Road, Lahore', category: category || 'Community Event', description: description ? String(description).trim() : '', createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Event.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[Events POST]', e.message); }
+  const list = readData('events.json'); list.unshift(doc); writeData('events.json', list);
+  res.status(201).json({ ok: true, data: doc });
 });
 
-app.delete('/api/events/:id', (req, res) => {
+app.delete('/api/events/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let events = readData('events.json');
-  events = events.filter(e => e.id !== id);
-  writeData('events.json', events);
+  try {
+    if (isMongoReady()) { await Event.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Events DELETE]', e.message); }
+  let list = readData('events.json'); writeData('events.json', list.filter(e => e.id !== id));
   res.json({ ok: true, message: 'Event deleted.' });
 });
 
-// 8. Products CRUD (Supports Multiple Pictures)
-app.get('/api/products', (req, res) => {
+// 8. Products CRUD
+app.get('/api/products', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Product.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Products GET]', e.message); }
   res.json(readData('products.json'));
 });
 
-app.post('/api/products', (req, res) => {
+app.post('/api/products', async (req, res) => {
   const { title, category, workshop, price, icon, image, images, desc } = req.body;
-  if (!title || !price) {
-    return res.status(400).json({ ok: false, error: 'Product title and price are required.' });
-  }
-
-  // Parse multiple images
+  if (!title || !price) return res.status(400).json({ ok: false, error: 'Product title and price are required.' });
   let imgList = [];
-  if (Array.isArray(images)) {
-    imgList = images.map(i => String(i).trim()).filter(Boolean);
-  } else if (typeof images === 'string') {
-    imgList = images.split(',').map(i => i.trim()).filter(Boolean);
-  }
+  if (Array.isArray(images)) imgList = images.map(i => String(i).trim()).filter(Boolean);
+  else if (typeof images === 'string') imgList = images.split(',').map(i => i.trim()).filter(Boolean);
   if (!imgList.length && image) imgList = [image];
   if (!imgList.length) imgList = ['assets/images/crafts_workshop.jpg'];
-
-  const products = readData('products.json');
-  const newProduct = {
-    id: Date.now(),
-    category: category || 'bakery',
-    title: String(title).trim(),
-    workshop: workshop || 'Roshni Workshop',
-    price: Number(price) || 500,
-    icon: icon || '🎁',
-    image: imgList[0],
-    images: imgList,
-    desc: desc ? String(desc).trim() : '',
-    inStock: true,
-    createdAt: new Date().toISOString()
-  };
-
-  products.unshift(newProduct);
-  writeData('products.json', products);
-  console.log(`[PRODUCT] Added product with ${imgList.length} pictures: ${newProduct.title}`);
-  res.status(201).json({ ok: true, data: newProduct });
+  const doc = { id: Date.now(), category: category || 'bakery', title: String(title).trim(), workshop: workshop || 'Roshni Workshop', price: Number(price) || 500, icon: icon || '🎁', image: imgList[0], images: imgList, desc: desc ? String(desc).trim() : '', inStock: true, createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Product.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[Products POST]', e.message); }
+  const list = readData('products.json'); list.unshift(doc); writeData('products.json', list);
+  res.status(201).json({ ok: true, data: doc });
 });
 
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let products = readData('products.json');
-  products = products.filter(p => p.id !== id);
-  writeData('products.json', products);
+  try {
+    if (isMongoReady()) { await Product.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Products DELETE]', e.message); }
+  let list = readData('products.json'); writeData('products.json', list.filter(p => p.id !== id));
   res.json({ ok: true, message: 'Product deleted.' });
 });
 
 // 9. Newsletters CRUD
-app.get('/api/newsletters', (req, res) => res.json(readData('newsletters.json')));
-
-app.post('/api/newsletters', (req, res) => {
-  const { subject, issueTitle, previewText, content, pdfUrl } = req.body;
-  if (!subject) return res.status(400).json({ ok: false, error: 'Subject is required.' });
-
-  const subscribers = readData('subscribers.json');
-  const newsletters = readData('newsletters.json');
-  const newCampaign = {
-    id: Date.now(),
-    subject: String(subject).trim(),
-    issueTitle: issueTitle || `Roshni Chronicle #${newsletters.length + 1}`,
-    sentDate: new Date().toISOString().split('T')[0],
-    previewText: previewText ? String(previewText).trim() : '',
-    content: content ? String(content).trim() : '',
-    pdfUrl: pdfUrl ? String(pdfUrl).trim() : '',
-    sentToCount: subscribers.length,
-    createdAt: new Date().toISOString()
-  };
-
-  newsletters.unshift(newCampaign);
-  writeData('newsletters.json', newsletters);
-  res.status(201).json({ ok: true, data: newCampaign });
+app.get('/api/newsletters', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Newsletter.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Newsletters GET]', e.message); }
+  res.json(readData('newsletters.json'));
 });
 
-app.delete('/api/newsletters/:id', (req, res) => {
+app.post('/api/newsletters', async (req, res) => {
+  const { subject, issueTitle, previewText, content, pdfUrl } = req.body;
+  if (!subject) return res.status(400).json({ ok: false, error: 'Subject is required.' });
+  let subCount = 0;
+  try {
+    subCount = isMongoReady() ? await Subscriber.countDocuments() : readData('subscribers.json').length;
+  } catch(e) {}
+  const nlCount = isMongoReady() ? (await Newsletter.countDocuments().catch(() => 0)) : readData('newsletters.json').length;
+  const doc = { id: Date.now(), subject: String(subject).trim(), issueTitle: issueTitle || `Roshni Chronicle #${nlCount + 1}`, sentDate: new Date().toISOString().split('T')[0], previewText: previewText ? String(previewText).trim() : '', content: content ? String(content).trim() : '', pdfUrl: pdfUrl ? String(pdfUrl).trim() : '', sentToCount: subCount, createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Newsletter.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[Newsletters POST]', e.message); }
+  const list = readData('newsletters.json'); list.unshift(doc); writeData('newsletters.json', list);
+  res.status(201).json({ ok: true, data: doc });
+});
+
+app.delete('/api/newsletters/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let newsletters = readData('newsletters.json');
-  newsletters = newsletters.filter(n => n.id !== id);
-  writeData('newsletters.json', newsletters);
+  try {
+    if (isMongoReady()) { await Newsletter.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Newsletters DELETE]', e.message); }
+  let list = readData('newsletters.json'); writeData('newsletters.json', list.filter(n => n.id !== id));
   res.json({ ok: true, message: 'Newsletter deleted.' });
 });
 
 // 10. Contact Inquiries
-app.get('/api/contacts', (req, res) => res.json(readData('contacts.json')));
-
-app.post('/api/contact', (req, res) => {
-  const { name, email, phone, subject, message } = req.body;
-  if (!name || !email || !message) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
-
-  const contacts = readData('contacts.json');
-  const newContact = {
-    id: Date.now(),
-    name: String(name).trim(),
-    email: String(email).trim(),
-    phone: phone ? String(phone).trim() : 'N/A',
-    subject: subject || 'General Inquiry',
-    message: String(message).trim(),
-    createdAt: new Date().toISOString()
-  };
-  contacts.unshift(newContact);
-  writeData('contacts.json', contacts);
-  res.status(201).json({ ok: true, id: newContact.id, message: 'Inquiry received!' });
+app.get('/api/contacts', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Contact.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Contacts GET]', e.message); }
+  res.json(readData('contacts.json'));
 });
 
-app.delete('/api/contacts/:id', (req, res) => {
+app.post('/api/contact', async (req, res) => {
+  const { name, email, phone, subject, message } = req.body;
+  if (!name || !email || !message) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
+  const doc = { id: Date.now(), name: String(name).trim(), email: String(email).trim(), phone: phone ? String(phone).trim() : 'N/A', subject: subject || 'General Inquiry', message: String(message).trim(), createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Contact.create(doc);
+      return res.status(201).json({ ok: true, id: saved.id, message: 'Inquiry received!' });
+    }
+  } catch(e) { console.error('[Contact POST]', e.message); }
+  const list = readData('contacts.json'); list.unshift(doc); writeData('contacts.json', list);
+  res.status(201).json({ ok: true, id: doc.id, message: 'Inquiry received!' });
+});
+
+app.delete('/api/contacts/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let contacts = readData('contacts.json');
-  contacts = contacts.filter(c => c.id !== id);
-  writeData('contacts.json', contacts);
+  try {
+    if (isMongoReady()) { await Contact.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Contacts DELETE]', e.message); }
+  let list = readData('contacts.json'); writeData('contacts.json', list.filter(c => c.id !== id));
   res.json({ ok: true, message: 'Contact deleted.' });
 });
 
 // 11. Volunteer Applications
-app.get('/api/volunteers', (req, res) => res.json(readData('volunteers.json')));
-
-app.post('/api/volunteer', (req, res) => {
-  const { name, age, email, phone, city, volunteerType, areaOfInterest, motivation } = req.body;
-  if (!name || !email || !phone) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
-
-  const volunteers = readData('volunteers.json');
-  const newVol = {
-    id: Date.now(),
-    name: String(name).trim(),
-    age: age || 'N/A',
-    email: String(email).trim(),
-    phone: String(phone).trim(),
-    city: city || 'Lahore',
-    volunteerType: volunteerType || 'General Volunteer',
-    areaOfInterest: areaOfInterest || 'General Support',
-    motivation: motivation ? String(motivation).trim() : '',
-    createdAt: new Date().toISOString()
-  };
-  volunteers.unshift(newVol);
-  writeData('volunteers.json', volunteers);
-  res.status(201).json({ ok: true, id: newVol.id, message: 'Volunteer application submitted!' });
+app.get('/api/volunteers', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Volunteer.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Volunteers GET]', e.message); }
+  res.json(readData('volunteers.json'));
 });
 
-app.delete('/api/volunteers/:id', (req, res) => {
+app.post('/api/volunteer', async (req, res) => {
+  const { name, age, email, phone, city, volunteerType, areaOfInterest, motivation } = req.body;
+  if (!name || !email || !phone) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
+  const doc = { id: Date.now(), name: String(name).trim(), age: age || 'N/A', email: String(email).trim(), phone: String(phone).trim(), city: city || 'Lahore', volunteerType: volunteerType || 'General Volunteer', areaOfInterest: areaOfInterest || 'General Support', motivation: motivation ? String(motivation).trim() : '', createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Volunteer.create(doc);
+      return res.status(201).json({ ok: true, id: saved.id, message: 'Volunteer application submitted!' });
+    }
+  } catch(e) { console.error('[Volunteer POST]', e.message); }
+  const list = readData('volunteers.json'); list.unshift(doc); writeData('volunteers.json', list);
+  res.status(201).json({ ok: true, id: doc.id, message: 'Volunteer application submitted!' });
+});
+
+app.delete('/api/volunteers/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let volunteers = readData('volunteers.json');
-  volunteers = volunteers.filter(v => v.id !== id);
-  writeData('volunteers.json', volunteers);
+  try {
+    if (isMongoReady()) { await Volunteer.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Volunteers DELETE]', e.message); }
+  let list = readData('volunteers.json'); writeData('volunteers.json', list.filter(v => v.id !== id));
   res.json({ ok: true, message: 'Volunteer deleted.' });
 });
 
 // 12. Donations & Pledges
-app.get('/api/donations', (req, res) => res.json(readData('donations.json')));
-
-app.post('/api/donate', (req, res) => {
-  const { name, email, phone, purpose, amount, paymentMethod } = req.body;
-  if (!name || !email || !amount) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
-
-  const donations = readData('donations.json');
-  const newDonation = {
-    id: Date.now(),
-    name: String(name).trim(),
-    email: String(email).trim(),
-    phone: phone ? String(phone).trim() : 'N/A',
-    purpose: purpose || 'General Donation',
-    amount: Number(amount) || amount,
-    paymentMethod: paymentMethod || 'Direct Bank Transfer',
-    createdAt: new Date().toISOString()
-  };
-  donations.unshift(newDonation);
-  writeData('donations.json', donations);
-  res.status(201).json({ ok: true, id: newDonation.id, message: 'Donation recorded!' });
+app.get('/api/donations', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Donation.find().sort({ createdAt: -1 }).lean());
+  } catch(e) { console.error('[Donations GET]', e.message); }
+  res.json(readData('donations.json'));
 });
 
-app.delete('/api/donations/:id', (req, res) => {
+app.post('/api/donate', async (req, res) => {
+  const { name, email, phone, purpose, amount, paymentMethod } = req.body;
+  if (!name || !email || !amount) return res.status(400).json({ ok: false, error: 'Missing required fields.' });
+  const doc = { id: Date.now(), name: String(name).trim(), email: String(email).trim(), phone: phone ? String(phone).trim() : 'N/A', purpose: purpose || 'General Donation', amount: Number(amount) || amount, paymentMethod: paymentMethod || 'Direct Bank Transfer', createdAt: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Donation.create(doc);
+      return res.status(201).json({ ok: true, id: saved.id, message: 'Donation recorded!' });
+    }
+  } catch(e) { console.error('[Donate POST]', e.message); }
+  const list = readData('donations.json'); list.unshift(doc); writeData('donations.json', list);
+  res.status(201).json({ ok: true, id: doc.id, message: 'Donation recorded!' });
+});
+
+app.delete('/api/donations/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let donations = readData('donations.json');
-  donations = donations.filter(d => d.id !== id);
-  writeData('donations.json', donations);
+  try {
+    if (isMongoReady()) { await Donation.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Donations DELETE]', e.message); }
+  let list = readData('donations.json'); writeData('donations.json', list.filter(d => d.id !== id));
   res.json({ ok: true, message: 'Donation deleted.' });
 });
 
 // 13. Shop Orders
-app.get('/api/orders', (req, res) => res.json(readData('orders.json')));
-
-app.post('/api/shop/order', (req, res) => {
-  const { customerName, customerPhone, deliveryAddress, items, total } = req.body;
-  if (!customerName || !customerPhone || !deliveryAddress || !items || !items.length) {
-    return res.status(400).json({ ok: false, error: 'Customer details, delivery address, and items are required.' });
-  }
-
-  const orders = readData('orders.json');
-  const newOrder = {
-    id: Date.now(),
-    customerName: String(customerName).trim(),
-    customerPhone: String(customerPhone).trim(),
-    deliveryAddress: String(deliveryAddress).trim(),
-    items: items,
-    total: total || 0,
-    status: 'Pending Dispatch',
-    orderDate: new Date().toISOString()
-  };
-  orders.unshift(newOrder);
-  writeData('orders.json', orders);
-  res.status(201).json({ ok: true, id: newOrder.id, message: 'Order placed!' });
+app.get('/api/orders', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Order.find().sort({ orderDate: -1 }).lean());
+  } catch(e) { console.error('[Orders GET]', e.message); }
+  res.json(readData('orders.json'));
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.post('/api/shop/order', async (req, res) => {
+  const { customerName, customerPhone, deliveryAddress, items, total } = req.body;
+  if (!customerName || !customerPhone || !deliveryAddress || !items || !items.length)
+    return res.status(400).json({ ok: false, error: 'Customer details, delivery address, and items are required.' });
+  const doc = { id: Date.now(), customerName: String(customerName).trim(), customerPhone: String(customerPhone).trim(), deliveryAddress: String(deliveryAddress).trim(), items, total: total || 0, status: 'Pending Dispatch', orderDate: new Date() };
+  try {
+    if (isMongoReady()) {
+      const saved = await Order.create(doc);
+      return res.status(201).json({ ok: true, id: saved.id, message: 'Order placed!' });
+    }
+  } catch(e) { console.error('[Orders POST]', e.message); }
+  const list = readData('orders.json'); list.unshift(doc); writeData('orders.json', list);
+  res.status(201).json({ ok: true, id: doc.id, message: 'Order placed!' });
+});
+
+app.put('/api/orders/:id/status', async (req, res) => {
   const id = Number(req.params.id);
   const { status } = req.body;
+  try {
+    if (isMongoReady()) {
+      const doc = await Order.findOneAndUpdate({ id }, { $set: { status } }, { new: true });
+      return res.json({ ok: true, data: doc });
+    }
+  } catch(e) { console.error('[Orders PUT]', e.message); }
   const orders = readData('orders.json');
   const order = orders.find(o => o.id === id);
   if (!order) return res.status(404).json({ ok: false, error: 'Order not found.' });
-  order.status = status || order.status;
-  writeData('orders.json', orders);
+  order.status = status || order.status; writeData('orders.json', orders);
   res.json({ ok: true, data: order });
 });
 
-app.delete('/api/orders/:id', (req, res) => {
+app.delete('/api/orders/:id', async (req, res) => {
   const id = Number(req.params.id);
-  let orders = readData('orders.json');
-  orders = orders.filter(o => o.id !== id);
-  writeData('orders.json', orders);
+  try {
+    if (isMongoReady()) { await Order.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[Orders DELETE]', e.message); }
+  let list = readData('orders.json'); writeData('orders.json', list.filter(o => o.id !== id));
   res.json({ ok: true, message: 'Order deleted.' });
 });
 
 // 14. Newsletter Subscribers
-app.get('/api/subscribers', (req, res) => res.json(readData('subscribers.json')));
+app.get('/api/subscribers', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await Subscriber.find().sort({ subscribedAt: -1 }).lean());
+  } catch(e) { console.error('[Subscribers GET]', e.message); }
+  res.json(readData('subscribers.json'));
+});
 
-app.post('/api/newsletter', (req, res) => {
+app.post('/api/newsletter', async (req, res) => {
   const { email } = req.body;
   if (!email || !email.includes('@')) return res.status(400).json({ ok: false, error: 'Valid email required.' });
-
-  const subscribers = readData('subscribers.json');
   const normalized = email.toLowerCase().trim();
+  try {
+    if (isMongoReady()) {
+      const existing = await Subscriber.findOne({ email: normalized });
+      if (!existing) await Subscriber.create({ id: Date.now(), email: normalized, subscribedAt: new Date() });
+      return res.status(200).json({ ok: true, message: 'Subscribed successfully!' });
+    }
+  } catch(e) { console.error('[Subscribe POST]', e.message); }
+  const subscribers = readData('subscribers.json');
   if (!subscribers.some(s => s.email.toLowerCase() === normalized)) {
     subscribers.unshift({ id: Date.now(), email: normalized, subscribedAt: new Date().toISOString() });
     writeData('subscribers.json', subscribers);
