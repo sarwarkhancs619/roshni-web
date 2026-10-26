@@ -1693,67 +1693,114 @@ app.get('/admin', (req, res) => {
       async function handleAddNews(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
-        const res = await fetch('/api/news', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (res.ok) {
-          alert('✅ Article with multiple pictures published successfully!');
-          e.target.reset();
-          loadAllData();
+        try {
+          const res = await fetch('/api/news', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert('✅ Article with pictures published successfully!');
+            e.target.reset();
+            const thumbs = document.getElementById('newsUploadThumbs');
+            if (thumbs) thumbs.innerHTML = '';
+            const status = document.getElementById('newsUploadStatus');
+            if (status) status.textContent = '';
+            loadAllData();
+          } else {
+            alert('Failed to publish article: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while publishing article: ' + err.message);
         }
       }
 
       async function handleAddProduct(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
-        const res = await fetch('/api/products', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (res.ok) {
-          alert('✅ Product with multiple pictures added to catalog!');
-          e.target.reset();
-          loadAllData();
+        try {
+          const res = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert('✅ Product with pictures added to catalog!');
+            e.target.reset();
+            const thumbs = document.getElementById('prodUploadThumbs');
+            if (thumbs) thumbs.innerHTML = '';
+            const status = document.getElementById('prodUploadStatus');
+            if (status) status.textContent = '';
+            loadAllData();
+          } else {
+            alert('Failed to add product: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while adding product: ' + err.message);
         }
       }
 
       async function handleAddEvent(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
-        const res = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (res.ok) {
-          alert('Event scheduled successfully!');
-          e.target.reset();
-          loadAllData();
+        try {
+          const res = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert('✅ Event scheduled successfully!');
+            e.target.reset();
+            loadAllData();
+          } else {
+            alert('Failed to schedule event: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while scheduling event: ' + err.message);
         }
       }
 
       async function handleAddNewsletter(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
-        const res = await fetch('/api/newsletters', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        if (res.ok) {
-          alert('Newsletter broadcast recorded!');
-          e.target.reset();
-          loadAllData();
+        try {
+          const res = await fetch('/api/newsletters', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert('✅ Newsletter broadcast recorded and published!');
+            e.target.reset();
+            const pdfStatus = document.getElementById('newsletterPdfStatus');
+            if (pdfStatus) pdfStatus.textContent = '';
+            loadAllData();
+          } else {
+            alert('Failed to publish newsletter: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while broadcasting newsletter: ' + err.message);
         }
       }
 
       async function deleteItem(url) {
         if (!confirm('Are you sure you want to delete this item?')) return;
-        const res = await fetch(url, { method: 'DELETE' });
-        if (res.ok) loadAllData();
+        try {
+          const res = await fetch(url, { method: 'DELETE' });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            loadAllData();
+          } else {
+            alert('Failed to delete item: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while deleting item: ' + err.message);
+        }
       }
 
       async function updateOrderStatus(id, status) {
