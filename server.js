@@ -13,8 +13,18 @@ const {
   Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order,
 } = require('./db');
 
-// Connect to MongoDB at startup (non-blocking – JSON fallback still works)
-connectDB();
+// Ensure database is connected before handling API requests (critical for serverless / Vercel)
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path === '/admin') {
+    try {
+      await connectDB();
+    } catch(e) {}
+  }
+  next();
+});
+
+// Connect to MongoDB at startup (non-blocking for local server)
+connectDB().catch(() => {});
 
 // Middlewares - Support large uploads for user's own photos
 app.use(cors());
@@ -78,7 +88,13 @@ function isMongoReady() {
 
 // 1. Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'Roshni Association API', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'Roshni Association API',
+    mongoReady: isMongoReady(),
+    hasMongoUri: Boolean(process.env.MONGO_URI),
+    timestamp: new Date().toISOString()
+  });
 });
 
 // 2. Real-Time Settings & Verified Organizational Figures
