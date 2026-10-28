@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3001;
 // ── MongoDB / Mongoose ──────────────────────────────────────────────────────
 const {
   connectDB,
+  getLastError,
   Settings, Milestone, Team, News, Event,
   Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order,
 } = require('./db');
@@ -93,6 +94,7 @@ app.get('/api/health', (req, res) => {
     service: 'Roshni Association API',
     mongoReady: isMongoReady(),
     hasMongoUri: Boolean(process.env.MONGO_URI),
+    mongoError: getLastError(),
     timestamp: new Date().toISOString()
   });
 });

@@ -8,19 +8,27 @@ const mongoose = require('mongoose');
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/roshni';
 
 let connected = false;
+let lastError = null;
 
 async function connectDB() {
-  if (connected) return;
+  if (connected && mongoose.connection.readyState === 1) return;
   try {
     await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
     });
     connected = true;
-    console.log(`✅ MongoDB connected → ${MONGO_URI}`);
+    lastError = null;
+    console.log(`✅ MongoDB connected → ${MONGO_URI.replace(/:([^@]+)@/, ':****@')}`);
   } catch (err) {
+    connected = false;
+    lastError = err.message;
     console.error('❌ MongoDB connection failed:', err.message);
     console.warn('⚠️  Falling back to JSON file storage.');
   }
+}
+
+function getLastError() {
+  return lastError;
 }
 
 // ── Shared helper: auto-generate numeric id from Date.now() if not set ─────
@@ -188,6 +196,7 @@ const Order      = mongoose.models.Order      || mongoose.model('Order',      or
 
 module.exports = {
   connectDB,
+  getLastError,
   Settings,
   Milestone,
   Team,
