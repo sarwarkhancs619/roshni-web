@@ -163,10 +163,16 @@ app.post('/api/upload', (req, res) => {
   try {
     fs.writeFileSync(targetPath, buffer);
     console.log(`[UPLOAD] Uploaded: ${targetFilename} (${buffer.length} bytes) to ${publicUrl}`);
-    res.json({ ok: true, slot, url: publicUrl, filename: targetFilename });
+    // If running in serverless / Vercel with ephemeral filesystem, also provide data URI fallback
+    const mime = isPdf ? 'application/pdf' : (matches ? matches[1] : 'image/jpeg');
+    const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+    res.json({ ok: true, slot, url: publicUrl, dataUri: dataUri, filename: targetFilename });
   } catch (err) {
     console.error(`[UPLOAD] Error writing file:`, err.message);
-    res.status(500).json({ ok: false, error: 'Failed to save file on server.' });
+    const mime = isPdf ? 'application/pdf' : (matches ? matches[1] : 'image/jpeg');
+    const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+    // Fall back gracefully to dataUri so uploads always persist in DB even if disk write fails on serverless
+    res.json({ ok: true, slot, url: dataUri, dataUri: dataUri, filename: targetFilename });
   }
 });
 
@@ -195,7 +201,7 @@ app.post('/api/milestones', async (req, res) => {
 app.delete('/api/milestones/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Milestone.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Milestone.deleteOne({ id });
   } catch(e) { console.error('[Milestones DELETE]', e.message); }
   let list = readData('milestones.json'); writeData('milestones.json', list.filter(m => m.id !== id));
   res.json({ ok: true, message: 'Milestone deleted.' });
@@ -226,7 +232,7 @@ app.post('/api/team', async (req, res) => {
 app.delete('/api/team/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Team.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Team.deleteOne({ id });
   } catch(e) { console.error('[Team DELETE]', e.message); }
   let list = readData('team.json'); writeData('team.json', list.filter(t => t.id !== id));
   res.json({ ok: true, message: 'Team member deleted.' });
@@ -296,7 +302,7 @@ app.post('/api/news', async (req, res) => {
 app.delete('/api/news/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await News.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await News.deleteOne({ id });
   } catch(e) { console.error('[News DELETE]', e.message); }
   let list = readData('news.json'); writeData('news.json', list.filter(n => n.id !== id));
   res.json({ ok: true, message: 'News item deleted.' });
@@ -327,7 +333,7 @@ app.post('/api/events', async (req, res) => {
 app.delete('/api/events/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Event.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Event.deleteOne({ id });
   } catch(e) { console.error('[Events DELETE]', e.message); }
   let list = readData('events.json'); writeData('events.json', list.filter(e => e.id !== id));
   res.json({ ok: true, message: 'Event deleted.' });
@@ -363,7 +369,7 @@ app.post('/api/products', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Product.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Product.deleteOne({ id });
   } catch(e) { console.error('[Products DELETE]', e.message); }
   let list = readData('products.json'); writeData('products.json', list.filter(p => p.id !== id));
   res.json({ ok: true, message: 'Product deleted.' });
@@ -399,7 +405,7 @@ app.post('/api/newsletters', async (req, res) => {
 app.delete('/api/newsletters/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Newsletter.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Newsletter.deleteOne({ id });
   } catch(e) { console.error('[Newsletters DELETE]', e.message); }
   let list = readData('newsletters.json'); writeData('newsletters.json', list.filter(n => n.id !== id));
   res.json({ ok: true, message: 'Newsletter deleted.' });
@@ -440,7 +446,7 @@ app.post('/api/audit-reports', async (req, res) => {
 app.delete('/api/audit-reports/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await AuditReport.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await AuditReport.deleteOne({ id });
   } catch(e) { console.error('[AuditReports DELETE]', e.message); }
   let list = readData('audit_reports.json'); writeData('audit_reports.json', list.filter(a => a.id !== id));
   res.json({ ok: true, message: 'Audit report deleted.' });
@@ -471,7 +477,7 @@ app.post('/api/contact', async (req, res) => {
 app.delete('/api/contacts/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Contact.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Contact.deleteOne({ id });
   } catch(e) { console.error('[Contacts DELETE]', e.message); }
   let list = readData('contacts.json'); writeData('contacts.json', list.filter(c => c.id !== id));
   res.json({ ok: true, message: 'Contact deleted.' });
@@ -502,7 +508,7 @@ app.post('/api/volunteer', async (req, res) => {
 app.delete('/api/volunteers/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Volunteer.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Volunteer.deleteOne({ id });
   } catch(e) { console.error('[Volunteers DELETE]', e.message); }
   let list = readData('volunteers.json'); writeData('volunteers.json', list.filter(v => v.id !== id));
   res.json({ ok: true, message: 'Volunteer deleted.' });
@@ -533,7 +539,7 @@ app.post('/api/donate', async (req, res) => {
 app.delete('/api/donations/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Donation.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Donation.deleteOne({ id });
   } catch(e) { console.error('[Donations DELETE]', e.message); }
   let list = readData('donations.json'); writeData('donations.json', list.filter(d => d.id !== id));
   res.json({ ok: true, message: 'Donation deleted.' });
@@ -581,7 +587,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
 app.delete('/api/orders/:id', async (req, res) => {
   const id = Number(req.params.id);
   try {
-    if (isMongoReady()) { await Order.deleteOne({ id }); return res.json({ ok: true }); }
+    if (isMongoReady()) await Order.deleteOne({ id });
   } catch(e) { console.error('[Orders DELETE]', e.message); }
   let list = readData('orders.json'); writeData('orders.json', list.filter(o => o.id !== id));
   res.json({ ok: true, message: 'Order deleted.' });
@@ -1381,7 +1387,7 @@ app.get('/admin', (req, res) => {
         currentTab = tab;
         document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        const views = ['milestones', 'team', 'upload', 'figures', 'news', 'products', 'events', 'newsletter', 'orders', 'volunteers', 'donations', 'contacts'];
+        const views = ['milestones', 'team', 'upload', 'figures', 'news', 'products', 'events', 'newsletter', 'audit', 'orders', 'volunteers', 'donations', 'contacts'];
         views.forEach(v => {
           const el = document.getElementById('view-' + v);
           if (el) el.style.display = (v === tab) ? 'block' : 'none';

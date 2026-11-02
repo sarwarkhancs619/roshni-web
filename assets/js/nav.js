@@ -4,13 +4,14 @@
  */
 (function () {
   const pages = [
-    { key: 'home', label: 'Home', href: 'index.html' },
-    { key: 'about', label: 'About Us', href: 'about.html' },
-    { key: 'projects', label: 'Projects', href: 'projects.html' },
-    { key: 'volunteer', label: 'Volunteer', href: 'volunteer.html' },
-    { key: 'shop', label: 'Shop', href: 'shop.html' },
-    { key: 'news', label: 'News & Media', href: 'news.html' },
-    { key: 'contact', label: 'Contact', href: 'contact.html' },
+    { key: 'home', label: 'Home', href: '/index.html' },
+    { key: 'about', label: 'About Us', href: '/about.html' },
+    { key: 'audit', label: 'Audit Reports', href: '/about.html#audit' },
+    { key: 'projects', label: 'Projects', href: '/projects.html' },
+    { key: 'volunteer', label: 'Volunteer', href: '/volunteer.html' },
+    { key: 'shop', label: 'Shop', href: '/shop.html' },
+    { key: 'news', label: 'News & Media', href: '/news.html' },
+    { key: 'contact', label: 'Contact', href: '/contact.html' },
   ];
 
   const active = window.ACTIVE_PAGE || '';

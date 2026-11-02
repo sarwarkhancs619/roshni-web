@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
 </script>
 
 <!-- ── Team & Governance ─────────────────────────────────────────── -->
-<section class="section">
+<section class="section" id="governance-team-section">
   <div class="container">
     <div style="text-align:center;margin-bottom:3rem;" data-reveal>
       <div class="tag-gradient" style="margin-bottom:0.75rem;">Leadership &amp; Community Care</div>
@@ -165,34 +165,46 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
       <button onclick="filterTeam('staff', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
         🛠️ Staff &amp; Workshop Masters
       </button>
-      <button onclick="filterTeam('audit', this)" id="auditReportsTabBtn" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
-        📑 Audit &amp; Financial Reports
-      </button>
     </div>
 
     <div class="grid-3" id="teamProfilesContainer">
       <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading team profiles...</div>
     </div>
+  </div>
+</section>
 
-    <!-- Audit Reports Container (Displayed when Audit Tab is active) -->
-    <div id="auditReportsViewContainer" style="display:none;">
-      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1.25rem;padding:2rem;margin-bottom:2rem;">
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:space-between;">
+<!-- ── Audit & Financial Reports Section (Dedicated & Always Accessible) ── -->
+<section class="section" id="audit" style="background:#F8FAFC;border-top:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:2.5rem;" data-reveal>
+      <div class="tag-gradient" style="margin-bottom:0.75rem;">Financial Transparency</div>
+      <h2 class="section-title">Audit &amp; Financial Reports</h2>
+      <p class="section-subtitle">
+        Roshni Association undergoes independent annual statutory financial audits in Pakistan. Review and download our published audited statements below.
+      </p>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E2E8F0;border-radius:1.25rem;padding:1.75rem 2rem;margin-bottom:2.5rem;box-shadow:0 4px 15px rgba(0,0,0,0.03);" data-reveal>
+      <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <div style="width:3rem;height:3rem;border-radius:50%;background:#EFF6FF;color:#1E40AF;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
           <div>
-            <h3 style="font-size:1.35rem;font-weight:800;color:#1E3A8A;margin:0 0 0.4rem;">Financial Transparency &amp; Statutory Audits</h3>
-            <p style="color:#64748B;font-size:0.9rem;margin:0;max-width:44rem;line-height:1.6;">
-              Roshni Association undergoes independent external annual financial audits in Pakistan. Review and download our audited financial statements and auditor opinions below.
+            <h3 style="font-size:1.15rem;font-weight:800;color:#1E3A8A;margin:0 0 0.25rem;">Statutory Compliance &amp; Clean Audit Opinion</h3>
+            <p style="color:#64748B;font-size:0.88rem;margin:0;line-height:1.5;">
+              Independent auditor reports verify ethical allocation of donations across community residential houses, workshops, and schooling.
             </p>
           </div>
-          <span class="badge badge-green" style="font-size:0.85rem;padding:0.4rem 0.9rem;">
-            <i class="fas fa-shield-alt" style="margin-right:6px;"></i> Verified &amp; Compliant
-          </span>
         </div>
+        <span class="badge badge-green" style="font-size:0.85rem;padding:0.5rem 1rem;">
+          <i class="fas fa-shield-alt" style="margin-right:6px;"></i> Verified &amp; Compliant
+        </span>
       </div>
+    </div>
 
-      <div class="grid-3" id="auditReportsCardsContainer">
-        <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading audit reports...</div>
-      </div>
+    <div class="grid-3" id="auditReportsCardsContainer">
+      <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading audit reports...</div>
     </div>
   </div>
 </section>
@@ -317,26 +329,17 @@ function filterTeam(cat, btn) {
     btn.style.borderColor = '#1E40AF';
   }
 
-  const teamContainer = document.getElementById('teamProfilesContainer');
-  const auditContainer = document.getElementById('auditReportsViewContainer');
-
-  if (cat === 'audit') {
-    if (teamContainer) teamContainer.style.display = 'none';
-    if (auditContainer) auditContainer.style.display = 'block';
-    renderAuditReportsCards();
-  } else {
-    if (teamContainer) teamContainer.style.display = 'grid';
-    if (auditContainer) auditContainer.style.display = 'none';
-    renderTeamCards(cat);
-  }
+  renderTeamCards(cat);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   loadTeamProfiles();
   loadAuditReports();
   if (window.location.hash === '#audit') {
-    const btn = document.getElementById('auditReportsTabBtn');
-    if (btn) filterTeam('audit', btn);
+    const el = document.getElementById('audit');
+    if (el) {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 300);
+    }
   }
 });
 </script>

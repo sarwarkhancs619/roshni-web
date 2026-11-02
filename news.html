@@ -426,7 +426,13 @@
       const newsGrid = document.getElementById('dynamicNewsGrid');
       if (newsGrid && ALL_NEWS_DATA.length) {
         newsGrid.innerHTML = ALL_NEWS_DATA.map((item, index) => {
-          const imgList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+          const normalizeSrc = (src) => {
+            if (!src) return '/assets/images/village_community.jpg';
+            if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+            return src.startsWith('/') ? src : '/' + src;
+          };
+          const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+          const imgList = rawList.map(normalizeSrc);
           const mainImg = imgList[0];
           const hasMultiple = imgList.length > 1;
 
@@ -529,7 +535,13 @@
     const item = ALL_NEWS_DATA.find(n => n.id === id);
     if (!item) return;
 
-    const imgList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+    const normalizeSrc = (src) => {
+      if (!src) return '/assets/images/village_community.jpg';
+      if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+      return src.startsWith('/') ? src : '/' + src;
+    };
+    const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+    const imgList = rawList.map(normalizeSrc);
     
     document.getElementById('modalTitle').textContent = item.title;
     document.getElementById('modalCategory').textContent = item.category || 'News';
