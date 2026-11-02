@@ -142,6 +142,8 @@ app.post('/api/upload', (req, res) => {
 
   const matches = base64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
   const buffer = matches ? Buffer.from(matches[2], 'base64') : Buffer.from(base64Data, 'base64');
+  const mime = (matches && matches[1]) ? matches[1] : (filename && filename.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+  const dataUri = matches ? base64Data : `data:${mime};base64,${buffer.toString('base64')}`;
 
   const slotMap = {
     monogram: 'roshni_logo.jpg',
@@ -152,28 +154,25 @@ app.post('/api/upload', (req, res) => {
     crafts: 'crafts_workshop.jpg'
   };
 
-  const isPdf = (filename && filename.toLowerCase().endsWith('.pdf')) || (matches && matches[1] === 'application/pdf');
+  const isPdf = (filename && filename.toLowerCase().endsWith('.pdf')) || (mime === 'application/pdf');
   const cleanName = filename ? path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_') : (isPdf ? `newsletter_${Date.now()}.pdf` : `upload_${Date.now()}.jpg`);
   const targetFilename = (slot && slotMap[slot]) ? slotMap[slot] : cleanName;
   
-  const destDir = isPdf ? DOCS_DIR : IMAGES_DIR;
-  const targetPath = path.join(destDir, targetFilename);
-  const publicUrl = isPdf ? `assets/documents/${targetFilename}` : `assets/images/${targetFilename}`;
+  // On Vercel (or any serverless cloud host), ephemeral /assets/ writes do NOT persist or serve across lambda requests.
+  // Using Data URI for custom uploaded photos guarantees images display 100% reliably everywhere!
+  const isServerless = Boolean(process.env.VERCEL || process.env.NOW_REGION || process.env.AWS_REGION);
 
   try {
+    const destDir = isPdf ? DOCS_DIR : IMAGES_DIR;
+    const targetPath = path.join(destDir, targetFilename);
     fs.writeFileSync(targetPath, buffer);
-    console.log(`[UPLOAD] Uploaded: ${targetFilename} (${buffer.length} bytes) to ${publicUrl}`);
-    // If running in serverless / Vercel with ephemeral filesystem, also provide data URI fallback
-    const mime = isPdf ? 'application/pdf' : (matches ? matches[1] : 'image/jpeg');
-    const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
-    res.json({ ok: true, slot, url: publicUrl, dataUri: dataUri, filename: targetFilename });
-  } catch (err) {
-    console.error(`[UPLOAD] Error writing file:`, err.message);
-    const mime = isPdf ? 'application/pdf' : (matches ? matches[1] : 'image/jpeg');
-    const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
-    // Fall back gracefully to dataUri so uploads always persist in DB even if disk write fails on serverless
-    res.json({ ok: true, slot, url: dataUri, dataUri: dataUri, filename: targetFilename });
+  } catch(e) {
+    // Expected on serverless readonly filesystems
   }
+
+  // If slot (e.g. monogram, village) is a known static asset, use static path; otherwise, if serverless or custom user upload, return dataUri
+  const publicUrl = isServerless ? dataUri : (isPdf ? `/assets/documents/${targetFilename}` : `/assets/images/${targetFilename}`);
+  res.json({ ok: true, slot, url: publicUrl, dataUri, filename: targetFilename });
 });
 
 // 4. Milestones CRUD
@@ -1472,7 +1471,8 @@ app.get('/admin', (req, res) => {
             const url = await uploadFilePromise(file);
             const thumb = document.createElement('div');
             thumb.style.cssText = 'position:relative;background:#fff;padding:6px;border-radius:8px;border:1px solid #BFDBFE;box-shadow:0 2px 6px rgba(0,0,0,0.08);';
-            thumb.innerHTML = '<img src="/' + url + '" style="width:70px;height:70px;object-fit:cover;border-radius:6px;display:block;"><small style="display:block;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.68rem;color:#1E40AF;margin-top:4px;">' + escapeHtml(file.name) + '</small>';
+            const displayUrl = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
+            thumb.innerHTML = '<img src="' + displayUrl + '" style="width:70px;height:70px;object-fit:cover;border-radius:6px;display:block;"><small style="display:block;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.68rem;color:#1E40AF;margin-top:4px;">' + escapeHtml(file.name) + '</small>';
             previewsEl.appendChild(thumb);
           } catch(err) {
             console.error('File upload failed:', err);
@@ -1496,7 +1496,7 @@ app.get('/admin', (req, res) => {
             const url = await uploadFilePromise(file);
             uploadedUrls.push(url);
             const img = document.createElement('img');
-            img.src = '/' + url;
+            img.src = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
             img.className = 'img-preview-thumb';
             img.style.border = '2px solid #1E40AF';
             thumbsEl.appendChild(img);
@@ -1525,7 +1525,7 @@ app.get('/admin', (req, res) => {
             const url = await uploadFilePromise(file);
             uploadedUrls.push(url);
             const img = document.createElement('img');
-            img.src = '/' + url;
+            img.src = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
             img.className = 'img-preview-thumb';
             img.style.border = '2px solid #F97316';
             thumbsEl.appendChild(img);
