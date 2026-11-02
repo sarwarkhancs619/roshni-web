@@ -165,10 +165,34 @@ document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
       <button onclick="filterTeam('staff', this)" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
         🛠️ Staff &amp; Workshop Masters
       </button>
+      <button onclick="filterTeam('audit', this)" id="auditReportsTabBtn" class="team-tab-btn" style="padding:0.5rem 1.25rem;border-radius:9999px;border:1px solid #CBD5E1;background:#fff;color:#1E3A8A;font-weight:700;font-size:0.85rem;cursor:pointer;">
+        📑 Audit &amp; Financial Reports
+      </button>
     </div>
 
     <div class="grid-3" id="teamProfilesContainer">
       <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading team profiles...</div>
+    </div>
+
+    <!-- Audit Reports Container (Displayed when Audit Tab is active) -->
+    <div id="auditReportsViewContainer" style="display:none;">
+      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1.25rem;padding:2rem;margin-bottom:2rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:space-between;">
+          <div>
+            <h3 style="font-size:1.35rem;font-weight:800;color:#1E3A8A;margin:0 0 0.4rem;">Financial Transparency &amp; Statutory Audits</h3>
+            <p style="color:#64748B;font-size:0.9rem;margin:0;max-width:44rem;line-height:1.6;">
+              Roshni Association undergoes independent external annual financial audits in Pakistan. Review and download our audited financial statements and auditor opinions below.
+            </p>
+          </div>
+          <span class="badge badge-green" style="font-size:0.85rem;padding:0.4rem 0.9rem;">
+            <i class="fas fa-shield-alt" style="margin-right:6px;"></i> Verified &amp; Compliant
+          </span>
+        </div>
+      </div>
+
+      <div class="grid-3" id="auditReportsCardsContainer">
+        <div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">Loading audit reports...</div>
+      </div>
     </div>
   </div>
 </section>
@@ -228,6 +252,59 @@ function renderTeamCards(category) {
   }).join('');
 }
 
+let allAuditReports = [];
+
+async function loadAuditReports() {
+  try {
+    const res = await fetch('/api/audit-reports');
+    allAuditReports = await res.json();
+    renderAuditReportsCards();
+  } catch(e) {
+    console.error('Failed to load audit reports:', e);
+  }
+}
+
+function renderAuditReportsCards() {
+  const container = document.getElementById('auditReportsCardsContainer');
+  if (!container) return;
+  if (!allAuditReports || allAuditReports.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No audit reports published yet.</div>';
+    return;
+  }
+  container.innerHTML = allAuditReports.map(ar => `
+    <div class="card" style="padding:2rem;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #E2E8F0;background:#fff;border-radius:1.25rem;" data-reveal>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+          <span style="display:inline-block;padding:0.25rem 0.75rem;border-radius:9999px;font-size:0.75rem;font-weight:700;color:#1E40AF;background:#DBEAFE;">
+            ${ar.fiscalYear || 'Audit Report'}
+          </span>
+          <span style="font-size:0.75rem;color:#64748B;">
+            <i class="far fa-calendar-alt"></i> ${ar.publishedDate || ''}
+          </span>
+        </div>
+        <h3 style="font-size:1.18rem;font-weight:700;color:#1E3A8A;margin-bottom:0.4rem;line-height:1.4;">
+          ${ar.title}
+        </h3>
+        <p style="color:#F97316;font-size:0.83rem;font-weight:700;margin-bottom:0.6rem;">
+          <i class="fas fa-user-check" style="margin-right:4px;"></i> Auditor: ${ar.auditorName || 'Chartered Accountants'}
+        </p>
+        <p style="color:#64748B;font-size:0.87rem;line-height:1.6;margin-bottom:1.25rem;">
+          ${ar.summary || 'Official statutory financial audit report of Roshni Association.'}
+        </p>
+      </div>
+
+      <div style="border-top:1px solid #F1F5F9;padding-top:1rem;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:0.78rem;color:#94A3B8;font-weight:600;">
+          <i class="fas fa-file-pdf" style="color:#EF4444;margin-right:4px;"></i> ${ar.fileSize || 'PDF'}
+        </span>
+        <a href="${ar.pdfUrl}" target="_blank" rel="noopener" style="background:#EF4444;color:#fff;padding:0.5rem 1.1rem;border-radius:9999px;font-weight:700;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;">
+          <i class="fas fa-download"></i> View / Download PDF
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
 function filterTeam(cat, btn) {
   document.querySelectorAll('.team-tab-btn').forEach(b => {
     b.style.background = '#fff';
@@ -239,10 +316,29 @@ function filterTeam(cat, btn) {
     btn.style.color = '#fff';
     btn.style.borderColor = '#1E40AF';
   }
-  renderTeamCards(cat);
+
+  const teamContainer = document.getElementById('teamProfilesContainer');
+  const auditContainer = document.getElementById('auditReportsViewContainer');
+
+  if (cat === 'audit') {
+    if (teamContainer) teamContainer.style.display = 'none';
+    if (auditContainer) auditContainer.style.display = 'block';
+    renderAuditReportsCards();
+  } else {
+    if (teamContainer) teamContainer.style.display = 'grid';
+    if (auditContainer) auditContainer.style.display = 'none';
+    renderTeamCards(cat);
+  }
 }
 
-document.addEventListener('DOMContentLoaded', loadTeamProfiles);
+document.addEventListener('DOMContentLoaded', () => {
+  loadTeamProfiles();
+  loadAuditReports();
+  if (window.location.hash === '#audit') {
+    const btn = document.getElementById('auditReportsTabBtn');
+    if (btn) filterTeam('audit', btn);
+  }
+});
 </script>
 
 <!-- ── Callout with same gradient ────────────────────────────────── -->

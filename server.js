@@ -11,7 +11,7 @@ const {
   connectDB,
   getLastError,
   Settings, Milestone, Team, News, Event,
-  Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order,
+  Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order, AuditReport,
 } = require('./db');
 
 // Ensure database is connected before handling API requests (critical for serverless / Vercel)
@@ -405,6 +405,47 @@ app.delete('/api/newsletters/:id', async (req, res) => {
   res.json({ ok: true, message: 'Newsletter deleted.' });
 });
 
+// 9b. Audit Reports CRUD
+app.get('/api/audit-reports', async (req, res) => {
+  try {
+    if (isMongoReady()) return res.json(await AuditReport.find().sort({ fiscalYear: -1, createdAt: -1 }).lean());
+  } catch(e) { console.error('[AuditReports GET]', e.message); }
+  res.json(readData('audit_reports.json'));
+});
+
+app.post('/api/audit-reports', async (req, res) => {
+  const { title, fiscalYear, auditorName, publishedDate, summary, pdfUrl, fileSize } = req.body;
+  if (!title || !pdfUrl) return res.status(400).json({ ok: false, error: 'Title and PDF file URL are required.' });
+  const doc = {
+    id: Date.now(),
+    title: String(title).trim(),
+    fiscalYear: fiscalYear ? String(fiscalYear).trim() : 'FY ' + new Date().getFullYear(),
+    auditorName: auditorName ? String(auditorName).trim() : 'Independent Chartered Accountants',
+    publishedDate: publishedDate || new Date().toISOString().split('T')[0],
+    summary: summary ? String(summary).trim() : '',
+    pdfUrl: String(pdfUrl).trim(),
+    fileSize: fileSize ? String(fileSize).trim() : 'PDF Document',
+    createdAt: new Date()
+  };
+  try {
+    if (isMongoReady()) {
+      const saved = await AuditReport.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[AuditReports POST]', e.message); }
+  const list = readData('audit_reports.json'); list.unshift(doc); writeData('audit_reports.json', list);
+  res.status(201).json({ ok: true, data: doc });
+});
+
+app.delete('/api/audit-reports/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    if (isMongoReady()) { await AuditReport.deleteOne({ id }); return res.json({ ok: true }); }
+  } catch(e) { console.error('[AuditReports DELETE]', e.message); }
+  let list = readData('audit_reports.json'); writeData('audit_reports.json', list.filter(a => a.id !== id));
+  res.json({ ok: true, message: 'Audit report deleted.' });
+});
+
 // 10. Contact Inquiries
 app.get('/api/contacts', async (req, res) => {
   try {
@@ -688,6 +729,7 @@ app.get('/admin', (req, res) => {
         <button class="admin-tab" onclick="switchTab('products', this)"><i class="fas fa-shopping-bag"></i> Products (Multi-Photo)</button>
         <button class="admin-tab" onclick="switchTab('events', this)"><i class="fas fa-calendar-alt"></i> Events &amp; Festivals</button>
         <button class="admin-tab" onclick="switchTab('newsletter', this)"><i class="fas fa-paper-plane"></i> Newsletter</button>
+        <button class="admin-tab" onclick="switchTab('audit', this)"><i class="fas fa-file-invoice-dollar"></i> 📑 Audit Reports (<span id="tabAuditCount">0</span>)</button>
         <button class="admin-tab" onclick="switchTab('orders', this)"><i class="fas fa-box"></i> Orders (<span id="tabOrderCount">0</span>)</button>
         <button class="admin-tab" onclick="switchTab('volunteers', this)"><i class="fas fa-hands-helping"></i> Volunteers (<span id="tabVolCount">0</span>)</button>
         <button class="admin-tab" onclick="switchTab('donations', this)"><i class="fas fa-heart"></i> Donations (<span id="tabDonCount">0</span>)</button>
@@ -1211,6 +1253,69 @@ app.get('/admin', (req, res) => {
         </div>
       </div>
 
+      <!-- TAB: AUDIT REPORTS (PDF UPLOADS & MANAGEMENT) -->
+      <div id="view-audit" class="admin-card" style="display:none;">
+        <h2 class="serif-heading" style="font-size:1.4rem;color:#1E3A8A;margin-bottom:0.25rem;">Audit &amp; Financial Reports</h2>
+        <p style="color:#64748B;font-size:0.85rem;margin-bottom:1.5rem;">Upload and manage official statutory audit reports in PDF format for public viewing on the website.</p>
+
+        <!-- Upload & Add Audit Report Form -->
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1.5rem;margin-bottom:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:1rem;"><i class="fas fa-file-pdf" style="color:#EF4444;"></i> Upload &amp; Publish New Audit Report (PDF)</h3>
+          <form id="formAddAuditReport" onsubmit="handleAddAuditReport(event)">
+            <div class="form-grid">
+              <div class="form-group" style="margin:0;">
+                <label>Report Title *</label>
+                <input type="text" name="title" required placeholder="e.g. Annual Statutory Audit Report 2025-2026" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Fiscal Year *</label>
+                <input type="text" name="fiscalYear" required placeholder="e.g. FY 2025 - 2026" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Auditor / Accounting Firm</label>
+                <input type="text" name="auditorName" placeholder="e.g. Amin &amp; Co. Chartered Accountants" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Publication Date</label>
+                <input type="date" name="publishedDate" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:1rem;">
+              <label>Audit Report PDF Document *</label>
+              <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input type="text" name="pdfUrl" id="auditPdfInput" required placeholder="/assets/documents/roshni_audit_report.pdf" class="form-control" style="flex:1;">
+                <input type="file" id="auditPdfFile" accept=".pdf,application/pdf" style="display:none;" onchange="handleAuditPdfUpload(this)">
+                <button type="button" onclick="document.getElementById('auditPdfFile').click()" style="background:#EF4444;color:#fff;border:none;padding:0.75rem 1.25rem;border-radius:0.75rem;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
+                  <i class="fas fa-upload"></i> Upload PDF Report
+                </button>
+              </div>
+              <input type="hidden" name="fileSize" id="auditPdfSizeInput" value="">
+              <div id="auditPdfStatus" style="font-size:0.75rem;color:#16A34A;margin-top:4px;font-weight:600;"></div>
+            </div>
+
+            <div class="form-group">
+              <label>Executive Summary / Auditor's Opinion</label>
+              <textarea name="summary" rows="3" placeholder="Summary of audit opinion (e.g. Unqualified audit opinion on financial statements, balance sheet, and fund utilization)..." class="form-control"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" style="width:auto;padding:0.75rem 2rem;">
+              <i class="fas fa-check-circle" style="margin-right:6px;"></i> Publish Audit Report to Website
+            </button>
+          </form>
+        </div>
+
+        <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin:1.5rem 0 0.75rem;">Published Audit Reports (<span id="auditReportsTableCount">0</span>)</h3>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Fiscal Year</th><th>Report Title</th><th>Auditors</th><th>Published Date</th><th>PDF Document</th><th>Action</th></tr>
+            </thead>
+            <tbody id="auditReportsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- TAB 8: ORDERS -->
       <div id="view-orders" class="admin-card" style="display:none;">
         <h2 class="serif-heading" style="font-size:1.4rem;color:#1E3A8A;margin-bottom:0.25rem;">Live Customer Orders</h2>
@@ -1444,8 +1549,27 @@ app.get('/admin', (req, res) => {
         }
       }
 
+      // Audit Report PDF Uploader
+      async function handleAuditPdfUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const statusEl = document.getElementById('auditPdfStatus');
+        const inputEl = document.getElementById('auditPdfInput');
+        const sizeEl = document.getElementById('auditPdfSizeInput');
+        statusEl.textContent = '⏳ Uploading PDF Report (' + file.name + ')...';
+        try {
+          const url = await uploadFilePromise(file);
+          inputEl.value = '/' + url;
+          const sz = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+          if (sizeEl) sizeEl.value = sz;
+          statusEl.textContent = '✅ PDF Report uploaded! (' + file.name + ' - ' + sz + ')';
+        } catch(err) {
+          statusEl.textContent = '❌ Upload failed: ' + err.message;
+        }
+      }
+
       async function loadAllData() {
-        const [stats, settings, milestones, team, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers] = await Promise.all([
+        const [stats, settings, milestones, team, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers, auditReports] = await Promise.all([
           fetchJSON('/api/stats'),
           fetchJSON('/api/settings'),
           fetchJSON('/api/milestones'),
@@ -1458,7 +1582,8 @@ app.get('/admin', (req, res) => {
           fetchJSON('/api/volunteers'),
           fetchJSON('/api/donations'),
           fetchJSON('/api/contacts'),
-          fetchJSON('/api/subscribers')
+          fetchJSON('/api/subscribers'),
+          fetchJSON('/api/audit-reports')
         ]);
 
         // Populate Real Figures Form
@@ -1584,6 +1709,23 @@ app.get('/admin', (req, res) => {
             </tr>
           \`;
         }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No campaigns issued.</td></tr>';
+
+        // Render Audit Reports
+        document.getElementById('tabAuditCount').textContent = auditReports.length;
+        document.getElementById('auditReportsTableCount').textContent = auditReports.length;
+        document.getElementById('auditReportsTableBody').innerHTML = auditReports.map(ar => {
+          const pdfLink = ar.pdfUrl ? \`<a href="\${ar.pdfUrl}" target="_blank" style="color:#EF4444;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-file-pdf"></i> View / Download PDF (\${escapeHtml(ar.fileSize || 'PDF')})</a>\` : '<span style="color:#94A3B8;">No PDF</span>';
+          return \`
+            <tr>
+              <td><span class="badge badge-blue"><strong>\${escapeHtml(ar.fiscalYear)}</strong></span></td>
+              <td><strong>\${escapeHtml(ar.title)}</strong><br><small style="color:#64748B;">\${escapeHtml(ar.summary || '')}</small></td>
+              <td>\${escapeHtml(ar.auditorName || 'Amin & Co. Chartered Accountants')}</td>
+              <td>\${ar.publishedDate || 'N/A'}</td>
+              <td>\${pdfLink}</td>
+              <td><button onclick="deleteItem('/api/audit-reports/\${ar.id}')" class="btn-del"><i class="fas fa-trash"></i> Delete</button></td>
+            </tr>
+          \`;
+        }).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No audit reports uploaded yet.</td></tr>';
 
         // Render Subscribers
         document.getElementById('subscribersTableBody').innerHTML = subscribers.map(s => \`
@@ -1803,6 +1945,34 @@ app.get('/admin', (req, res) => {
           }
         } catch(err) {
           alert('Network error while broadcasting newsletter: ' + err.message);
+        }
+      }
+
+      async function handleAddAuditReport(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        if (!data.pdfUrl) {
+          alert('Please upload or provide a PDF URL for the audit report.');
+          return;
+        }
+        try {
+          const res = await fetch('/api/audit-reports', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert('✅ Audit Report successfully published and available to public!');
+            e.target.reset();
+            const pdfStatus = document.getElementById('auditPdfStatus');
+            if (pdfStatus) pdfStatus.textContent = '';
+            loadAllData();
+          } else {
+            alert('Failed to publish audit report: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while publishing audit report: ' + err.message);
         }
       }
 

@@ -180,19 +180,33 @@ const orderSchema = new mongoose.Schema({
   orderDate:       { type: Date, default: Date.now },
 });
 
+// ── 13. Audit Reports ────────────────────────────────────────────────────
+const auditReportSchema = new mongoose.Schema({
+  ...autoId,
+  title:        { type: String, required: true },
+  fiscalYear:   { type: String, required: true },
+  auditorName:  { type: String, default: 'Independent Chartered Accountants' },
+  publishedDate:{ type: String },
+  summary:      { type: String, default: '' },
+  pdfUrl:       { type: String, required: true },
+  fileSize:     { type: String, default: '' },
+  createdAt:    { type: Date, default: Date.now },
+});
+
 // ── Export models ─────────────────────────────────────────────────────────
-const Settings   = mongoose.models.Settings   || mongoose.model('Settings',   settingsSchema);
-const Milestone  = mongoose.models.Milestone  || mongoose.model('Milestone',  milestoneSchema);
-const Team       = mongoose.models.Team       || mongoose.model('Team',       teamSchema);
-const News       = mongoose.models.News       || mongoose.model('News',       newsSchema);
-const Event      = mongoose.models.Event      || mongoose.model('Event',      eventSchema);
-const Product    = mongoose.models.Product    || mongoose.model('Product',    productSchema);
-const Newsletter = mongoose.models.Newsletter || mongoose.model('Newsletter', newsletterSchema);
-const Subscriber = mongoose.models.Subscriber || mongoose.model('Subscriber', subscriberSchema);
-const Contact    = mongoose.models.Contact    || mongoose.model('Contact',    contactSchema);
-const Volunteer  = mongoose.models.Volunteer  || mongoose.model('Volunteer',  volunteerSchema);
-const Donation   = mongoose.models.Donation   || mongoose.model('Donation',   donationSchema);
-const Order      = mongoose.models.Order      || mongoose.model('Order',      orderSchema);
+const Settings    = mongoose.models.Settings    || mongoose.model('Settings',    settingsSchema);
+const Milestone   = mongoose.models.Milestone   || mongoose.model('Milestone',   milestoneSchema);
+const Team        = mongoose.models.Team        || mongoose.model('Team',        teamSchema);
+const News        = mongoose.models.News        || mongoose.model('News',        newsSchema);
+const Event       = mongoose.models.Event       || mongoose.model('Event',       eventSchema);
+const Product     = mongoose.models.Product     || mongoose.model('Product',     productSchema);
+const Newsletter  = mongoose.models.Newsletter  || mongoose.model('Newsletter',  newsletterSchema);
+const Subscriber  = mongoose.models.Subscriber  || mongoose.model('Subscriber',  subscriberSchema);
+const Contact     = mongoose.models.Contact     || mongoose.model('Contact',     contactSchema);
+const Volunteer   = mongoose.models.Volunteer   || mongoose.model('Volunteer',   volunteerSchema);
+const Donation    = mongoose.models.Donation    || mongoose.model('Donation',    donationSchema);
+const Order       = mongoose.models.Order       || mongoose.model('Order',       orderSchema);
+const AuditReport = mongoose.models.AuditReport || mongoose.model('AuditReport', auditReportSchema);
 
 module.exports = {
   connectDB,
@@ -209,4 +223,5 @@ module.exports = {
   Volunteer,
   Donation,
   Order,
+  AuditReport,
 };

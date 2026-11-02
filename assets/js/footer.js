@@ -48,6 +48,7 @@
         <ul>
           <li><a href="/index.html">Home</a></li>
           <li><a href="/about.html">About Us &amp; History</a></li>
+          <li><a href="/about.html#audit">Audit &amp; Financial Reports</a></li>
           <li><a href="/projects.html">Our Initiatives &amp; CBR</a></li>
           <li><a href="/volunteer.html">Volunteer With Us</a></li>
           <li><a href="/shop.html">Artisanal Shop</a></li>
