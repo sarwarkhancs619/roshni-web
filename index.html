@@ -823,15 +823,21 @@
         }
 
         track.innerHTML = newsItems.map(item => {
-          const imgList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+          const normalizeSrc = (src) => {
+            if (!src) return '/assets/images/village_community.jpg';
+            if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+            return src.startsWith('/') ? src : '/' + src;
+          };
+          const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+          const imgList = rawList.map(normalizeSrc);
           const mainImg = imgList[0];
           const photoCount = imgList.length;
 
           return `
           <div class="news-slide-card">
-            <div class="card" style="height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);">
+            <div class="card" style="height:100%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06);cursor:pointer;" onclick="window.location.href='news.html#article-${item.id}'">
               <div style="position:relative;height:210px;background:#0F172A;overflow:hidden;">
-                <img src="${mainImg}" alt="${item.title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease;">
+                <img src="${mainImg}" alt="${item.title}" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';" style="width:100%;height:100%;object-fit:cover;transition:transform 0.5s ease;">
                 <span style="position:absolute;top:1rem;left:1rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);color:#1E40AF;font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:9999px;">
                   ${item.category}
                 </span>
@@ -852,7 +858,7 @@
                   ${item.summary}
                 </p>
                 <div style="border-top:1px solid #F1F5F9;padding-top:1rem;margin-top:auto;display:flex;justify-content:space-between;align-items:center;">
-                  <a href="news.html" style="font-size:0.84rem;font-weight:700;color:#1E40AF;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                  <a href="news.html#article-${item.id}" style="font-size:0.84rem;font-weight:700;color:#1E40AF;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
                     Read Article <i class="fas fa-arrow-right"></i>
                   </a>
                   ${photoCount > 1 ? `<span style="font-size:0.75rem;color:#64748B;"><i class="fas fa-camera"></i> Gallery</span>` : ''}

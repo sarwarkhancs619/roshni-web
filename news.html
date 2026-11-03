@@ -374,7 +374,7 @@
     
     <!-- Photo Box -->
     <div id="modalPhotoContainer" style="position:relative;">
-      <img id="modalMainImg" class="modal-gallery-main" src="" alt="Article photo">
+      <img id="modalMainImg" class="modal-gallery-main" src="" alt="Article photo" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';">
       <div id="modalThumbsStrip" class="news-thumbs-strip" style="background:#0F172A;padding:0.6rem 1rem;"></div>
     </div>
 
@@ -449,7 +449,7 @@
           ` : '';
 
           return `
-            <div class="card" style="display:flex;flex-direction:column;overflow:hidden;cursor:pointer;" onclick="openArticleModal(${item.id})" data-reveal>
+            <div id="article-${item.id}" class="card" style="display:flex;flex-direction:column;overflow:hidden;cursor:pointer;" onclick="openArticleModal(${item.id})" data-reveal>
               <div class="media-card-img">
                 <img id="main-news-img-${item.id}" src="${mainImg}" alt="${item.title}" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';">
                 <span style="position:absolute;bottom:0.75rem;left:1rem;background:rgba(15,23,42,0.8);backdrop-filter:blur(6px);color:#fff;font-size:0.72rem;font-weight:700;padding:0.25rem 0.65rem;border-radius:9999px;z-index:2;">
@@ -483,6 +483,18 @@
       }
     } catch(err) {
       console.warn('News fallback:', err);
+    }
+
+    // Auto-open article modal if URL has hash (e.g., news.html#article-12345)
+    if (window.location.hash && window.location.hash.startsWith('#article-')) {
+      const targetId = Number(window.location.hash.replace('#article-', ''));
+      if (targetId && ALL_NEWS_DATA.some(n => n.id === targetId)) {
+        setTimeout(() => {
+          openArticleModal(targetId);
+          const targetEl = document.getElementById(`article-${targetId}`);
+          if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
     }
 
     // 2. Fetch Events
