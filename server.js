@@ -1036,7 +1036,7 @@ app.get('/admin', (req, res) => {
                 </button>
                 <span id="newsUploadStatus" style="font-size:0.75rem;color:#1E40AF;font-weight:600;"></span>
               </div>
-              <input type="text" id="newsImagesInput" name="images" required value="assets/images/village_community.jpg" class="form-control" placeholder="assets/images/photo1.jpg, assets/images/photo2.jpg">
+              <input type="text" id="newsImagesInput" name="images" value="" class="form-control" placeholder="Upload photos above — paths fill in automatically">
               <div id="newsUploadThumbs" style="display:flex;gap:6px;margin-top:0.5rem;flex-wrap:wrap;"></div>
               <small style="color:#64748B;font-size:0.75rem;">Click the button to select photos from your device — paths will automatically fill in above.</small>
             </div>
@@ -1112,7 +1112,7 @@ app.get('/admin', (req, res) => {
                 </button>
                 <span id="prodUploadStatus" style="font-size:0.75rem;color:#1E40AF;font-weight:600;"></span>
               </div>
-              <input type="text" id="prodImagesInput" name="images" required value="assets/images/crafts_workshop.jpg" class="form-control" placeholder="assets/images/prod1.jpg, assets/images/prod2.jpg">
+              <input type="text" id="prodImagesInput" name="images" value="" class="form-control" placeholder="Upload photos above — paths fill in automatically">
               <div id="prodUploadThumbs" style="display:flex;gap:6px;margin-top:0.5rem;flex-wrap:wrap;"></div>
               <small style="color:#64748B;font-size:0.75rem;">Click the button to select photos from your device — multiple photos can be selected at once.</small>
             </div>
@@ -1505,6 +1505,7 @@ app.get('/admin', (req, res) => {
           }
         }
         if (uploadedUrls.length) {
+          inputEl.value = '';  // clear any old/default value first
           inputEl.value = uploadedUrls.join(', ');
           statusEl.textContent = '✅ ' + uploadedUrls.length + ' photo(s) uploaded and attached!';
         }
@@ -1534,6 +1535,7 @@ app.get('/admin', (req, res) => {
           }
         }
         if (uploadedUrls.length) {
+          inputEl.value = '';  // clear any old/default value first
           inputEl.value = uploadedUrls.join(', ');
           statusEl.textContent = '✅ ' + uploadedUrls.length + ' photo(s) uploaded and attached!';
         }
