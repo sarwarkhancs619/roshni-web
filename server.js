@@ -170,8 +170,8 @@ app.post('/api/upload', (req, res) => {
     // Expected on serverless readonly filesystems
   }
 
-  // If slot (e.g. monogram, village) is a known static asset, use static path; otherwise, if serverless or custom user upload, return dataUri
-  const publicUrl = isServerless ? dataUri : (isPdf ? `/assets/documents/${targetFilename}` : `/assets/images/${targetFilename}`);
+  // If slot (e.g. monogram, village) is a known static asset, use static path; otherwise, return dataUri so images persist across all hosting platforms (Vercel serverless lambda)
+  const publicUrl = (slot && slotMap[slot]) ? `/assets/images/${slotMap[slot]}` : dataUri;
   res.json({ ok: true, slot, url: publicUrl, dataUri, filename: targetFilename });
 });
 
@@ -1435,27 +1435,58 @@ app.get('/admin', (req, res) => {
         reader.readAsDataURL(file);
       }
 
-      // Helper to upload a single file via base64
-      async function uploadFilePromise(file, slot = null) {
-        return new Promise((resolve, reject) => {
+      // Helper to compress images client-side before sending to server (prevents Vercel 4.5MB limit error)
+      function compressImageClient(file, maxDimension = 1600, quality = 0.82) {
+        return new Promise((resolve) => {
+          if (!file.type || !file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+            return;
+          }
           const reader = new FileReader();
-          reader.onload = async function(e) {
-            try {
-              const res = await fetch('/api/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ slot, base64Data: e.target.result, filename: file.name })
-              });
-              const json = await res.json();
-              if (json.ok) resolve(json.url);
-              else reject(new Error(json.error || 'Upload failed'));
-            } catch(err) {
-              reject(err);
-            }
+          reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+              let width = img.width;
+              let height = img.height;
+              if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                } else {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', quality);
+              resolve(dataUrl);
+            };
+            img.onerror = function() {
+              resolve(e.target.result);
+            };
+            img.src = e.target.result;
           };
-          reader.onerror = () => reject(new Error('Failed to read file'));
           reader.readAsDataURL(file);
         });
+      }
+
+      // Helper to upload a single file via compressed base64
+      async function uploadFilePromise(file, slot = null) {
+        const base64Data = await compressImageClient(file);
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slot, base64Data, filename: file.name })
+        });
+        const json = await res.json();
+        if (json.ok) return json.url;
+        throw new Error(json.error || 'Upload failed');
       }
 
       // Universal Uploader (Tab 2)

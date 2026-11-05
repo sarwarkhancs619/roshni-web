@@ -284,8 +284,15 @@
   function renderProducts(items) {
     const grid = document.getElementById('productGrid');
     if (!grid) return;
+    const normalizeSrc = (src) => {
+      if (!src) return '/assets/images/crafts_workshop.jpg';
+      if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+      return src.startsWith('/') ? src : '/' + src;
+    };
+
     grid.innerHTML = items.map(p => {
-      const imgList = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : [p.image || 'assets/images/crafts_workshop.jpg'];
+      const rawList = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : [p.image || 'assets/images/crafts_workshop.jpg'];
+      const imgList = rawList.map(normalizeSrc);
       const mainImg = imgList[0];
       const hasMultiple = imgList.length > 1;
 
@@ -295,7 +302,7 @@
             <button type="button" class="prod-thumb-btn ${idx === 0 ? 'active' : ''}" 
                     onclick="switchProductImage(${p.id}, '${img}', this)"
                     title="View photo ${idx + 1}">
-              <img src="${img}" alt="${p.title} thumbnail ${idx + 1}">
+              <img src="${img}" alt="${p.title} thumbnail ${idx + 1}" onerror="this.onerror=null;this.src='/assets/images/crafts_workshop.jpg';">
             </button>
           `).join('')}
         </div>
@@ -304,7 +311,7 @@
       return `
         <div class="card" style="display:flex;flex-direction:column;overflow:hidden;" data-reveal>
           <div class="product-img-box">
-            <img id="main-prod-img-${p.id}" src="${mainImg}" alt="${p.title}">
+            <img id="main-prod-img-${p.id}" src="${mainImg}" alt="${p.title}" onerror="this.onerror=null;this.src='/assets/images/crafts_workshop.jpg';">
             <span style="position:absolute;top:1rem;left:1rem;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);padding:0.25rem 0.65rem;border-radius:9999px;font-size:0.7rem;font-weight:700;color:#1E40AF;box-shadow:0 2px 6px rgba(0,0,0,0.1);z-index:2;">
               ${p.workshop || 'Roshni Workshop'}
             </span>
