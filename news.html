@@ -440,7 +440,7 @@
             <div class="news-thumbs-strip">
               ${imgList.map((img, idx) => `
                 <button type="button" class="news-thumb-btn ${idx === 0 ? 'active' : ''}" 
-                        onclick="switchNewsImage(${item.id}, '${img}', this, event)"
+                        onclick="switchNewsImage(${item.id}, ${idx}, this, event)"
                         title="View image ${idx + 1}">
                   <img src="${img}" alt="${item.title} image ${idx + 1}" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';">
                 </button>
@@ -526,15 +526,24 @@
     }
   }
 
-  function switchNewsImage(newsId, newSrc, btn, event) {
+  function switchNewsImage(newsId, imgIndex, btn, event) {
     if (event) event.stopPropagation();
+    const item = ALL_NEWS_DATA.find(n => n.id === newsId);
+    if (!item) return;
+    const normalizeSrc = (src) => {
+      if (!src) return '/assets/images/village_community.jpg';
+      if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+      return src.startsWith('/') ? src : '/' + src;
+    };
+    const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
+    const targetSrc = normalizeSrc(rawList[imgIndex] || rawList[0]);
     const mainImg = document.getElementById(`main-news-img-${newsId}`);
     if (mainImg) {
       mainImg.style.opacity = '0.3';
       setTimeout(() => {
-        mainImg.src = newSrc;
+        mainImg.src = targetSrc;
         mainImg.style.opacity = '1';
-      }, 150);
+      }, 120);
     }
     if (btn && btn.parentElement) {
       btn.parentElement.querySelectorAll('.news-thumb-btn').forEach(b => b.classList.remove('active'));
@@ -554,6 +563,7 @@
     };
     const rawList = (item.images && Array.isArray(item.images) && item.images.length > 0) ? item.images : [item.image || 'assets/images/village_community.jpg'];
     const imgList = rawList.map(normalizeSrc);
+    window._currentModalImages = imgList;
     
     document.getElementById('modalTitle').textContent = item.title;
     document.getElementById('modalCategory').textContent = item.category || 'News';
@@ -569,7 +579,7 @@
     if (imgList.length > 1) {
       thumbsContainer.style.display = 'flex';
       thumbsContainer.innerHTML = imgList.map((img, idx) => `
-        <button type="button" class="news-thumb-btn ${idx === 0 ? 'active' : ''}" onclick="switchModalImage('${img}', this)">
+        <button type="button" class="news-thumb-btn ${idx === 0 ? 'active' : ''}" onclick="switchModalImage(${idx}, this)">
           <img src="${img}" alt="Gallery photo ${idx + 1}">
         </button>
       `).join('');
@@ -580,6 +590,19 @@
 
     document.getElementById('articleModal').classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  function switchModalImage(imgIndex, btn) {
+    const images = window._currentModalImages || [];
+    const targetSrc = images[imgIndex] || images[0];
+    const mainImg = document.getElementById('modalMainImg');
+    if (mainImg && targetSrc) {
+      mainImg.src = targetSrc;
+    }
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll('.news-thumb-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
   }
 
   function openEventModal(id) {

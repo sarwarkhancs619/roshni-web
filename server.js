@@ -21,6 +21,51 @@ try {
   }
 } catch(e) {}
 
+// Safe image parser: prevents breaking Data URIs which contain commas (e.g. data:image/jpeg;base64,...)
+function parseImageList(images, fallbackSingle, defaultImg) {
+  let list = [];
+  if (Array.isArray(images)) {
+    for (let i = 0; i < images.length; i++) {
+      const cur = String(images[i]).trim();
+      if (!cur) continue;
+      if (cur.startsWith('data:') && !cur.includes(',') && i + 1 < images.length) {
+        list.push(cur + ',' + String(images[i + 1]).trim());
+        i++;
+      } else {
+        list.push(cur);
+      }
+    }
+  } else if (typeof images === 'string' && images.trim()) {
+    const raw = images.trim();
+    if (raw.startsWith('[') && raw.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parseImageList(parsed, fallbackSingle, defaultImg);
+      } catch(e) {}
+    }
+    if (raw.startsWith('data:')) {
+      const parts = raw.split(/\|\|\|/);
+      if (parts.length > 1) {
+        list = parts.map(p => p.trim()).filter(Boolean);
+      } else {
+        const matches = raw.match(/data:image\/[a-zA-Z0-9.+_-]+;base64,[A-Za-z0-9+/=]+|\/[^\s,]+|https?:\/\/[^\s,]+|assets\/[^\s,]+/g);
+        if (matches && matches.length) list = matches;
+        else list = [raw];
+      }
+    } else {
+      list = raw.split(/\|\|\||,/).map(s => s.trim()).filter(Boolean);
+    }
+  }
+  if (!list.length && fallbackSingle) {
+    const single = String(fallbackSingle).trim();
+    if (single) list = [single];
+  }
+  if (!list.length && defaultImg) {
+    list = [defaultImg];
+  }
+  return list;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -300,11 +345,7 @@ app.get('/api/news', async (req, res) => {
 app.post('/api/news', async (req, res) => {
   const { title, category, date, image, images, summary, content } = req.body;
   if (!title || !summary) return res.status(400).json({ ok: false, error: 'Title and summary are required.' });
-  let imgList = [];
-  if (Array.isArray(images)) imgList = images.map(i => String(i).trim()).filter(Boolean);
-  else if (typeof images === 'string') imgList = images.split(',').map(i => i.trim()).filter(Boolean);
-  if (!imgList.length && image) imgList = [image];
-  if (!imgList.length) imgList = ['assets/images/village_community.jpg'];
+  const imgList = parseImageList(images, image, 'assets/images/village_community.jpg');
   const doc = { id: Date.now(), title: String(title).trim(), category: category || 'Village Life', date: date || new Date().toISOString().split('T')[0], image: imgList[0], images: imgList, summary: String(summary).trim(), content: content ? String(content).trim() : String(summary).trim(), createdAt: new Date() };
   try {
     if (isMongoReady()) {
@@ -367,11 +408,7 @@ app.get('/api/products', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   const { title, category, workshop, price, icon, image, images, desc } = req.body;
   if (!title || !price) return res.status(400).json({ ok: false, error: 'Product title and price are required.' });
-  let imgList = [];
-  if (Array.isArray(images)) imgList = images.map(i => String(i).trim()).filter(Boolean);
-  else if (typeof images === 'string') imgList = images.split(',').map(i => i.trim()).filter(Boolean);
-  if (!imgList.length && image) imgList = [image];
-  if (!imgList.length) imgList = ['assets/images/crafts_workshop.jpg'];
+  const imgList = parseImageList(images, image, 'assets/images/crafts_workshop.jpg');
   const doc = { id: Date.now(), category: category || 'bakery', title: String(title).trim(), workshop: workshop || 'Roshni Workshop', price: Number(price) || 500, icon: icon || '🎁', image: imgList[0], images: imgList, desc: desc ? String(desc).trim() : '', inStock: true, createdAt: new Date() };
   try {
     if (isMongoReady()) {
@@ -1531,6 +1568,7 @@ app.get('/admin', (req, res) => {
       }
 
       // News Photos Uploader
+      window._newsUploadedUrls = [];
       async function handleNewsPhotoUpload(input) {
         if (!input.files || !input.files.length) return;
         const statusEl = document.getElementById('newsUploadStatus');
@@ -1540,6 +1578,7 @@ app.get('/admin', (req, res) => {
 
         const files = Array.from(input.files);
         const uploadedUrls = [];
+        thumbsEl.innerHTML = '';
         for (const file of files) {
           try {
             const url = await uploadFilePromise(file);
@@ -1554,13 +1593,14 @@ app.get('/admin', (req, res) => {
           }
         }
         if (uploadedUrls.length) {
-          inputEl.value = '';  // clear any old/default value first
-          inputEl.value = uploadedUrls.join(', ');
+          window._newsUploadedUrls = uploadedUrls;
+          inputEl.value = uploadedUrls.length + ' photo(s) selected & attached';
           statusEl.textContent = '✅ ' + uploadedUrls.length + ' photo(s) uploaded and attached!';
         }
       }
 
       // Product Photos Uploader
+      window._prodUploadedUrls = [];
       async function handleProductPhotoUpload(input) {
         if (!input.files || !input.files.length) return;
         const statusEl = document.getElementById('prodUploadStatus');
@@ -1570,6 +1610,7 @@ app.get('/admin', (req, res) => {
 
         const files = Array.from(input.files);
         const uploadedUrls = [];
+        thumbsEl.innerHTML = '';
         for (const file of files) {
           try {
             const url = await uploadFilePromise(file);
@@ -1584,8 +1625,8 @@ app.get('/admin', (req, res) => {
           }
         }
         if (uploadedUrls.length) {
-          inputEl.value = '';  // clear any old/default value first
-          inputEl.value = uploadedUrls.join(', ');
+          window._prodUploadedUrls = uploadedUrls;
+          inputEl.value = uploadedUrls.length + ' photo(s) selected & attached';
           statusEl.textContent = '✅ ' + uploadedUrls.length + ' photo(s) uploaded and attached!';
         }
       }
@@ -1703,10 +1744,29 @@ app.get('/admin', (req, res) => {
           \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No team profiles recorded. Add your first above!</td></tr>';
         }
 
+        // Helper for admin images preview
+        const getAdminThumbs = (rawImgs, singleImg, fallback) => {
+          let list = [];
+          if (Array.isArray(rawImgs) && rawImgs.length) {
+            for (let i = 0; i < rawImgs.length; i++) {
+              const cur = String(rawImgs[i]).trim();
+              if (cur.startsWith('data:') && !cur.includes(',') && i + 1 < rawImgs.length) {
+                list.push(cur + ',' + String(rawImgs[i+1]).trim());
+                i++;
+              } else if (cur) {
+                list.push(cur);
+              }
+            }
+          }
+          if (!list.length && singleImg) list = [singleImg];
+          if (!list.length) list = [fallback];
+          return list;
+        };
+
         // Render News with Multiple Images
         document.getElementById('newsTableBody').innerHTML = news.map(n => {
-          const imgs = (n.images && n.images.length) ? n.images : [n.image || '/assets/images/village_community.jpg'];
-          const thumbs = imgs.map(src => \`<img src="\${src}" class="img-preview-thumb" style="margin-right:4px;">\`).join('');
+          const imgs = getAdminThumbs(n.images, n.image, '/assets/images/village_community.jpg');
+          const thumbs = imgs.map(src => \`<img src="\${src}" class="img-preview-thumb" style="margin-right:4px;" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';">\`).join('');
           return \`
             <tr>
               <td><div style="display:flex;gap:4px;flex-wrap:wrap;">\${thumbs}</div><small style="color:#64748B;">\${imgs.length} photo(s)</small></td>
@@ -1721,8 +1781,8 @@ app.get('/admin', (req, res) => {
 
         // Render Products with Multiple Images
         document.getElementById('productsTableBody').innerHTML = products.map(p => {
-          const imgs = (p.images && p.images.length) ? p.images : [p.image || '/assets/images/crafts_workshop.jpg'];
-          const thumbs = imgs.map(src => \`<img src="\${src}" class="img-preview-thumb" style="margin-right:4px;">\`).join('');
+          const imgs = getAdminThumbs(p.images, p.image, '/assets/images/crafts_workshop.jpg');
+          const thumbs = imgs.map(src => \`<img src="\${src}" class="img-preview-thumb" style="margin-right:4px;" onerror="this.onerror=null;this.src='/assets/images/crafts_workshop.jpg';">\`).join('');
           return \`
             <tr>
               <td>
@@ -1910,6 +1970,10 @@ app.get('/admin', (req, res) => {
       async function handleAddNews(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
+        if (window._newsUploadedUrls && window._newsUploadedUrls.length) {
+          data.images = window._newsUploadedUrls;
+          data.image = window._newsUploadedUrls[0];
+        }
         try {
           const res = await fetch('/api/news', {
             method: 'POST',
@@ -1920,6 +1984,7 @@ app.get('/admin', (req, res) => {
           if (res.ok && json.ok) {
             alert('✅ Article with pictures published successfully!');
             e.target.reset();
+            window._newsUploadedUrls = [];
             const thumbs = document.getElementById('newsUploadThumbs');
             if (thumbs) thumbs.innerHTML = '';
             const status = document.getElementById('newsUploadStatus');
@@ -1936,6 +2001,10 @@ app.get('/admin', (req, res) => {
       async function handleAddProduct(e) {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.target).entries());
+        if (window._prodUploadedUrls && window._prodUploadedUrls.length) {
+          data.images = window._prodUploadedUrls;
+          data.image = window._prodUploadedUrls[0];
+        }
         try {
           const res = await fetch('/api/products', {
             method: 'POST',
@@ -1946,6 +2015,7 @@ app.get('/admin', (req, res) => {
           if (res.ok && json.ok) {
             alert('✅ Product with pictures added to catalog!');
             e.target.reset();
+            window._prodUploadedUrls = [];
             const thumbs = document.getElementById('prodUploadThumbs');
             if (thumbs) thumbs.innerHTML = '';
             const status = document.getElementById('prodUploadStatus');

@@ -300,7 +300,7 @@
         <div class="prod-thumbs-strip">
           ${imgList.map((img, idx) => `
             <button type="button" class="prod-thumb-btn ${idx === 0 ? 'active' : ''}" 
-                    onclick="switchProductImage(${p.id}, '${img}', this)"
+                    onclick="switchProductImage(${p.id}, ${idx}, this)"
                     title="View photo ${idx + 1}">
               <img src="${img}" alt="${p.title} thumbnail ${idx + 1}" onerror="this.onerror=null;this.src='/assets/images/crafts_workshop.jpg';">
             </button>
@@ -338,14 +338,23 @@
     }).join('');
   }
 
-  function switchProductImage(productId, newSrc, btn) {
+  function switchProductImage(productId, imgIndex, btn) {
+    const p = ALL_PRODUCTS.find(item => item.id === productId);
+    if (!p) return;
+    const normalizeSrc = (src) => {
+      if (!src) return '/assets/images/crafts_workshop.jpg';
+      if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) return src;
+      return src.startsWith('/') ? src : '/' + src;
+    };
+    const rawList = (p.images && Array.isArray(p.images) && p.images.length > 0) ? p.images : [p.image || 'assets/images/crafts_workshop.jpg'];
+    const targetSrc = normalizeSrc(rawList[imgIndex] || rawList[0]);
     const mainImg = document.getElementById(`main-prod-img-${productId}`);
     if (mainImg) {
       mainImg.style.opacity = '0.3';
       setTimeout(() => {
-        mainImg.src = newSrc;
+        mainImg.src = targetSrc;
         mainImg.style.opacity = '1';
-      }, 150);
+      }, 120);
     }
     if (btn && btn.parentElement) {
       btn.parentElement.querySelectorAll('.prod-thumb-btn').forEach(b => b.classList.remove('active'));
