@@ -510,6 +510,50 @@ app.delete('/api/audit-reports/:id', async (req, res) => {
   res.json({ ok: true, message: 'Audit report deleted.' });
 });
 
+app.get('/api/audit-reports/:id/pdf', async (req, res) => {
+  const id = Number(req.params.id);
+  let item = null;
+  try {
+    if (isMongoReady()) item = await AuditReport.findOne({ id }).lean();
+  } catch(e) {}
+  if (!item) {
+    const list = readData('audit_reports.json');
+    item = list.find(a => a.id === id);
+  }
+  if (!item || !item.pdfUrl) return res.status(404).send('PDF document not found');
+
+  if (item.pdfUrl.startsWith('data:')) {
+    const matches = item.pdfUrl.match(/^data:application\/pdf;base64,(.+)$/);
+    const buf = matches ? Buffer.from(matches[1], 'base64') : Buffer.from(item.pdfUrl.split(',')[1] || '', 'base64');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${(item.title || 'audit_report').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf"`);
+    return res.send(buf);
+  }
+  res.redirect(item.pdfUrl);
+});
+
+app.get('/api/newsletters/:id/pdf', async (req, res) => {
+  const id = Number(req.params.id);
+  let item = null;
+  try {
+    if (isMongoReady()) item = await Newsletter.findOne({ id }).lean();
+  } catch(e) {}
+  if (!item) {
+    const list = readData('newsletters.json');
+    item = list.find(n => n.id === id);
+  }
+  if (!item || !item.pdfUrl) return res.status(404).send('PDF newsletter not found');
+
+  if (item.pdfUrl.startsWith('data:')) {
+    const matches = item.pdfUrl.match(/^data:application\/pdf;base64,(.+)$/);
+    const buf = matches ? Buffer.from(matches[1], 'base64') : Buffer.from(item.pdfUrl.split(',')[1] || '', 'base64');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${(item.issueTitle || item.subject || 'newsletter').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf"`);
+    return res.send(buf);
+  }
+  res.redirect(item.pdfUrl);
+});
+
 // 10. Contact Inquiries
 app.get('/api/contacts', async (req, res) => {
   try {

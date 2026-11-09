@@ -669,8 +669,9 @@
       ALL_NEWSLETTERS_DATA = data;
       if (Array.isArray(data) && data.length > 0) {
         grid.innerHTML = data.map(nl => {
+          const pdfHref = (nl.pdfUrl && nl.pdfUrl.startsWith('data:')) ? `/api/newsletters/${nl.id}/pdf` : (nl.pdfUrl || '#');
           const pdfButton = nl.pdfUrl ? `
-            <a href="${nl.pdfUrl}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;color:#EF4444;font-size:0.8rem;font-weight:700;text-decoration:none;">
+            <a href="${pdfHref}" target="_blank" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;color:#EF4444;font-size:0.8rem;font-weight:700;text-decoration:none;">
               <i class="fas fa-file-pdf"></i> Download PDF
             </a>
           ` : '';
@@ -718,7 +719,7 @@
     const pdfLink = document.getElementById('nlModalPdfLink');
     if (nl.pdfUrl) {
       pdfArea.style.display = 'block';
-      pdfLink.href = nl.pdfUrl;
+      pdfLink.href = (nl.pdfUrl && nl.pdfUrl.startsWith('data:')) ? `/api/newsletters/${nl.id}/pdf` : nl.pdfUrl;
     } else {
       pdfArea.style.display = 'none';
     }
