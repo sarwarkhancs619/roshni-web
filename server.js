@@ -445,7 +445,9 @@ app.post('/api/newsletters', async (req, res) => {
     subCount = isMongoReady() ? await Subscriber.countDocuments() : readData('subscribers.json').length;
   } catch(e) {}
   const nlCount = isMongoReady() ? (await Newsletter.countDocuments().catch(() => 0)) : readData('newsletters.json').length;
-  const doc = { id: Date.now(), subject: String(subject).trim(), issueTitle: issueTitle || `Roshni Chronicle #${nlCount + 1}`, sentDate: new Date().toISOString().split('T')[0], previewText: previewText ? String(previewText).trim() : '', content: content ? String(content).trim() : '', pdfUrl: pdfUrl ? String(pdfUrl).trim() : '', sentToCount: subCount, createdAt: new Date() };
+  let cleanPdf = pdfUrl ? String(pdfUrl).trim() : '';
+  if (cleanPdf.startsWith('//')) cleanPdf = cleanPdf.replace(/^\/+/, '/');
+  const doc = { id: Date.now(), subject: String(subject).trim(), issueTitle: issueTitle || `Roshni Chronicle #${nlCount + 1}`, sentDate: new Date().toISOString().split('T')[0], previewText: previewText ? String(previewText).trim() : '', content: content ? String(content).trim() : '', pdfUrl: cleanPdf, sentToCount: subCount, createdAt: new Date() };
   try {
     if (isMongoReady()) {
       const saved = await Newsletter.create(doc);
@@ -476,6 +478,8 @@ app.get('/api/audit-reports', async (req, res) => {
 app.post('/api/audit-reports', async (req, res) => {
   const { title, fiscalYear, auditorName, publishedDate, summary, pdfUrl, fileSize } = req.body;
   if (!title || !pdfUrl) return res.status(400).json({ ok: false, error: 'Title and PDF file URL are required.' });
+  let cleanPdf = String(pdfUrl).trim();
+  if (cleanPdf.startsWith('//')) cleanPdf = cleanPdf.replace(/^\/+/, '/');
   const doc = {
     id: Date.now(),
     title: String(title).trim(),
@@ -483,7 +487,7 @@ app.post('/api/audit-reports', async (req, res) => {
     auditorName: auditorName ? String(auditorName).trim() : 'Independent Chartered Accountants',
     publishedDate: publishedDate || new Date().toISOString().split('T')[0],
     summary: summary ? String(summary).trim() : '',
-    pdfUrl: String(pdfUrl).trim(),
+    pdfUrl: cleanPdf,
     fileSize: fileSize ? String(fileSize).trim() : 'PDF Document',
     createdAt: new Date()
   };
@@ -1640,8 +1644,9 @@ app.get('/admin', (req, res) => {
         statusEl.textContent = '⏳ Uploading PDF (' + file.name + ')...';
         try {
           const url = await uploadFilePromise(file);
-          inputEl.value = '/' + url;
-          statusEl.textContent = '✅ PDF uploaded successfully! (' + file.name + ')';
+          const cleanUrl = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
+          inputEl.value = cleanUrl;
+          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ')!</strong><br><span style="color:#1E40AF;">Now click the blue "Broadcast to Subscribers & Publish to Web" button below to save it.</span>';
         } catch(err) {
           statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
@@ -1654,13 +1659,26 @@ app.get('/admin', (req, res) => {
         const statusEl = document.getElementById('auditPdfStatus');
         const inputEl = document.getElementById('auditPdfInput');
         const sizeEl = document.getElementById('auditPdfSizeInput');
+        const titleInput = document.querySelector('#formAddAuditReport input[name="title"]');
+        const yearInput = document.querySelector('#formAddAuditReport input[name="fiscalYear"]');
+
         statusEl.textContent = '⏳ Uploading PDF Report (' + file.name + ')...';
         try {
           const url = await uploadFilePromise(file);
-          inputEl.value = '/' + url;
+          const cleanUrl = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
+          inputEl.value = cleanUrl;
           const sz = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
           if (sizeEl) sizeEl.value = sz;
-          statusEl.textContent = '✅ PDF Report uploaded! (' + file.name + ' - ' + sz + ')';
+
+          // Auto-fill Title if empty based on file name
+          if (titleInput && !titleInput.value) {
+            titleInput.value = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
+          }
+          if (yearInput && !yearInput.value) {
+            yearInput.value = 'FY ' + new Date().getFullYear();
+          }
+
+          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ' - ' + sz + ')!</strong><br><span style="color:#1E40AF;font-weight:700;">👉 Click the blue "Upload & Publish New Audit Report" button below to save it to the database!</span>';
         } catch(err) {
           statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
