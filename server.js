@@ -2435,16 +2435,23 @@ app.get('/admin', (req, res) => {
           prev.innerHTML = '<img src="' + s.image + '" style="max-height:120px;border-radius:8px;border:1px solid #CBD5E1;">';
         }
         document.getElementById('btnSaveHeroSlide').innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i> Update Slide #' + s.id;
-        window.scrollTo({ top: document.getElementById('heroSlideForm').offsetTop - 100, behavior: 'smooth' });
+        const formEl = document.getElementById('formAddHeroSlide');
+        if (formEl) window.scrollTo({ top: formEl.offsetTop - 100, behavior: 'smooth' });
       }
 
       function resetSlideForm() {
-        document.getElementById('heroSlideForm').reset();
-        document.getElementById('slideEditId').value = '';
-        document.getElementById('slideImageInput').value = '';
-        document.getElementById('slidePhotoPreview').innerHTML = '';
-        document.getElementById('slideUploadStatus').textContent = '';
-        document.getElementById('btnSaveHeroSlide').innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i> Save Slide to Homepage';
+        const formEl = document.getElementById('formAddHeroSlide');
+        if (formEl) formEl.reset();
+        const editId = document.getElementById('slideEditId');
+        if (editId) editId.value = '';
+        const imgInput = document.getElementById('slideImageInput');
+        if (imgInput) imgInput.value = '';
+        const prev = document.getElementById('slidePhotoPreview');
+        if (prev) prev.innerHTML = '';
+        const stat = document.getElementById('slideUploadStatus');
+        if (stat) stat.textContent = '';
+        const btn = document.getElementById('btnSaveHeroSlide');
+        if (btn) btn.innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i> Save Slide to Homepage';
       }
 
       async function handleSlidePhotoUpload(input) {
