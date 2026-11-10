@@ -2456,7 +2456,7 @@ app.get('/admin', (req, res) => {
         statusEl.textContent = 'Compressing & uploading photo...';
 
         try {
-          const compressedDataUri = await compressImageFile(file, 1600, 1000, 0.85);
+          const compressedDataUri = await compressImageClient(file, 1600, 0.85);
           imgInput.value = compressedDataUri;
           previewEl.innerHTML = '<img src="' + compressedDataUri + '" style="max-height:120px;border-radius:8px;border:1px solid #CBD5E1;">';
           statusEl.textContent = '✅ Photo loaded and ready to save!';
