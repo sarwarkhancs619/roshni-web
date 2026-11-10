@@ -190,33 +190,10 @@
   <p>Discover the vibrant life, seasonal festivals, achievements of our special friends, and press coverage of Roshni Association in Lahore. Click any story or event to view full details and photo gallery.</p>
 </section>
 
-<!-- ── Featured Story with Real Village Image ────────────────────── -->
-<section class="section" style="padding-bottom:2rem;">
+<!-- ── Featured Story Section (Dynamic from Database) ────────────────────── -->
+<section id="featuredStorySection" class="section" style="padding-bottom:2rem;display:none;">
   <div class="container">
-    <div class="card" style="padding:2.5rem;background:linear-gradient(135deg, #EFF6FF 0%, #FFF7ED 100%);border:1px solid #BFDBFE;" data-reveal>
-      <div class="grid-2" style="align-items:center;gap:2.5rem;">
-        <div>
-          <span class="news-badge" style="background:#DBEAFE;color:#1E40AF;">Featured Story &bull; Oct 2026</span>
-          <h2 class="serif-heading" style="font-size:2rem;color:#1E3A8A;margin-bottom:0.75rem;">
-            Annual Harvest &amp; Michaelmas Festival Celebrated at Roshni Village
-          </h2>
-          <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
-            Residents of Roshni Village, children of Green Earth School, along with visiting parents and international volunteers gathered to celebrate our annual Autumn Harvest. Fresh whole-grain bread baked in our wood-fired stone oven was shared amidst theater, songs, and lantern walks.
-          </p>
-          <div style="display:flex;align-items:center;gap:1.5rem;font-size:0.85rem;color:#475569;margin-bottom:1.25rem;">
-            <span><i class="far fa-calendar-alt" style="margin-right:4px;"></i> October 10, 2026</span>
-            <span><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i> Roshni Village, Bedian Road</span>
-          </div>
-          <button onclick="openFeaturedModal()" class="btn-gradient" style="padding:0.65rem 1.4rem;border-radius:9999px;font-size:0.85rem;font-weight:700;">
-            <i class="fas fa-expand-arrows-alt" style="margin-right:6px;"></i> Read Full Story &amp; Photos
-          </button>
-        </div>
-        
-        <div style="border-radius:1.5rem;overflow:hidden;box-shadow:0 15px 40px rgba(30,64,175,0.2);border:3px solid #fff;cursor:pointer;" onclick="openFeaturedModal()">
-          <img src="/assets/images/village_community.jpg" alt="Harvest Festival at Roshni Village" style="width:100%;height:300px;object-fit:cover;display:block;">
-        </div>
-      </div>
-    </div>
+    <div id="featuredStoryContainer"></div>
   </div>
 </section>
 
@@ -425,6 +402,43 @@
       ALL_NEWS_DATA = await resNews.json();
       const newsGrid = document.getElementById('dynamicNewsGrid');
       if (newsGrid && ALL_NEWS_DATA.length) {
+        // Render Featured Story from real DB (first article)
+        const featuredSec = document.getElementById('featuredStorySection');
+        const featuredCont = document.getElementById('featuredStoryContainer');
+        if (featuredSec && featuredCont && ALL_NEWS_DATA[0]) {
+          const feat = ALL_NEWS_DATA[0];
+          const featImgs = (feat.images && Array.isArray(feat.images) && feat.images.length > 0) ? feat.images : [feat.image || '/assets/images/village_community.jpg'];
+          featuredCont.innerHTML = `
+            <div class="card" style="padding:2.5rem;background:linear-gradient(135deg, #EFF6FF 0%, #FFF7ED 100%);border:1px solid #BFDBFE;" data-reveal>
+              <div class="grid-2" style="align-items:center;gap:2.5rem;">
+                <div>
+                  <span class="news-badge" style="background:#DBEAFE;color:#1E40AF;">Featured Story &bull; ${feat.date || ''}</span>
+                  <h2 class="serif-heading" style="font-size:2rem;color:#1E3A8A;margin-bottom:0.75rem;">
+                    ${feat.title}
+                  </h2>
+                  <p style="color:#64748B;font-size:0.95rem;line-height:1.8;margin-bottom:1rem;">
+                    ${feat.summary || ''}
+                  </p>
+                  <div style="display:flex;align-items:center;gap:1.5rem;font-size:0.85rem;color:#475569;margin-bottom:1.25rem;">
+                    <span><i class="far fa-calendar-alt" style="margin-right:4px;"></i> ${feat.date || ''}</span>
+                    <span><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i> Roshni Village, Bedian Road</span>
+                  </div>
+                  <button onclick="openArticleModal(${feat.id})" class="btn-gradient" style="padding:0.65rem 1.4rem;border-radius:9999px;font-size:0.85rem;font-weight:700;">
+                    <i class="fas fa-expand-arrows-alt" style="margin-right:6px;"></i> Read Full Story &amp; Photos
+                  </button>
+                </div>
+                
+                <div style="border-radius:1.5rem;overflow:hidden;box-shadow:0 15px 40px rgba(30,64,175,0.2);border:3px solid #fff;cursor:pointer;" onclick="openArticleModal(${feat.id})">
+                  <img src="${featImgs[0]}" alt="${feat.title}" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';" style="width:100%;height:300px;object-fit:cover;display:block;">
+                </div>
+              </div>
+            </div>
+          `;
+          featuredSec.style.display = 'block';
+        } else if (featuredSec) {
+          featuredSec.style.display = 'none';
+        }
+
         newsGrid.innerHTML = ALL_NEWS_DATA.map((item, index) => {
           const normalizeSrc = (src) => {
             if (!src) return '/assets/images/village_community.jpg';

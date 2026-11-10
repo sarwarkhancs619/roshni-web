@@ -74,7 +74,7 @@ const {
   connectDB,
   getLastError,
   Settings, Milestone, Team, News, Event,
-  Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order, AuditReport,
+  Product, Newsletter, Subscriber, Contact, Volunteer, Donation, Order, AuditReport, HeroSlide,
 } = require('./db');
 
 // Ensure database is connected before handling API requests (critical for serverless / Vercel)
@@ -554,6 +554,132 @@ app.get('/api/newsletters/:id/pdf', async (req, res) => {
   res.redirect(item.pdfUrl);
 });
 
+// 9c. Hero Slides CRUD
+const DEFAULT_HERO_SLIDES = [
+  {
+    id: 1,
+    title: 'Roshni Village',
+    tag: '🏡 Roshni Village • Bedian Road Lahore',
+    quote: '"A peaceful family community where adults with special needs live in dignity, self-respect, and creative expression."',
+    image: '/assets/images/village_community.jpg',
+    badge1Val: '35+', badge1Lbl: 'Years of Service',
+    badge2Val: '42', badge2Lbl: 'Residents in Care',
+    badge3Val: '165', badge3Lbl: 'Pupils Enrolled',
+    order: 0
+  },
+  {
+    id: 2,
+    title: 'Green Earth School',
+    tag: '🏫 Green Earth Waldorf School • Free Education',
+    quote: '"Nurturing head, heart, and hands with 100% free Waldorf-inspired schooling for rural children."',
+    image: '/assets/images/green_earth_school.jpg',
+    badge1Val: 'Free', badge1Lbl: 'Tuition & Uniforms',
+    badge2Val: 'Daily', badge2Lbl: 'Organic Meals',
+    badge3Val: 'KG - Grade 8', badge3Lbl: 'Holistic Curriculum',
+    order: 1
+  },
+  {
+    id: 3,
+    title: 'Organic Bakery',
+    tag: '🍞 Traditional Stone-Oven Bakery',
+    quote: '"Baking pure sourdough loaves with local grains, giving special bakers true pride and livelihood."',
+    image: '/assets/images/organic_bakery.jpg',
+    badge1Val: '100%', badge1Lbl: 'Chemical-Free',
+    badge2Val: '24h', badge2Lbl: 'Slow Ferment',
+    badge3Val: 'Stone-Hearth', badge3Lbl: 'Wood-Fired',
+    order: 2
+  },
+  {
+    id: 4,
+    title: 'Organic Farm',
+    tag: '🌾 Biodynamic Farm & Dairy',
+    quote: '"Working in rhythm with the soil, harvesting clean seasonal vegetables, wheat, and dairy."',
+    image: '/assets/images/organic_farm.jpg',
+    badge1Val: 'Bio-Dynamic', badge1Lbl: 'Eco-Agriculture',
+    badge2Val: 'Natural', badge2Lbl: 'Dairy Herd',
+    badge3Val: 'Zero', badge3Lbl: 'Pesticides',
+    order: 3
+  },
+  {
+    id: 5,
+    title: 'Craft Studios',
+    tag: '🧵 Textile Handloom & Woodcraft',
+    quote: '"Preserving timeless artisanal traditions with handwoven cotton, shisham wood, and beeswax candles."',
+    image: '/assets/images/crafts_workshop.jpg',
+    badge1Val: 'Handloom', badge1Lbl: 'Pure Cotton',
+    badge2Val: 'Carpentry', badge2Lbl: 'Solid Shisham',
+    badge3Val: 'Beeswax', badge3Lbl: 'Natural Candles',
+    order: 4
+  }
+];
+
+app.get('/api/hero-slides', async (req, res) => {
+  try {
+    if (isMongoReady()) {
+      let slides = await HeroSlide.find().sort({ order: 1, createdAt: 1 }).lean();
+      if (!slides || !slides.length) {
+        // seed initial slides into DB if empty
+        await HeroSlide.insertMany(DEFAULT_HERO_SLIDES);
+        slides = await HeroSlide.find().sort({ order: 1, createdAt: 1 }).lean();
+      }
+      return res.json(slides);
+    }
+  } catch(e) { console.error('[HeroSlides GET]', e.message); }
+  const list = readData('hero_slides.json', DEFAULT_HERO_SLIDES);
+  res.json(list.length ? list : DEFAULT_HERO_SLIDES);
+});
+
+app.post('/api/hero-slides', async (req, res) => {
+  const { title, tag, quote, image, badge1Val, badge1Lbl, badge2Val, badge2Lbl, badge3Val, badge3Lbl, order } = req.body;
+  if (!title || !image) return res.status(400).json({ ok: false, error: 'Title and image are required.' });
+  const doc = {
+    id: Date.now(),
+    title: String(title).trim(),
+    tag: tag ? String(tag).trim() : '',
+    quote: quote ? String(quote).trim() : '',
+    image: String(image).trim(),
+    badge1Val: badge1Val || '', badge1Lbl: badge1Lbl || '',
+    badge2Val: badge2Val || '', badge2Lbl: badge2Lbl || '',
+    badge3Val: badge3Val || '', badge3Lbl: badge3Lbl || '',
+    order: Number(order) || 0,
+    createdAt: new Date()
+  };
+  try {
+    if (isMongoReady()) {
+      const saved = await HeroSlide.create(doc);
+      return res.status(201).json({ ok: true, data: saved.toObject() });
+    }
+  } catch(e) { console.error('[HeroSlide POST]', e.message); }
+  const list = readData('hero_slides.json', DEFAULT_HERO_SLIDES);
+  list.push(doc);
+  writeData('hero_slides.json', list);
+  res.status(201).json({ ok: true, data: doc });
+});
+
+app.put('/api/hero-slides/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    if (isMongoReady()) {
+      const updated = await HeroSlide.findOneAndUpdate({ id }, { $set: req.body }, { new: true });
+      if (updated) return res.json({ ok: true, data: updated.toObject() });
+    }
+  } catch(e) { console.error('[HeroSlide PUT]', e.message); }
+  let list = readData('hero_slides.json', DEFAULT_HERO_SLIDES);
+  list = list.map(s => s.id === id ? { ...s, ...req.body } : s);
+  writeData('hero_slides.json', list);
+  res.json({ ok: true });
+});
+
+app.delete('/api/hero-slides/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    if (isMongoReady()) await HeroSlide.deleteOne({ id });
+  } catch(e) { console.error('[HeroSlide DELETE]', e.message); }
+  let list = readData('hero_slides.json', DEFAULT_HERO_SLIDES);
+  writeData('hero_slides.json', list.filter(s => s.id !== id));
+  res.json({ ok: true, message: 'Hero slide deleted.' });
+});
+
 // 10. Contact Inquiries
 app.get('/api/contacts', async (req, res) => {
   try {
@@ -833,6 +959,7 @@ app.get('/admin', (req, res) => {
         <button class="admin-tab" onclick="switchTab('team', this)"><i class="fas fa-users-cog"></i> 👥 Board, Staff &amp; Living</button>
         <button class="admin-tab" onclick="switchTab('upload', this)"><i class="fas fa-camera"></i> 📸 Upload Monogram &amp; Pictures</button>
         <button class="admin-tab" onclick="switchTab('figures', this)"><i class="fas fa-chart-line"></i> 📊 Real-Time Figures</button>
+        <button class="admin-tab" onclick="switchTab('slider', this)"><i class="fas fa-images"></i> 🖼️ Home Slider Pics &amp; Text</button>
         <button class="admin-tab" onclick="switchTab('news', this)"><i class="fas fa-newspaper"></i> News (Multi-Photo)</button>
         <button class="admin-tab" onclick="switchTab('products', this)"><i class="fas fa-shopping-bag"></i> Products (Multi-Photo)</button>
         <button class="admin-tab" onclick="switchTab('events', this)"><i class="fas fa-calendar-alt"></i> Events &amp; Festivals</button>
@@ -1098,6 +1225,95 @@ app.get('/admin', (req, res) => {
             <i class="fas fa-save" style="margin-right:6px;"></i> Save Real-Time Figures
           </button>
         </form>
+      </div>
+
+      <!-- TAB: HOME PAGE SLIDER PICTURES & TEXT -->
+      <div id="view-slider" class="admin-card" style="display:none;">
+        <div style="margin-bottom:1.5rem;">
+          <span class="tag-gradient" style="margin-bottom:0.5rem;">Hero Section Customization</span>
+          <h2 class="serif-heading" style="font-size:1.5rem;color:#1E3A8A;margin:0.25rem 0;">Homepage Slider Pictures &amp; Text</h2>
+          <p style="color:#64748B;font-size:0.88rem;margin:0;">Control the pictures, titles, badges, and quotes displayed on the large homepage top slider. Upload photos and customize your messaging directly.</p>
+        </div>
+
+        <!-- Add New Slide Form -->
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:1rem;padding:1.5rem;margin-bottom:2rem;">
+          <h3 style="font-size:1rem;font-weight:700;color:#1E3A8A;margin-bottom:1rem;"><i class="fas fa-plus-circle" style="color:#F97316;"></i> Add / Update Slide</h3>
+          <form id="formAddHeroSlide" onsubmit="handleAddHeroSlide(event)">
+            <input type="hidden" name="slideId" id="slideEditId" value="">
+            <div class="form-grid">
+              <div class="form-group" style="margin:0;">
+                <label>Slide Title *</label>
+                <input type="text" name="title" id="slideTitleInput" required placeholder="e.g. Roshni Village" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Top Tag / Pill</label>
+                <input type="text" name="tag" id="slideTagInput" placeholder="e.g. 🏡 Roshni Village • Bedian Road Lahore" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Order (0, 1, 2...)</label>
+                <input type="number" name="order" id="slideOrderInput" value="0" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:1rem;">
+              <label>Quote / Subtitle Text *</label>
+              <textarea name="quote" id="slideQuoteInput" rows="2" required placeholder="e.g. A peaceful family community where adults with special needs live in dignity..." class="form-control"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top:1rem;">
+              <label>Slide Photo *</label>
+              <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem;">
+                <input type="file" id="slidePhotoFile" accept="image/*" style="display:none;" onchange="handleSlidePhotoUpload(this)">
+                <button type="button" onclick="document.getElementById('slidePhotoFile').click()" class="btn-gradient" style="padding:0.5rem 1.25rem;border-radius:9999px;font-size:0.8rem;font-weight:700;">
+                  <i class="fas fa-camera" style="margin-right:4px;"></i> Choose Photo from Computer / Phone
+                </button>
+                <span id="slideUploadStatus" style="font-size:0.75rem;color:#1E40AF;font-weight:600;"></span>
+              </div>
+              <input type="text" name="image" id="slideImageInput" required placeholder="/assets/images/village_community.jpg or upload above" class="form-control">
+              <div id="slidePhotoPreview" style="margin-top:0.5rem;"></div>
+            </div>
+
+            <div style="margin-top:1rem;background:#fff;border:1px solid #E2E8F0;border-radius:0.75rem;padding:1rem;">
+              <h4 style="font-size:0.85rem;font-weight:700;color:#1E40AF;margin:0 0 0.75rem;"><i class="fas fa-tags"></i> Slide Stat Badges (Optional 3 Highlights at Bottom of Slide)</h4>
+              <div class="form-grid">
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">Badge 1 Value &amp; Label</label>
+                  <input type="text" name="badge1Val" id="slideB1Val" placeholder="35+" class="form-control" style="margin-bottom:4px;">
+                  <input type="text" name="badge1Lbl" id="slideB1Lbl" placeholder="Years of Service" class="form-control">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">Badge 2 Value &amp; Label</label>
+                  <input type="text" name="badge2Val" id="slideB2Val" placeholder="42" class="form-control" style="margin-bottom:4px;">
+                  <input type="text" name="badge2Lbl" id="slideB2Lbl" placeholder="Residents in Care" class="form-control">
+                </div>
+                <div class="form-group" style="margin:0;">
+                  <label style="font-size:0.75rem;">Badge 3 Value &amp; Label</label>
+                  <input type="text" name="badge3Val" id="slideB3Val" placeholder="165" class="form-control" style="margin-bottom:4px;">
+                  <input type="text" name="badge3Lbl" id="slideB3Lbl" placeholder="Pupils Enrolled" class="form-control">
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:1.25rem;display:flex;gap:0.75rem;align-items:center;">
+              <button type="submit" id="btnSaveHeroSlide" class="btn-submit" style="width:auto;padding:0.75rem 2rem;">
+                <i class="fas fa-save" style="margin-right:6px;"></i> Save Slide to Homepage
+              </button>
+              <button type="button" onclick="resetSlideForm()" class="btn-gradient" style="background:#64748B;padding:0.75rem 1.5rem;border-radius:0.75rem;font-size:0.85rem;">
+                Cancel / Reset
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin:1.5rem 0 0.75rem;">Active Homepage Slides</h3>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Photo</th><th>Order</th><th>Title &amp; Tag</th><th>Quote Text</th><th>Badges</th><th>Action</th></tr>
+            </thead>
+            <tbody id="heroSlidesTableBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- TAB 4: NEWS & MEDIA (MULTI-PICTURE) -->
@@ -1489,7 +1705,7 @@ app.get('/admin', (req, res) => {
         currentTab = tab;
         document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
-        const views = ['milestones', 'team', 'upload', 'figures', 'news', 'products', 'events', 'newsletter', 'audit', 'orders', 'volunteers', 'donations', 'contacts'];
+        const views = ['milestones', 'team', 'upload', 'figures', 'slider', 'news', 'products', 'events', 'newsletter', 'audit', 'orders', 'volunteers', 'donations', 'contacts'];
         views.forEach(v => {
           const el = document.getElementById('view-' + v);
           if (el) el.style.display = (v === tab) ? 'block' : 'none';
@@ -1729,7 +1945,7 @@ app.get('/admin', (req, res) => {
       }
 
       async function loadAllData() {
-        const [stats, settings, milestones, team, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers, auditReports] = await Promise.all([
+        const [stats, settings, milestones, team, news, events, products, newsletters, orders, volunteers, donations, contacts, subscribers, auditReports, heroSlides] = await Promise.all([
           fetchJSON('/api/stats'),
           fetchJSON('/api/settings'),
           fetchJSON('/api/milestones'),
@@ -1743,7 +1959,8 @@ app.get('/admin', (req, res) => {
           fetchJSON('/api/donations'),
           fetchJSON('/api/contacts'),
           fetchJSON('/api/subscribers'),
-          fetchJSON('/api/audit-reports')
+          fetchJSON('/api/audit-reports'),
+          fetchJSON('/api/hero-slides')
         ]);
 
         // Populate Real Figures Form
@@ -1824,6 +2041,39 @@ app.get('/admin', (req, res) => {
           if (!list.length) list = [fallback];
           return list;
         };
+
+        // Render Hero Slides
+        const heroSlidesBody = document.getElementById('heroSlidesTableBody');
+        if (heroSlidesBody) {
+          heroSlidesBody.innerHTML = (heroSlides || []).map(s => \`
+            <tr>
+              <td>
+                <img src="\${s.image || '/assets/images/village_community.jpg'}" style="width:70px;height:48px;border-radius:6px;object-fit:cover;border:1px solid #CBD5E1;">
+              </td>
+              <td><span style="font-weight:700;color:#1E40AF;">#\${s.order !== undefined ? s.order : 0}</span></td>
+              <td>
+                <strong>\${escapeHtml(s.title)}</strong><br>
+                <small style="color:#64748B;">\${escapeHtml(s.tag || '')}</small>
+              </td>
+              <td style="max-width:240px;font-size:0.8rem;color:#334155;"><em>\${escapeHtml(s.quote || '')}</em></td>
+              <td style="font-size:0.75rem;">
+                \${s.badge1Val ? \`<div><strong>\${escapeHtml(s.badge1Val)}</strong>: \${escapeHtml(s.badge1Lbl)}</div>\` : ''}
+                \${s.badge2Val ? \`<div><strong>\${escapeHtml(s.badge2Val)}</strong>: \${escapeHtml(s.badge2Lbl)}</div>\` : ''}
+                \${s.badge3Val ? \`<div><strong>\${escapeHtml(s.badge3Val)}</strong>: \${escapeHtml(s.badge3Lbl)}</div>\` : ''}
+              </td>
+              <td>
+                <div style="display:flex;gap:4px;">
+                  <button type="button" onclick="editHeroSlide(\${JSON.stringify(s).replace(/"/g, '&quot;')})" class="btn-gradient" style="padding:0.35rem 0.65rem;font-size:0.75rem;border-radius:6px;">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                  <button type="button" onclick="deleteItem('/api/hero-slides/\${s.id}')" class="btn-del">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          \`).join('') || '<tr><td colspan="6" style="text-align:center;color:#94A3B8;">No slides configured. Add one above!</td></tr>';
+        }
 
         // Render News with Multiple Images
         document.getElementById('newsTableBody').innerHTML = news.map(n => {
@@ -2134,6 +2384,85 @@ app.get('/admin', (req, res) => {
           }
         } catch(err) {
           alert('Network error while broadcasting newsletter: ' + err.message);
+        }
+      }
+
+      async function handleAddHeroSlide(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        if (!data.title || !data.image) {
+          alert('Title and Image are required.');
+          return;
+        }
+        const editId = document.getElementById('slideEditId').value;
+        const url = editId ? ('/api/hero-slides/' + editId) : '/api/hero-slides';
+        const method = editId ? 'PUT' : 'POST';
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const json = await res.json();
+          if (res.ok && json.ok) {
+            alert(editId ? '✅ Slide updated successfully!' : '✅ Slide added to Homepage slider!');
+            resetSlideForm();
+            loadAllData();
+          } else {
+            alert('Failed to save slide: ' + (json.error || 'Server error'));
+          }
+        } catch(err) {
+          alert('Network error while saving slide: ' + err.message);
+        }
+      }
+
+      function editHeroSlide(s) {
+        document.getElementById('slideEditId').value = s.id;
+        document.getElementById('slideTitleInput').value = s.title || '';
+        document.getElementById('slideTagInput').value = s.tag || '';
+        document.getElementById('slideQuoteInput').value = s.quote || '';
+        document.getElementById('slideOrderInput').value = s.order !== undefined ? s.order : 0;
+        document.getElementById('slideImageInput').value = s.image || '';
+        document.getElementById('slideB1Val').value = s.badge1Val || '';
+        document.getElementById('slideB1Lbl').value = s.badge1Lbl || '';
+        document.getElementById('slideB2Val').value = s.badge2Val || '';
+        document.getElementById('slideB2Lbl').value = s.badge2Lbl || '';
+        document.getElementById('slideB3Val').value = s.badge3Val || '';
+        document.getElementById('slideB3Lbl').value = s.badge3Lbl || '';
+
+        const prev = document.getElementById('slidePhotoPreview');
+        if (prev && s.image) {
+          prev.innerHTML = '<img src="' + s.image + '" style="max-height:120px;border-radius:8px;border:1px solid #CBD5E1;">';
+        }
+        document.getElementById('btnSaveHeroSlide').innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i> Update Slide #' + s.id;
+        window.scrollTo({ top: document.getElementById('heroSlideForm').offsetTop - 100, behavior: 'smooth' });
+      }
+
+      function resetSlideForm() {
+        document.getElementById('heroSlideForm').reset();
+        document.getElementById('slideEditId').value = '';
+        document.getElementById('slideImageInput').value = '';
+        document.getElementById('slidePhotoPreview').innerHTML = '';
+        document.getElementById('slideUploadStatus').textContent = '';
+        document.getElementById('btnSaveHeroSlide').innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i> Save Slide to Homepage';
+      }
+
+      async function handleSlidePhotoUpload(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const statusEl = document.getElementById('slideUploadStatus');
+        const imgInput = document.getElementById('slideImageInput');
+        const previewEl = document.getElementById('slidePhotoPreview');
+        statusEl.textContent = 'Compressing & uploading photo...';
+
+        try {
+          const compressedDataUri = await compressImageFile(file, 1600, 1000, 0.85);
+          imgInput.value = compressedDataUri;
+          previewEl.innerHTML = '<img src="' + compressedDataUri + '" style="max-height:120px;border-radius:8px;border:1px solid #CBD5E1;">';
+          statusEl.textContent = '✅ Photo loaded and ready to save!';
+        } catch(err) {
+          console.error(err);
+          statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
       }
 

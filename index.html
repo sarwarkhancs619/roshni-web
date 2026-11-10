@@ -90,12 +90,16 @@
     .hero-slide-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(30, 64, 175, 0.2) 0%, rgba(15, 23, 42, 0.88) 100%);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(15, 23, 42, 0.15) 45%, rgba(15, 23, 42, 0.72) 100%);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 2rem 2.25rem 2.25rem;
       color: #fff;
+    }
+
+    .hero-slide-overlay h3 {
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 1px 2px rgba(0, 0, 0, 0.9);
     }
 
     .hero-slide-nav {
@@ -757,7 +761,77 @@
     // ── HERO PICTURE SLIDER CONTROLLER ────────────────────────────────────
     let currentHeroSlide = 0;
     let heroTimer = null;
-    const totalHeroSlides = 5;
+
+    async function loadDynamicHeroSlides() {
+      const container = document.getElementById('heroPictureSlider');
+      if (!container) return;
+      try {
+        const res = await fetch('/api/hero-slides');
+        const slides = await res.json();
+        if (slides && slides.length) {
+          // Render dynamic slides
+          const slidesHtml = slides.map((s, idx) => `
+            <div class="hero-slide ${idx === 0 ? 'active' : ''}" data-slide="${idx}">
+              <img src="${s.image}" alt="${s.title}" onerror="this.onerror=null;this.src='/assets/images/village_community.jpg';">
+              <div class="hero-slide-overlay">
+                ${s.tag ? `
+                  <div class="tag-gradient" style="align-self:flex-start;background:rgba(255,255,255,0.25);backdrop-filter:blur(6px);color:#fff;border-color:rgba(255,255,255,0.4);margin-bottom:0.5rem;font-size:0.75rem;font-weight:700;">
+                    ${s.tag}
+                  </div>
+                ` : ''}
+                <h3 class="serif-heading" style="font-size:1.35rem;color:#fff;margin-bottom:0.4rem;line-height:1.35;">
+                  ${s.quote ? (s.quote.startsWith('"') ? s.quote : `"${s.quote}"`) : s.title}
+                </h3>
+                ${(s.badge1Val || s.badge2Val || s.badge3Val) ? `
+                  <div class="hero-stat-badge">
+                    ${s.badge1Val ? `
+                      <div style="text-align:center;">
+                        <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">${s.badge1Val}</div>
+                        <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.9;">${s.badge1Lbl || ''}</div>
+                      </div>
+                    ` : ''}
+                    ${s.badge2Val ? `
+                      <div style="text-align:center;border-left:1px solid rgba(255,255,255,0.25);border-right:1px solid rgba(255,255,255,0.25);padding:0 1rem;">
+                        <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">${s.badge2Val}</div>
+                        <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.9;">${s.badge2Lbl || ''}</div>
+                      </div>
+                    ` : ''}
+                    ${s.badge3Val ? `
+                      <div style="text-align:center;">
+                        <div class="hero-stat-val" style="font-size:1.25rem;font-weight:800;">${s.badge3Val}</div>
+                        <div style="font-size:0.65rem;text-transform:uppercase;opacity:0.9;">${s.badge3Lbl || ''}</div>
+                      </div>
+                    ` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `).join('');
+
+          const dotsHtml = `
+            <div class="hero-dots" id="heroDotsContainer">
+              ${slides.map((_, idx) => `<div class="hero-dot ${idx === 0 ? 'active' : ''}" onclick="gotoHeroSlide(${idx})"></div>`).join('')}
+            </div>
+          `;
+
+          const navArrowsHtml = `
+            <div class="hero-slide-nav">
+              <button class="hero-nav-btn" onclick="prevHeroSlide()" aria-label="Previous Slide">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="hero-nav-btn" onclick="nextHeroSlide()" aria-label="Next Slide">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          `;
+
+          container.innerHTML = slidesHtml + dotsHtml + navArrowsHtml;
+          showHeroSlide(0);
+        }
+      } catch (e) {
+        console.warn('Hero slides dynamic fetch notice:', e);
+      }
+    }
 
     function showHeroSlide(index) {
       const slides = document.querySelectorAll('#heroPictureSlider .hero-slide');
@@ -927,6 +1001,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      loadDynamicHeroSlides();
       loadRealTimeStats();
       startHeroTimer();
       loadHomeNewsSlider();

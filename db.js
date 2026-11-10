@@ -193,6 +193,23 @@ const auditReportSchema = new mongoose.Schema({
   createdAt:    { type: Date, default: Date.now },
 });
 
+// ── 14. Hero Slides ────────────────────────────────────────────────────────
+const heroSlideSchema = new mongoose.Schema({
+  ...autoId,
+  title:    { type: String, required: true },
+  tag:      { type: String, default: '' },
+  quote:    { type: String, default: '' },
+  image:    { type: String, required: true },
+  badge1Val:{ type: String, default: '' },
+  badge1Lbl:{ type: String, default: '' },
+  badge2Val:{ type: String, default: '' },
+  badge2Lbl:{ type: String, default: '' },
+  badge3Val:{ type: String, default: '' },
+  badge3Lbl:{ type: String, default: '' },
+  order:    { type: Number, default: 0 },
+  createdAt:{ type: Date, default: Date.now },
+});
+
 // ── Export models ─────────────────────────────────────────────────────────
 const Settings    = mongoose.models.Settings    || mongoose.model('Settings',    settingsSchema);
 const Milestone   = mongoose.models.Milestone   || mongoose.model('Milestone',   milestoneSchema);
@@ -207,6 +224,7 @@ const Volunteer   = mongoose.models.Volunteer   || mongoose.model('Volunteer',  
 const Donation    = mongoose.models.Donation    || mongoose.model('Donation',    donationSchema);
 const Order       = mongoose.models.Order       || mongoose.model('Order',       orderSchema);
 const AuditReport = mongoose.models.AuditReport || mongoose.model('AuditReport', auditReportSchema);
+const HeroSlide   = mongoose.models.HeroSlide   || mongoose.model('HeroSlide',   heroSlideSchema);
 
 module.exports = {
   connectDB,
@@ -224,4 +242,5 @@ module.exports = {
   Donation,
   Order,
   AuditReport,
+  HeroSlide,
 };
