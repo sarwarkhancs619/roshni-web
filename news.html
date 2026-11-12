@@ -241,30 +241,8 @@
       <p class="section-subtitle">Features and documentaries showcasing our unique Camphill model in Pakistan.</p>
     </div>
 
-    <div class="grid-3">
-      <div class="card" style="padding:2rem;" data-reveal>
-        <div style="font-weight:700;color:#1E40AF;font-size:0.85rem;margin-bottom:0.5rem;">DAWN NEWSPAPER FEATURE</div>
-        <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;">
-          "The Green Haven on Bedian Road Where Special Needs Meet Dignity"
-        </h3>
-        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
-          A full-page Sunday magazine profile on how Roshni Association transforms the lives of adults with special needs through community family houses.
-        </p>
-        <span class="badge badge-blue"><i class="fas fa-newspaper"></i> National Press</span>
-      </div>
-
-      <div class="card" style="padding:2rem;" data-reveal>
-        <div style="font-weight:700;color:#1E40AF;font-size:0.85rem;margin-bottom:0.5rem;">INTERNATIONAL CAMPHILL CORRESPONDENCE</div>
-        <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;">
-          "Roshni Lahore: Thirty Years of Life-Sharing in South Asia"
-        </h3>
-        <p style="color:#64748B;font-size:0.85rem;line-height:1.6;margin-bottom:1rem;">
-          An international journal spotlight exploring the adaptation of Steiner Waldorf education and anthroposophical curative care in rural Pakistan.
-        </p>
-        <span class="badge badge-orange"><i class="fas fa-globe"></i> International Journal</span>
-      </div>
-
-      <div class="card" style="padding:2rem;" data-reveal>
+    <div style="display:flex;justify-content:center;">
+      <div class="card" style="padding:2rem;max-width:480px;width:100%;" data-reveal>
         <div style="font-weight:700;color:#1E40AF;font-size:0.85rem;margin-bottom:0.5rem;">DOCUMENTARY SHORT</div>
         <h3 style="font-size:1.1rem;font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;">
           "Hands That Bake Hope: The Roshni Bakery Story"
@@ -611,7 +589,11 @@
     const targetSrc = images[imgIndex] || images[0];
     const mainImg = document.getElementById('modalMainImg');
     if (mainImg && targetSrc) {
-      mainImg.src = targetSrc;
+      mainImg.style.opacity = '0.3';
+      setTimeout(() => {
+        mainImg.src = targetSrc;
+        mainImg.style.opacity = '1';
+      }, 100);
     }
     if (btn && btn.parentElement) {
       btn.parentElement.querySelectorAll('.news-thumb-btn').forEach(b => b.classList.remove('active'));
@@ -654,22 +636,15 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function switchModalImage(src, btn) {
-    const mainImg = document.getElementById('modalMainImg');
-    mainImg.style.opacity = '0.3';
-    setTimeout(() => {
-      mainImg.src = src;
-      mainImg.style.opacity = '1';
-    }, 150);
-    if (btn && btn.parentElement) {
-      btn.parentElement.querySelectorAll('.news-thumb-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-  }
-
   function closeArticleModal() {
     document.getElementById('articleModal').classList.remove('open');
     document.body.style.overflow = '';
+  }
+
+  function handleModalOverlayClick(e) {
+    if (e.target && e.target.id === 'articleModal') {
+      closeArticleModal();
+    }
   }
 
   let ALL_NEWSLETTERS_DATA = [];

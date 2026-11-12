@@ -1906,7 +1906,7 @@ app.get('/admin', (req, res) => {
           const url = await uploadFilePromise(file);
           const cleanUrl = (url.startsWith('data:') || url.startsWith('http') || url.startsWith('/')) ? url : '/' + url;
           inputEl.value = cleanUrl;
-          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ')!</strong><br><span style="color:#1E40AF;">Now click the blue "Broadcast to Subscribers & Publish to Web" button below to save it.</span>';
+          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ')!</strong><br><span style="color:#059669;font-weight:700;">👉 Now click "Broadcast to Subscribers & Publish to Web" to save!</span>';
         } catch(err) {
           statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
@@ -1938,7 +1938,7 @@ app.get('/admin', (req, res) => {
             yearInput.value = 'FY ' + new Date().getFullYear();
           }
 
-          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ' - ' + sz + ')!</strong><br><span style="color:#1E40AF;font-weight:700;">👉 Click the blue "Upload & Publish New Audit Report" button below to save it to the database!</span>';
+          statusEl.innerHTML = '✅ <strong>PDF attached (' + file.name + ' - ' + sz + ')!</strong><br><span style="color:#059669;font-weight:700;">👉 Now click the green "Publish Audit Report to Website" button below to save!</span>';
         } catch(err) {
           statusEl.textContent = '❌ Upload failed: ' + err.message;
         }
@@ -2143,7 +2143,7 @@ app.get('/admin', (req, res) => {
         document.getElementById('tabAuditCount').textContent = auditReports.length;
         document.getElementById('auditReportsTableCount').textContent = auditReports.length;
         document.getElementById('auditReportsTableBody').innerHTML = auditReports.map(ar => {
-          const pdfLink = ar.pdfUrl ? \`<a href="\${ar.pdfUrl}" target="_blank" style="color:#EF4444;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-file-pdf"></i> View / Download PDF (\${escapeHtml(ar.fileSize || 'PDF')})</a>\` : '<span style="color:#94A3B8;">No PDF</span>';
+          const pdfLink = ar.pdfUrl ? \`<a href="/api/audit-reports/\${ar.id}/pdf" target="_blank" style="color:#EF4444;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-file-pdf"></i> View / Download PDF (\${escapeHtml(ar.fileSize || 'PDF')})</a>\` : '<span style="color:#94A3B8;">No PDF</span>';
           return \`
             <tr>
               <td><span class="badge badge-blue"><strong>\${escapeHtml(ar.fiscalYear)}</strong></span></td>
