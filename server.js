@@ -96,6 +96,36 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ── STATIC FILE SERVING (must be early so Vercel serves assets correctly) ──
+const SITE_SLOT_MAP = {
+  monogram: 'roshni_logo.jpg',
+  village: 'village_community.jpg',
+  school: 'green_earth_school.jpg',
+  bakery: 'organic_bakery.jpg',
+  farm: 'organic_farm.jpg',
+  crafts: 'crafts_workshop.jpg'
+};
+const FILENAME_TO_SLOT = Object.fromEntries(Object.entries(SITE_SLOT_MAP).map(([k, v]) => [v, k]));
+
+app.get('/assets/images/:filename', async (req, res, next) => {
+  const slot = FILENAME_TO_SLOT[req.params.filename];
+  if (!slot) return next();
+  try {
+    if (isMongoReady()) {
+      const settings = await Settings.findOne().lean();
+      const dataUri = settings && settings.sitePhotos && settings.sitePhotos[slot];
+      if (dataUri && typeof dataUri === 'string' && dataUri.startsWith('data:')) {
+        const matches = dataUri.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches) {
+          res.set('Content-Type', matches[1]);
+          res.set('Cache-Control', 'no-cache, must-revalidate');
+          return res.send(Buffer.from(matches[2], 'base64'));
+        }
+      }
+    }
+  } catch (e) { console.error('[SitePhoto GET]', e.message); }
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -197,7 +227,7 @@ app.put('/api/settings', async (req, res) => {
 });
 
 // 3. User Photo, Monogram & Newsletter PDF Upload
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', async (req, res) => {
   const { slot, base64Data, filename } = req.body;
   if (!base64Data) {
     return res.status(400).json({ ok: false, error: 'base64Data is required.' });
@@ -208,22 +238,24 @@ app.post('/api/upload', (req, res) => {
   const mime = (matches && matches[1]) ? matches[1] : (filename && filename.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
   const dataUri = matches ? base64Data : `data:${mime};base64,${buffer.toString('base64')}`;
 
-  const slotMap = {
-    monogram: 'roshni_logo.jpg',
-    village: 'village_community.jpg',
-    school: 'green_earth_school.jpg',
-    bakery: 'organic_bakery.jpg',
-    farm: 'organic_farm.jpg',
-    crafts: 'crafts_workshop.jpg'
-  };
+  const slotMap = SITE_SLOT_MAP;
 
   const isPdf = (filename && filename.toLowerCase().endsWith('.pdf')) || (mime === 'application/pdf');
   const cleanName = filename ? path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_') : (isPdf ? `newsletter_${Date.now()}.pdf` : `upload_${Date.now()}.jpg`);
   const targetFilename = (slot && slotMap[slot]) ? slotMap[slot] : cleanName;
-  
-  // On Vercel (or any serverless cloud host), ephemeral /assets/ writes do NOT persist or serve across lambda requests.
-  // Using Data URI for custom uploaded photos guarantees images display 100% reliably everywhere!
-  const isServerless = Boolean(process.env.VERCEL || process.env.NOW_REGION || process.env.AWS_REGION);
+
+  // Persist custom slot photo in MongoDB so it works on Vercel serverless and survives across deployments
+  if (slot && slotMap[slot] && isMongoReady()) {
+    try {
+      await Settings.findOneAndUpdate(
+        {},
+        { $set: { [`sitePhotos.${slot}`]: dataUri } },
+        { upsert: true, new: true }
+      );
+    } catch (e) {
+      console.error('[Upload Slot MongoDB]', e.message);
+    }
+  }
 
   try {
     const destDir = isPdf ? DOCS_DIR : IMAGES_DIR;
@@ -233,8 +265,8 @@ app.post('/api/upload', (req, res) => {
     // Expected on serverless readonly filesystems
   }
 
-  // If slot (e.g. monogram, village) is a known static asset, use static path; otherwise, return dataUri so images persist across all hosting platforms (Vercel serverless lambda)
-  const publicUrl = (slot && slotMap[slot]) ? `/assets/images/${slotMap[slot]}` : dataUri;
+  // Return dataUri so previews and saved records always display the newly uploaded image immediately
+  const publicUrl = dataUri;
   res.json({ ok: true, slot, url: publicUrl, dataUri, filename: targetFilename });
 });
 

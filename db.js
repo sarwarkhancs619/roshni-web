@@ -49,6 +49,7 @@ const settingsSchema = new mongoose.Schema({
   whatsapp:             { type: String, default: '+92 322 4767808' },
   email:                { type: String, default: 'pr@roshni.org.pk' },
   address:              { type: String, default: 'Karbath Soling, Bedian Road, Lahore, Pakistan' },
+  sitePhotos:           { type: mongoose.Schema.Types.Mixed, default: {} },
 });
 
 // ── 2. Milestones ──────────────────────────────────────────────────────────

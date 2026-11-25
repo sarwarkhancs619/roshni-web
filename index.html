@@ -885,13 +885,17 @@
     let newsSliderInterval = null;
     let newsScrollPos = 0;
 
-    async function loadHomeNewsSlider() {
+    async function loadHomeNewsSlider(retryCount = 0) {
       const track = document.getElementById('homeNewsSliderTrack');
       if (!track) return;
       try {
-        const res = await fetch('/api/news');
+        const res = await fetch('/api/news', { cache: 'no-store' });
         const newsItems = await res.json();
         if (!newsItems || newsItems.length === 0) {
+          if (retryCount < 2) {
+            setTimeout(() => loadHomeNewsSlider(retryCount + 1), 1200);
+            return;
+          }
           track.innerHTML = '<p style="padding:2rem;color:#64748B;">No news published yet.</p>';
           return;
         }
