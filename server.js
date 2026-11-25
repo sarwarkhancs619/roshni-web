@@ -102,7 +102,10 @@ const SITE_SLOT_MAP = {
   school: 'green_earth_school.jpg',
   bakery: 'organic_bakery.jpg',
   farm: 'organic_farm.jpg',
-  crafts: 'crafts_workshop.jpg'
+  crafts: 'crafts_workshop.jpg',
+  about: 'about_page.jpg',
+  volunteer: 'volunteer_page.jpg',
+  cbr: 'cbr_program.jpg'
 };
 const FILENAME_TO_SLOT = Object.fromEntries(Object.entries(SITE_SLOT_MAP).map(([k, v]) => [v, k]));
 
@@ -1182,6 +1185,45 @@ app.get('/admin', (req, res) => {
             <input type="file" id="file-crafts" accept="image/*" style="display:none;" onchange="handleFileSelected('crafts', this)">
             <button onclick="document.getElementById('file-crafts').click()" class="btn-gradient" style="padding:0.55rem 1.25rem;border-radius:9999px;font-size:0.8rem;font-weight:700;">
               <i class="fas fa-upload"></i> Upload Crafts Photo
+            </button>
+          </div>
+
+          <!-- Slot 7: About Page -->
+          <div class="upload-slot-card">
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;"><i class="fas fa-info-circle" style="color:#2563EB;"></i> About Page Photo</h4>
+            <p style="font-size:0.75rem;color:#64748B;margin-bottom:1rem;">Main community photo shown on the About Us page.</p>
+            <div style="margin-bottom:1rem;">
+              <img id="preview-about" src="/assets/images/village_community.jpg" style="width:100%;height:110px;border-radius:8px;object-fit:cover;border:1px solid #E2E8F0;display:block;">
+            </div>
+            <input type="file" id="file-about" accept="image/*" style="display:none;" onchange="handleFileSelected('about', this)">
+            <button onclick="document.getElementById('file-about').click()" class="btn-gradient" style="padding:0.55rem 1.25rem;border-radius:9999px;font-size:0.8rem;font-weight:700;">
+              <i class="fas fa-upload"></i> Upload About Photo
+            </button>
+          </div>
+
+          <!-- Slot 8: Volunteer Page -->
+          <div class="upload-slot-card">
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;"><i class="fas fa-hands-helping" style="color:#EA580C;"></i> Volunteer Page Photo</h4>
+            <p style="font-size:0.75rem;color:#64748B;margin-bottom:1rem;">Featured photo shown on the Volunteer With Us page.</p>
+            <div style="margin-bottom:1rem;">
+              <img id="preview-volunteer" src="/assets/images/crafts_workshop.jpg" style="width:100%;height:110px;border-radius:8px;object-fit:cover;border:1px solid #E2E8F0;display:block;">
+            </div>
+            <input type="file" id="file-volunteer" accept="image/*" style="display:none;" onchange="handleFileSelected('volunteer', this)">
+            <button onclick="document.getElementById('file-volunteer').click()" class="btn-gradient" style="padding:0.55rem 1.25rem;border-radius:9999px;font-size:0.8rem;font-weight:700;">
+              <i class="fas fa-upload"></i> Upload Volunteer Photo
+            </button>
+          </div>
+
+          <!-- Slot 9: CBR Program -->
+          <div class="upload-slot-card">
+            <h4 style="font-weight:700;color:#1E3A8A;margin-bottom:0.5rem;"><i class="fas fa-heartbeat" style="color:#0D9488;"></i> CBR Program Photo</h4>
+            <p style="font-size:0.75rem;color:#64748B;margin-bottom:1rem;">Community Based Rehabilitation (CBR) outreach photo.</p>
+            <div style="margin-bottom:1rem;">
+              <img id="preview-cbr" src="/assets/images/village_community.jpg" style="width:100%;height:110px;border-radius:8px;object-fit:cover;border:1px solid #E2E8F0;display:block;">
+            </div>
+            <input type="file" id="file-cbr" accept="image/*" style="display:none;" onchange="handleFileSelected('cbr', this)">
+            <button onclick="document.getElementById('file-cbr').click()" class="btn-gradient" style="padding:0.55rem 1.25rem;border-radius:9999px;font-size:0.8rem;font-weight:700;">
+              <i class="fas fa-upload"></i> Upload CBR Photo
             </button>
           </div>
         </div>

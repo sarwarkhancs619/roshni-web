@@ -175,6 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const settings = await res.json();
       if (!settings || !settings.sitePhotos) return;
       document.querySelectorAll('img').forEach(img => {
+        const dataSlot = img.getAttribute('data-site-photo');
+        if (dataSlot && settings.sitePhotos[dataSlot]) {
+          img.src = settings.sitePhotos[dataSlot];
+          return;
+        }
         const src = img.getAttribute('src') || '';
         for (const [fname, slot] of Object.entries(filenameToSlot)) {
           if (src.endsWith(fname) && settings.sitePhotos[slot]) {
