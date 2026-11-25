@@ -914,7 +914,7 @@ app.post('/api/admin/login', (req, res) => {
   return res.status(401).json({ ok: false, error: 'Incorrect password.' });
 });
 
-app.get('/admin/logout', (req, res) => {
+app.get('/api/admin/logout', (req, res) => {
   res.setHeader('Set-Cookie', 'roshni_admin_auth=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax');
   res.redirect('/admin');
 });
@@ -1044,7 +1044,7 @@ app.get('/admin', (req, res) => {
           <button onclick="loadAllData()" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);padding:0.65rem 1.2rem;border-radius:9999px;font-weight:700;font-size:0.82rem;cursor:pointer;">
             <i class="fas fa-sync-alt"></i> Refresh
           </button>
-          <a href="/admin/logout" style="background:#EF4444;color:#fff;padding:0.65rem 1.25rem;border-radius:9999px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(239,68,68,0.25);">
+          <a href="/api/admin/logout" style="background:#EF4444;color:#fff;padding:0.65rem 1.25rem;border-radius:9999px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(239,68,68,0.25);">
             <i class="fas fa-sign-out-alt"></i> Logout
           </a>
         </div>
