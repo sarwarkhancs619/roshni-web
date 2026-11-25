@@ -168,26 +168,35 @@ document.addEventListener('DOMContentLoaded', () => {
     'organic_farm.jpg': 'farm',
     'crafts_workshop.jpg': 'crafts'
   };
+  function applyMap(sitePhotos) {
+    if (!sitePhotos) return;
+    document.querySelectorAll('img').forEach(img => {
+      const dataSlot = img.getAttribute('data-site-photo');
+      if (dataSlot && sitePhotos[dataSlot]) {
+        if (img.src !== sitePhotos[dataSlot]) img.src = sitePhotos[dataSlot];
+        return;
+      }
+      const src = img.getAttribute('src') || '';
+      for (const [fname, slot] of Object.entries(filenameToSlot)) {
+        if (src.endsWith(fname) && sitePhotos[slot]) {
+          if (img.src !== sitePhotos[slot]) img.src = sitePhotos[slot];
+          break;
+        }
+      }
+    });
+  }
   async function loadAndApply() {
+    try {
+      const cached = localStorage.getItem('roshni_site_photos');
+      if (cached) applyMap(JSON.parse(cached));
+    } catch (e) {}
     try {
       const res = await fetch('/api/settings', { cache: 'no-store' });
       if (!res.ok) return;
       const settings = await res.json();
       if (!settings || !settings.sitePhotos) return;
-      document.querySelectorAll('img').forEach(img => {
-        const dataSlot = img.getAttribute('data-site-photo');
-        if (dataSlot && settings.sitePhotos[dataSlot]) {
-          img.src = settings.sitePhotos[dataSlot];
-          return;
-        }
-        const src = img.getAttribute('src') || '';
-        for (const [fname, slot] of Object.entries(filenameToSlot)) {
-          if (src.endsWith(fname) && settings.sitePhotos[slot]) {
-            img.src = settings.sitePhotos[slot];
-            break;
-          }
-        }
-      });
+      try { localStorage.setItem('roshni_site_photos', JSON.stringify(settings.sitePhotos)); } catch (e) {}
+      applyMap(settings.sitePhotos);
     } catch (e) {}
   }
   if (document.readyState === 'loading') {
