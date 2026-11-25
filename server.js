@@ -2005,6 +2005,14 @@ app.get('/admin', (req, res) => {
         document.getElementById('settingWhatsApp').value = settings.whatsapp || '+92 322 4767808';
         document.getElementById('settingEmail').value = settings.email || 'pr@roshni.org.pk';
 
+        // Update Site Photo Previews from MongoDB
+        if (settings.sitePhotos) {
+          Object.keys(settings.sitePhotos).forEach(slot => {
+            const prev = document.getElementById('preview-' + slot);
+            if (prev && settings.sitePhotos[slot]) prev.src = settings.sitePhotos[slot];
+          });
+        }
+
         // Update real-time overview counts
         document.getElementById('statResidentsCount').textContent = stats.specialResidentsCount;
         document.getElementById('statStudentsCount').textContent = stats.studentsEnrolledCount;

@@ -156,3 +156,38 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollReveal();
   initCounters();
 });
+
+
+// ── Dynamic Site Photos (Monogram & Project/Workshop Photos from MongoDB) ───
+(function applyDynamicSitePhotos() {
+  const filenameToSlot = {
+    'roshni_logo.jpg': 'monogram',
+    'village_community.jpg': 'village',
+    'green_earth_school.jpg': 'school',
+    'organic_bakery.jpg': 'bakery',
+    'organic_farm.jpg': 'farm',
+    'crafts_workshop.jpg': 'crafts'
+  };
+  async function loadAndApply() {
+    try {
+      const res = await fetch('/api/settings', { cache: 'no-store' });
+      if (!res.ok) return;
+      const settings = await res.json();
+      if (!settings || !settings.sitePhotos) return;
+      document.querySelectorAll('img').forEach(img => {
+        const src = img.getAttribute('src') || '';
+        for (const [fname, slot] of Object.entries(filenameToSlot)) {
+          if (src.endsWith(fname) && settings.sitePhotos[slot]) {
+            img.src = settings.sitePhotos[slot];
+            break;
+          }
+        }
+      });
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadAndApply);
+  } else {
+    loadAndApply();
+  }
+})();
