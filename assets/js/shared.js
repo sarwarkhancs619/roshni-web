@@ -18,14 +18,11 @@ function initMobileNav() {
   const btn = document.getElementById('mobileMenuBtn');
   const nav = document.getElementById('mobileNav');
   if (!btn || !nav) return;
-  btn.addEventListener('click', () => {
-    nav.classList.toggle('open');
-    btn.setAttribute('aria-expanded', nav.classList.contains('open'));
-  });
-  // close on outside click
+  // nav.js already binds the click toggle; only bind outside-click close here
   document.addEventListener('click', e => {
     if (!btn.contains(e.target) && !nav.contains(e.target)) {
       nav.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
     }
   });
 }
