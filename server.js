@@ -884,7 +884,92 @@ app.post('/api/newsletter', async (req, res) => {
 });
 
 // ── FULL ADMIN MANAGEMENT DASHBOARD ─────────────────────────────────────────
+const crypto = require('crypto');
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'RoshniAdmin@2026';
+const ADMIN_COOKIE_TOKEN = crypto.createHmac('sha256', ADMIN_PASSWORD + '_roshni_secret').update('roshni-admin').digest('hex');
+
+function parseCookies(req) {
+  const list = {};
+  const rc = req.headers.cookie;
+  if (rc) {
+    rc.split(';').forEach(cookie => {
+      const parts = cookie.split('=');
+      list[parts.shift().trim()] = decodeURIComponent(parts.join('='));
+    });
+  }
+  return list;
+}
+
+function isAdminAuthenticated(req) {
+  const cookies = parseCookies(req);
+  return cookies.roshni_admin_auth === ADMIN_COOKIE_TOKEN;
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body || {};
+  if (password === ADMIN_PASSWORD) {
+    res.setHeader('Set-Cookie', `roshni_admin_auth=${ADMIN_COOKIE_TOKEN}; HttpOnly; Path=/; Max-Age=604800; SameSite=Lax`);
+    return res.json({ ok: true });
+  }
+  return res.status(401).json({ ok: false, error: 'Incorrect password.' });
+});
+
+app.get('/admin/logout', (req, res) => {
+  res.setHeader('Set-Cookie', 'roshni_admin_auth=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax');
+  res.redirect('/admin');
+});
+
 app.get('/admin', (req, res) => {
+  if (!isAdminAuthenticated(req)) {
+    return res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login | Roshni Association</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; font-family:'Plus Jakarta Sans',sans-serif; background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .login-card { background:#fff; border-radius:1.25rem; padding:2.5rem 2rem; width:100%; max-width:380px; box-shadow:0 20px 50px rgba(0,0,0,0.3); text-align:center; }
+    .login-card h1 { margin:0 0 0.4rem; font-size:1.5rem; color:#1E3A8A; font-weight:800; }
+    .login-card p { margin:0 0 1.5rem; color:#64748B; font-size:0.88rem; }
+    .login-card input { width:100%; box-sizing:border-box; padding:0.8rem 1rem; border:1px solid #CBD5E1; border-radius:0.75rem; font-size:0.95rem; margin-bottom:1rem; outline:none; }
+    .login-card input:focus { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,0.15); }
+    .login-card button { width:100%; padding:0.85rem; border:none; border-radius:0.75rem; background:linear-gradient(135deg,#1E40AF,#3B82F6); color:#fff; font-weight:700; font-size:0.95rem; cursor:pointer; }
+    .login-card button:hover { opacity:0.95; }
+    .err { color:#DC2626; font-size:0.82rem; font-weight:600; margin-top:0.75rem; min-height:1.2em; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>Roshni Admin Panel</h1>
+    <p>Enter the administrator password to continue.</p>
+    <form onsubmit="handleLogin(event)">
+      <input type="password" id="adminPwd" placeholder="Admin Password" required autofocus>
+      <button type="submit">Sign In</button>
+    </form>
+    <div class="err" id="loginErr"></div>
+  </div>
+  <script>
+    async function handleLogin(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('loginErr');
+      errEl.textContent = '';
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: document.getElementById('adminPwd').value })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) { window.location.reload(); }
+        else { errEl.textContent = data.error || 'Invalid password'; }
+      } catch (err) { errEl.textContent = 'Network error. Please try again.'; }
+    }
+  </script>
+</body>
+</html>`);
+  }
   const html = `
   <!DOCTYPE html>
   <html lang="en">
