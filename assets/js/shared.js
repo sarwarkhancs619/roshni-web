@@ -48,6 +48,35 @@ function showToast(message, type = 'success') {
 // ── Dynamic API base resolver ────────────────────────────────────────────────
 const API_BASE = '/api';
 
+/**
+ * Fetch an API endpoint with automatic retry for Vercel cold-starts.
+ * Returns the parsed JSON array/object, or null on total failure.
+ * Retries up to `maxRetries` times with `delayMs` between attempts.
+ */
+async function apiFetchWithRetry(endpoint, { maxRetries = 5, delayMs = 2500, emptyIsRetry = true } = {}) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(API_BASE + endpoint, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      // If the response is an empty array and we haven't exhausted retries, treat as cold-start
+      if (emptyIsRetry && Array.isArray(data) && data.length === 0 && attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, delayMs));
+        continue;
+      }
+      return data;
+    } catch (err) {
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, delayMs));
+      } else {
+        console.warn('apiFetchWithRetry failed for', endpoint, err.message);
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
 async function apiPost(endpoint, data) {
   try {
     const res = await fetch(API_BASE + endpoint, {

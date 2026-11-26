@@ -263,13 +263,12 @@
   let cart = [];
 
   async function loadProducts() {
-    try {
-      const res = await fetch('/api/products');
-      ALL_PRODUCTS = await res.json();
-    } catch(e) {
-      console.warn('Using offline fallback for products');
-    }
-    
+    const grid = document.getElementById('productGrid');
+    if (grid) grid.innerHTML = '<p style="padding:2rem;color:#64748B;text-align:center;">Loading products…</p>';
+
+    const data = await apiFetchWithRetry('/products', { maxRetries: 5, delayMs: 2500 });
+    if (data && Array.isArray(data)) ALL_PRODUCTS = data;
+
     // Check url params for category filter
     const urlParams = new URLSearchParams(window.location.search);
     const catParam = urlParams.get('category');

@@ -120,14 +120,12 @@
 async function loadMilestonesTimeline() {
   const container = document.getElementById('milestones-timeline-container');
   if (!container) return;
-  try {
-    const res = await fetch('/api/milestones');
-    const milestones = await res.json();
-    if (!milestones || milestones.length === 0) {
-      container.innerHTML = '<p style="text-align:center;color:#64748B;">Milestones will be published shortly.</p>';
-      return;
-    }
-    container.innerHTML = milestones.map(m => `
+  const milestones = await apiFetchWithRetry('/milestones', { maxRetries: 5, delayMs: 2500 });
+  if (!milestones || milestones.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#64748B;">Milestones will be published shortly.</p>';
+    return;
+  }
+  container.innerHTML = milestones.map(m => `
       <div class="timeline-item" style="position:relative;">
         <div class="timeline-dot" style="position:absolute;left:-2.4rem;top:0.25rem;width:14px;height:14px;background:#F97316;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 3px #1E40AF;"></div>
         <div class="timeline-year" style="display:inline-block;background:linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);color:#fff;font-weight:800;font-size:0.82rem;padding:0.2rem 0.75rem;border-radius:9999px;margin-bottom:0.5rem;letter-spacing:0.04em;">${m.year}</div>
@@ -135,9 +133,6 @@ async function loadMilestonesTimeline() {
         <p style="color:#64748B;font-size:0.89rem;line-height:1.7;margin:0;">${m.description}</p>
       </div>
     `).join('');
-  } catch(e) {
-    console.error('Failed to load milestones:', e);
-  }
 }
 document.addEventListener('DOMContentLoaded', loadMilestonesTimeline);
 </script>
@@ -217,13 +212,9 @@ let allTeamMembers = [];
 async function loadTeamProfiles() {
   const container = document.getElementById('teamProfilesContainer');
   if (!container) return;
-  try {
-    const res = await fetch('/api/team');
-    allTeamMembers = await res.json();
-    renderTeamCards('all');
-  } catch(e) {
-    console.error('Failed to load team:', e);
-  }
+  const data = await apiFetchWithRetry('/team', { maxRetries: 5, delayMs: 2500 });
+  allTeamMembers = data || [];
+  renderTeamCards('all');
 }
 
 function renderTeamCards(category) {
@@ -267,13 +258,9 @@ function renderTeamCards(category) {
 let allAuditReports = [];
 
 async function loadAuditReports() {
-  try {
-    const res = await fetch('/api/audit-reports');
-    allAuditReports = await res.json();
-    renderAuditReportsCards();
-  } catch(e) {
-    console.error('Failed to load audit reports:', e);
-  }
+  const data = await apiFetchWithRetry('/audit-reports', { maxRetries: 5, delayMs: 2500, emptyIsRetry: false });
+  allAuditReports = data || [];
+  renderAuditReportsCards();
 }
 
 function renderAuditReportsCards() {

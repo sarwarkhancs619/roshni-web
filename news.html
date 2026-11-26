@@ -374,11 +374,10 @@
   let ALL_EVENTS_DATA = [];
 
   async function loadDynamicContent() {
-    // 1. Fetch News
-    try {
-      const resNews = await fetch('/api/news');
-      ALL_NEWS_DATA = await resNews.json();
-      const newsGrid = document.getElementById('dynamicNewsGrid');
+    // 1. Fetch News with cold-start retry
+    const newsData = await apiFetchWithRetry('/news', { maxRetries: 5, delayMs: 2500 });
+    ALL_NEWS_DATA = newsData || [];
+    const newsGrid = document.getElementById('dynamicNewsGrid');
       if (newsGrid && ALL_NEWS_DATA.length) {
         // Render Featured Story from real DB (first article)
         const featuredSec = document.getElementById('featuredStorySection');
@@ -473,9 +472,6 @@
       } else if (newsGrid) {
         newsGrid.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748B;grid-column:1/-1;">No news stories published yet.</div>';
       }
-    } catch(err) {
-      console.warn('News fallback:', err);
-    }
 
     // Auto-open article modal if URL has hash (e.g., news.html#article-12345)
     if (window.location.hash && window.location.hash.startsWith('#article-')) {
@@ -490,11 +486,10 @@
     }
 
     // 2. Fetch Events
-    try {
-      const resEvents = await fetch('/api/events');
-      ALL_EVENTS_DATA = await resEvents.json();
-      const eventsGrid = document.getElementById('dynamicEventsGrid');
-      if (eventsGrid && ALL_EVENTS_DATA.length) {
+    const eventsData = await apiFetchWithRetry('/events', { maxRetries: 5, delayMs: 2500 });
+    ALL_EVENTS_DATA = eventsData || [];
+    const eventsGrid = document.getElementById('dynamicEventsGrid');
+    if (eventsGrid && ALL_EVENTS_DATA.length) {
         eventsGrid.innerHTML = ALL_EVENTS_DATA.map(ev => `
           <div class="event-card" onclick="openEventModal(${ev.id})" data-reveal>
             <div style="display:flex;justify-content:space-between;align-items:start;">
@@ -513,9 +508,6 @@
           </div>
         `).join('');
       }
-    } catch(err) {
-      console.warn('Events fallback:', err);
-    }
   }
 
   function switchNewsImage(newsId, imgIndex, btn, event) {
