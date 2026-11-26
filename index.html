@@ -889,8 +889,8 @@
         const res = await fetch('/api/news', { cache: 'no-store' });
         const newsItems = await res.json();
         if (!newsItems || newsItems.length === 0) {
-          if (retryCount < 2) {
-            setTimeout(() => loadHomeNewsSlider(retryCount + 1), 1200);
+          if (retryCount < 5) {
+            setTimeout(() => loadHomeNewsSlider(retryCount + 1), 2500);
             return;
           }
           track.innerHTML = '<p style="padding:2rem;color:#64748B;">No news published yet.</p>';

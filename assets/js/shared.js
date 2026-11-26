@@ -46,9 +46,7 @@ function showToast(message, type = 'success') {
 }
 
 // ── Dynamic API base resolver ────────────────────────────────────────────────
-const API_BASE = (window.location.protocol.startsWith('http') && window.location.port === '3001')
-  ? '/api'
-  : 'http://localhost:3001/api';
+const API_BASE = '/api';
 
 async function apiPost(endpoint, data) {
   try {
